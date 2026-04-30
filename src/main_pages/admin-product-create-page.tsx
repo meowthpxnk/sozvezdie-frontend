@@ -1000,7 +1000,11 @@ export const AdminProductCreatePage = ({
     const previewTitle = form.name.trim() || "Товар без названия";
     const previewDescription = form.description.trim() || "Добавьте описание, чтобы покупатель лучше понял преимущества товара.";
     const previewPrice = Number.isFinite(Number(form.price)) && Number(form.price) > 0 ? `${Math.round(Number(form.price))} ₽` : "Цена не указана";
-    const previewImage = previewImages[confirmPreviewImageIndex] ?? form.images.find((image) => image.id === form.coverImageId)?.url ?? previewImages[0] ?? "https://picsum.photos/id/1011/720/720";
+    const previewImage =
+        previewImages[confirmPreviewImageIndex] ??
+        form.images.find((image) => image.id === form.coverImageId)?.url ??
+        previewImages[0] ??
+        "https://loremflickr.com/720/720/product?lock=801";
     const confirmThumbWidthPercent = Math.min(100, (confirmScrollMetrics.clientWidth / confirmScrollMetrics.scrollWidth) * 100);
     const confirmMaxScrollLeft = Math.max(0, confirmScrollMetrics.scrollWidth - confirmScrollMetrics.clientWidth);
     const confirmHasHorizontalOverflow = confirmMaxScrollLeft > 0;
