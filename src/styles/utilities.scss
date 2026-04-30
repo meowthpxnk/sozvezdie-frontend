@@ -1,0 +1,159 @@
+::placeholder {
+    color: var(--placeholder-color);
+}
+
+.fill {
+    height: 100%;
+    width: 100%;
+}
+.fill-w {
+    width: 100%;
+}
+.fill-h {
+    height: 100%;
+}
+
+.flex {
+    display: flex;
+}
+.flex-r {
+    display: flex;
+    flex-direction: row;
+}
+.flex-c {
+    display: flex;
+    flex-direction: column;
+}
+
+.aic {
+    align-items: center;
+}
+
+.jcc {
+    justify-content: center;
+}
+
+.jcsb {
+    justify-content: space-between;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid {
+    display: grid;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.indent-box {
+    padding: var(--indentation);
+    gap: var(--indentation);
+}
+
+.indent-item {
+    padding: var(--indentation);
+}
+
+.indent-list {
+    gap: var(--indentation);
+}
+
+.rounded {
+    border-radius: var(--info-box-border-radius);
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.info-box {
+    box-shadow: var(--info-box-shadow);
+    background-color: var(--info-box-color);
+    border-radius: var(--info-box-border-radius);
+}
+
+.item-box {
+    border-radius: var(--item-box-border-radius);
+}
+
+.fill-page {
+    height: 100svh;
+}
+
+.scrollable {
+    scrollbar-width: auto;
+    &::-webkit-scrollbar {
+        // width: 6px; /* ширина вертикального скролла */
+        width: 12px;
+
+        // height: 8px; /* высота горизонтального */
+        // padding: 10px;
+        // margin: 10px;
+    }
+    &::-webkit-scrollbar-track {
+        // background: var(--scrollbar-bg-color); /* Цвет фона */
+        border-radius: 9999px;
+        // margin: 10px;
+        padding: 4px;
+        // box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        // border-radius: 10px;
+        // border: red 4px solid transparent;
+        // width: 10px;
+        margin: 4px;
+        border: 4px solid transparent;
+        // background: transparent;
+        margin-left: 5px;
+        // padding: 10px;
+
+        box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.03);
+        border: solid 4px transparent;
+
+        // background: transparent;
+        // position: relative;
+
+        // &::before {
+        //     content: "";
+        //     position: absolute;
+        //     top: 0;
+        //     bottom: 0;
+        //     left: 3px; /* Двигаем ползунок вправо (отступ слева) */
+        //     right: 3px; /* Двигаем ползунок влево (отступ справа) */
+        //     background: #f0f0f0; /* Цвет трека */
+        //     border-radius: 10px;
+        // }
+    }
+    // &::-webkit-scrollbar-track::before {
+    //     content: "";
+    //     position: absolute;
+    //     top: 0;
+    //     bottom: 0;
+    //     left: 3px; /* Двигаем ползунок вправо (отступ слева) */
+    //     right: 3px; /* Двигаем ползунок влево (отступ справа) */
+    //     background: red; /* Цвет трека */
+    //     border-radius: 10px;
+    // }
+
+    &::-webkit-scrollbar-thumb {
+        // background: var(--scrollbar-cursor-color); /* Цвет ползунка */
+        border-radius: 9999px;
+        // padding: 10px;
+        // margin: 10px;
+        box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.1);
+        border: 4px solid transparent;
+        width: 2px;
+        margin: 2px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.3);
+        // background: var(--scrollbar-hover-color);
+    }
+
+    // display: none;
+    overflow: auto;
+}

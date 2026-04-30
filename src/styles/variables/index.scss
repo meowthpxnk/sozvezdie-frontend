@@ -1,0 +1,17 @@
+@import "./main-colors.scss", "./text-boxes.scss", "./themes";
+
+:root {
+    --error-color: #ff6262;
+    --error-color-lighter: #ff6f6f;
+    --error-color-darker: #d65454;
+    --color-reverse: #fff;
+
+    --info-box-shadow: rgba(99, 99, 99, 0) 0px 2px 8px 0px;
+    --fixed-shadow: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    --indentation: 20px;
+    --info-box-border-radius: 14px;
+
+    --item-box-border-radius: 6px;
+
+    --small-actions-border-radius: 10px;
+}

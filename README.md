@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Созвездие Frontend
 
-## Getting Started
+Frontend-приложение маркетплейса на `Next.js` + `TypeScript` + `styled-components`.
 
-First, run the development server:
+## Запуск
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Открыть: `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Текущий дизайн-контекст (покупательский блок)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+В проекте реализован единый пользовательский интерфейс для сценариев покупателя:
 
-## Learn More
+- Главная страница (`app/page.tsx`) с баннерами, витринами товаров и блоком авторов.
+- Каталог товаров (`app/products/page.tsx`) с поиском, сортировкой и фильтром.
+- Страницы авторов (`app/authors/page.tsx`, `app/authors/[id]/page.tsx`).
+- Карточка товара (`app/product/[id]/page.tsx`).
+- Избранное (`app/favorites/page.tsx`).
+- Корзина (`app/cart/page.tsx`) с управлением количеством и проверкой остатков.
+- Оформление заказа (`app/checkout/page.tsx`) с доставкой, оплатой и итоговым блоком.
+- Заказы и архив (`app/orders/page.tsx`, `app/orders/archive/page.tsx`).
+- Профиль (`app/profile/page.tsx`) и экран авторизации (`app/auth/page.tsx`).
 
-To learn more about Next.js, take a look at the following resources:
+### Визуальные и UX-принципы
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Базовый стиль: светлые карточки на нейтральном фоне, акцентный синий (`#4f83e3`), скругления 8-14px.
+- Общий паттерн страниц: фиксированный верхний `Header` + карточные секции контента.
+- Подход к UI: минималистичные контролы, единый ритм отступов, понятные состояния `hover/focus/active/disabled`.
+- Данные пока моковые (`src/shared/mocks/*`), состояние пользовательских действий хранится через `useCatalogStorage`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Зафиксированный статус по блокам
 
-## Deploy on Vercel
+### Покупательский блок
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Считается **готовым для текущего этапа** и замороженным по объему работ.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Это означает, что в следующем контексте:
+
+- не меняем существующие buyer-экраны без отдельного запроса;
+- не расширяем покупательский UX новыми фичами;
+- используем текущую реализацию как референс визуальной системы.
+
+### Следующий этап разработки
+
+Фокус разработки переносится на **админку**:
+
+- интерфейс для **модератора**;
+- интерфейс для **продавцов**.
+
+Новые изменения и дизайн-решения приоритетно вносятся в административный контур.

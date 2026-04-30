@@ -1,0 +1,33 @@
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-color: #e1e7ed;
+        --color: #000;
+
+        --dropdown-menu-color: #e8e8e8;
+
+        --field-input-color: #afb2bd;
+
+        --info-box-color: #ffffff;
+        --info-box-color-lighter: #eef0f2;
+
+        --placeholder-color: #6c6c6c;
+        --placeholder-color-reverse: #f4f4f4;
+        --disabled-color: #878787;
+
+        --field-bg-color: #eceff3;
+        --field-bg-color-light: #eceff3;
+
+        --title-color: #393c48;
+        --title-color-reverse: #e0e0e0;
+
+        --dash-color: #d5deee;
+        --dash-popup-color: #afb2bd;
+
+        --cb-color: #b3c1ce;
+        --cb-hover-color: #9ca6b0;
+
+        --scrollbar-bg-color: #f4f4f4;
+        --scrollbar-cursor-color: #6c6c6c;
+        --scrollbar-hover-color: #393c48;
+    }
+}
