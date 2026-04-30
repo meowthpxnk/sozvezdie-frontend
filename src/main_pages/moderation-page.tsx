@@ -431,7 +431,7 @@ export const ModerationPage = () => {
                             {openedProposal.type === "create_product" || openedProposal.type === "update_product" ? (
                                 <>
                                     <ProductPreviewImage
-                                        src={openedProposal.previewImageUrl ?? "https://loremflickr.com/1200/900/handmade?lock=501"}
+                                        src={openedProposal.previewImageUrl ?? "https://placeholdpicsum.dev/photo/1200/900"}
                                         alt={openedProposal.title}
                                     />
                                     <ProductPreviewPrice>{getChangeValue(openedProposal.changes, "Цена", "after")}</ProductPreviewPrice>
@@ -443,11 +443,11 @@ export const ModerationPage = () => {
                             ) : (
                                 <BrandPreviewBanner
                                     style={{
-                                        backgroundImage: `linear-gradient(135deg, rgba(18, 19, 23, 0.9) 0%, rgba(47, 95, 203, 0.78) 100%), url(${openedProposal.previewBannerUrl ?? "https://loremflickr.com/1400/700/design?lock=601"})`,
+                                        backgroundImage: `linear-gradient(135deg, rgba(18, 19, 23, 0.9) 0%, rgba(47, 95, 203, 0.78) 100%), url(${openedProposal.previewBannerUrl ?? "https://placeholdpicsum.dev/photo/1400/700"})`,
                                     }}
                                 >
                                     <BrandPreviewAvatar
-                                        src={openedProposal.previewAvatarUrl ?? "https://loremflickr.com/300/300/face?lock=701"}
+                                        src={openedProposal.previewAvatarUrl ?? "https://placeholdpicsum.dev/photo/300/300"}
                                         alt="Аватар"
                                     />
                                     <BrandPreviewMeta>

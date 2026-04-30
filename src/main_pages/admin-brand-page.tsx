@@ -448,7 +448,7 @@ export const AdminBrandPage = () => {
     const previewDescription =
         form.brandDescription || "Добавьте описание бренда, чтобы оно отображалось в баннере для покупателей.";
     const avatarFallback = previewTitle.slice(0, 1).toUpperCase();
-    const previewBanner = form.banner || "https://loremflickr.com/1280/500/art?lock=301";
+    const previewBanner = form.banner || "https://placeholdpicsum.dev/photo/1280/500";
     const [isPageDragActive, setPageDragActive] = useState(false);
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
     const pageDragCounterRef = useRef(0);
