@@ -1004,7 +1004,7 @@ export const AdminProductCreatePage = ({
         previewImages[confirmPreviewImageIndex] ??
         form.images.find((image) => image.id === form.coverImageId)?.url ??
         previewImages[0] ??
-        "https://placeholdpicsum.dev/photo/720/720";
+        "https://placeholdpicsum.dev/photo/720/720?seed=admin-product-preview";
     const confirmThumbWidthPercent = Math.min(100, (confirmScrollMetrics.clientWidth / confirmScrollMetrics.scrollWidth) * 100);
     const confirmMaxScrollLeft = Math.max(0, confirmScrollMetrics.scrollWidth - confirmScrollMetrics.clientWidth);
     const confirmHasHorizontalOverflow = confirmMaxScrollLeft > 0;

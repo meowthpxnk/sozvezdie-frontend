@@ -172,7 +172,7 @@ export const AuthorPage = ({ authorId }: AuthorPageProps) => {
     const authorDescription =
         selectedAuthor?.description ??
         `${authorName} - автор коллекции с уникальными товарами. Здесь собраны его работы и последние новинки бренда.`;
-    const authorBannerImage = selectedAuthor?.bannerImageSrc ?? "https://placeholdpicsum.dev/photo/1280/500";
+    const authorBannerImage = selectedAuthor?.bannerImageSrc ?? "https://placeholdpicsum.dev/photo/1280/500?seed=author-fallback-banner";
 
     return (
         <div>
