@@ -33,8 +33,8 @@ export const PRODUCTS_LIST: ProductMock[] = [
         imageSrc: "https://ghostshelf.shop/api/uploads/products/photo1/29f0a7ba-2641-43d0-b277-12a2b41d9742/default.jpg?v=1769862262215",
         images: [
             "https://ghostshelf.shop/api/uploads/products/photo1/29f0a7ba-2641-43d0-b277-12a2b41d9742/default.jpg?v=1769862262215",
-            "https://picsum.photos/id/1018/800/800",
-            "https://picsum.photos/id/1025/800/800"
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo"
         ],
         priceText: "300 ₽",
         stockCount: 24,
@@ -43,11 +43,11 @@ export const PRODUCTS_LIST: ProductMock[] = [
     },
     {
         id: "2",
-        imageSrc: "https://picsum.photos/id/1035/800/800",
+        imageSrc: "https://placehold.co/800x800?text=Mock+Photo",
         images: [
-            "https://picsum.photos/id/1035/800/800",
-            "https://picsum.photos/id/1041/800/800",
-            "https://picsum.photos/id/1067/800/800"
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo"
         ],
         priceText: "300 ₽",
         stockCount: 15,
@@ -59,8 +59,8 @@ export const PRODUCTS_LIST: ProductMock[] = [
         imageSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPIS_MT5gzSXgWzQQalTiDsxS2VCRIwpkBlQ&s",
         images: [
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPIS_MT5gzSXgWzQQalTiDsxS2VCRIwpkBlQ&s",
-            "https://picsum.photos/id/1050/800/800",
-            "https://picsum.photos/id/1074/800/800"
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo"
         ],
         priceText: "300 ₽",
         stockCount: 3,
@@ -72,8 +72,8 @@ export const PRODUCTS_LIST: ProductMock[] = [
         imageSrc: "https://preview.redd.it/some-of-my-favourite-bird-images-from-the-last-12-months-v0-xeq2o4k737se1.jpg?width=640&crop=smart&auto=webp&s=20e34f50040ae8a8520d257ec8116d64f095fc02",
         images: [
             "https://preview.redd.it/some-of-my-favourite-bird-images-from-the-last-12-months-v0-xeq2o4k737se1.jpg?width=640&crop=smart&auto=webp&s=20e34f50040ae8a8520d257ec8116d64f095fc02",
-            "https://picsum.photos/id/1084/800/800",
-            "https://picsum.photos/id/1080/800/800"
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo"
         ],
         priceText: "300 ₽",
         stockCount: 42,
@@ -96,13 +96,13 @@ export const PRODUCTS_LIST: ProductMock[] = [
         imageSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YYh5Fk1u9VsWWr1MhkyQeOzeNbtnnMO96g&s",
         images: [
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YYh5Fk1u9VsWWr1MhkyQeOzeNbtnnMO96g&s",
-            "https://picsum.photos/id/110/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
         ],
         priceText: "300 ₽",
         stockCount: 30,
@@ -114,13 +114,13 @@ export const PRODUCTS_LIST: ProductMock[] = [
         imageSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YYh5Fk1u9VsWWr1MhkyQeOzeNbtnnMO96g&s",
         images: [
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YYh5Fk1u9VsWWr1MhkyQeOzeNbtnnMO96g&s",
-            "https://picsum.photos/id/110/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
-            "https://picsum.photos/id/111/800/800",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
+            "https://placehold.co/800x800?text=Mock+Photo",
         ],
         priceText: "300 ₽",
         stockCount: 6,
@@ -134,8 +134,8 @@ export const AUTHORS: AuthorMock[] = [
     {
         id: "1",
         name: "KERE",
-        avatarImageSrc: "https://picsum.photos/id/1005/200/200",
-        bannerImageSrc: "https://picsum.photos/id/1062/1280/500",
+        avatarImageSrc: "https://placehold.co/200x200?text=Mock+Photo",
+        bannerImageSrc: "https://placehold.co/1280x500?text=Mock+Photo",
         description:
             "KERE создает яркие аксессуары и небольшие предметы декора, где смешивает графичные формы, смелые цвета и городские мотивы.",
     },
@@ -150,8 +150,8 @@ export const AUTHORS: AuthorMock[] = [
     {
         id: "3",
         name: "KERES",
-        avatarImageSrc: "https://picsum.photos/id/1074/200/200",
-        bannerImageSrc: "https://picsum.photos/id/1039/1280/500",
+        avatarImageSrc: "https://placehold.co/200x200?text=Mock+Photo",
+        bannerImageSrc: "https://placehold.co/1280x500?text=Mock+Photo",
         description:
             "KERES развивает экспериментальное направление бренда: ограниченные серии, необычные материалы и акцент на деталях ручной работы.",
     },
@@ -173,21 +173,21 @@ export const AUTHORS_WITH_PRODUCTS: AuthorMock[] = AUTHORS.filter((author) =>
 export const BANNERS: BannerMock[] = [
     {
         id: "banner-1",
-        imageSrc: "https://picsum.photos/id/1015/1280/560",
+        imageSrc: "https://placehold.co/1280x560?text=Mock+Photo",
         imageAlt: "Промо-баннер весенней коллекции",
         href: "/products",
         titleText: "Весенняя коллекция — скидки до 30%",
     },
     {
         id: "banner-2",
-        imageSrc: "https://picsum.photos/id/1043/1280/560",
+        imageSrc: "https://placehold.co/1280x560?text=Mock+Photo",
         imageAlt: "Промо-баннер новых поступлений",
         href: "/authors",
         titleText: "Новые авторы и свежие работы",
     },
     {
         id: "banner-3",
-        imageSrc: "https://picsum.photos/id/1060/1280/560",
+        imageSrc: "https://placehold.co/1280x560?text=Mock+Photo",
         imageAlt: "Промо-баннер сезонной подборки",
         href: "/favorites",
         titleText: "Подборка недели в избранном",

@@ -4,12 +4,11 @@ import styled from "styled-components";
 import { Heart } from "lucide-react";
 import { useSellerData } from "@/src/shared/lib/use-seller-data";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
-import Link from "next/link";
 import type { MouseEvent } from "react";
 import { useCatalogStorage } from "@/src/shared/lib/catalog-storage";
 import { useRouter } from "next/navigation";
 
-const ProductCardWrapper = styled(Link)`
+const ProductCardWrapper = styled.article`
     background-color: #fff;
     border-radius: 14px;
     padding: 10px;
@@ -217,8 +216,22 @@ export const ProductCard = ({
         router.push(`/authors/${selectedAuthor.id}`);
     };
 
+    const onProductOpen = () => {
+        router.push(`/product/${id}`);
+    };
+
     return (
-        <ProductCardWrapper href={`/product/${id}`}>
+        <ProductCardWrapper
+            role="link"
+            tabIndex={0}
+            onClick={onProductOpen}
+            onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onProductOpen();
+                }
+            }}
+        >
             <ProductImageContainerWrapper>
                 <img src={imageSrc ?? "none"} alt={imageAlt} />
             </ProductImageContainerWrapper>
