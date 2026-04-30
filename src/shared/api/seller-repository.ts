@@ -73,7 +73,7 @@ class LocalSellerRepository implements SellerRepository {
                 ? {
                     ...product,
                     ...payload,
-                    moderationStatus: "pending",
+                    moderationStatus: "pending" as const,
                     moderationComment: "",
                     updatedAt: nowIso(),
                 }
@@ -109,4 +109,3 @@ export const getSellerRepository = (): SellerRepository => {
     }
     return repository;
 };
-
