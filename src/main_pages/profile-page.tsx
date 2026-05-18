@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import { FormEvent, useState } from "react";
 import { KeyRound, LogOut, Mail, Phone, User } from "lucide-react";
-import { Header } from "@/src/main_pages/headder";
+import { Header } from "@widgets/Header/ui/Header";
 
 const MainWrapper = styled.div`
     padding: 20px;
@@ -193,9 +193,9 @@ export const ProfilePage = () => {
         event.preventDefault();
     };
 
-    const onLogout = () => {};
+    const onLogout = () => { };
 
-    const onChangePassword = () => {};
+    const onChangePassword = () => { };
 
     return (
         <>

@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import Link from "next/link";
 import { Archive, ClipboardList } from "lucide-react";
-import { Header } from "@/src/main_pages/headder";
+import { Header } from "@widgets/Header/ui/Header";
 import {
     ACTIVE_ORDERS,
     ARCHIVED_ORDERS,

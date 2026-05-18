@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Fragment } from "react";
 import styled from "styled-components";
 import { Check, CircleAlert, Clock3, Eye, X } from "lucide-react";
-import { AdminShell } from "@/src/main_pages/admin-shell";
+import { SetAdminChrome } from "@widgets/AdminShell";
 import { MODERATION_ACTION_LABELS, MODERATION_PROPOSALS } from "@/src/shared/mocks/moderation-feed";
 import type { ModerationStatus } from "@/src/shared/types/seller";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
@@ -267,17 +267,17 @@ const TableCell = styled.div<{ $after?: boolean; $label?: boolean; $mobileTitle?
 
     @media (max-width: 640px) {
         ${({ $label }) =>
-            $label
-                ? `
+        $label
+            ? `
             margin-top: 6px;
             border-color: #d6e1f6;
             background: #edf3ff;
         `
-                : ""}
+            : ""}
 
         ${({ $mobileTitle, $label }) =>
-            !$label && $mobileTitle
-                ? `
+        !$label && $mobileTitle
+            ? `
             &::before {
                 content: "${$mobileTitle}";
                 display: block;
@@ -288,7 +288,7 @@ const TableCell = styled.div<{ $after?: boolean; $label?: boolean; $mobileTitle?
                 color: #6b7890;
             }
         `
-                : ""}
+            : ""}
     }
 `;
 
@@ -386,7 +386,8 @@ export const ModerationPage = () => {
     const openedProposal = proposals.find((item) => item.id === openedId) ?? null;
 
     return (
-        <AdminShell title="Feed модерации" hideTabs>
+        <>
+            <SetAdminChrome title="Feed модерации" />
             <FilterRow>
                 <FilterButton type="button" $active={filter === "pending"} onClick={() => setFilter("pending")}>
                     <Clock3 size={12} />
@@ -526,11 +527,11 @@ export const ModerationPage = () => {
                                         prev.map((item) =>
                                             item.id === proposalId
                                                 ? {
-                                                      ...item,
-                                                      status: "approved",
-                                                      moderatedBy: "@moderator.current",
-                                                      moderationComment: "Заявка принята модератором.",
-                                                  }
+                                                    ...item,
+                                                    status: "approved",
+                                                    moderatedBy: "@moderator.current",
+                                                    moderationComment: "Заявка принята модератором.",
+                                                }
                                                 : item
                                         )
                                     );
@@ -549,6 +550,6 @@ export const ModerationPage = () => {
                     <FullscreenImage src={fullscreenImage.src} alt={fullscreenImage.alt} onClick={(event) => event.stopPropagation()} />
                 ) : null}
             </FullscreenImageOverlay>
-        </AdminShell>
+        </>
     );
 };

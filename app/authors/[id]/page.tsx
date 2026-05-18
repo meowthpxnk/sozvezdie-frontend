@@ -1,11 +1,12 @@
-import { AuthorPage } from "@/src/main_pages/author-page";
+import { redirect } from "next/navigation";
 
-type AuthorRouteProps = {
+type AuthorsLegacyRouteProps = {
     params: Promise<{ id: string }>;
 };
 
-export default async function AuthorRoute({ params }: AuthorRouteProps) {
+export default async function AuthorsLegacyRoute({
+    params,
+}: AuthorsLegacyRouteProps) {
     const { id } = await params;
-
-    return <AuthorPage authorId={id} />;
+    redirect(`/author/${id}`);
 }

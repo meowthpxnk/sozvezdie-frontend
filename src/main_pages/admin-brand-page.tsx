@@ -4,8 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Type, Upload, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { AdminShell } from "@/src/main_pages/admin-shell";
-import { useSellerData } from "@/src/shared/lib/use-seller-data";
+import { SetAdminChrome } from "@widgets/AdminShell";
+import { createDefaultSellerSnapshot } from "@/src/shared/mocks/seller-snapshot-factory";
+
+const SNAPSHOT = createDefaultSellerSnapshot();
 
 const FormCard = styled.section`
     background: #fff;
@@ -437,7 +439,8 @@ const readFileAsDataUrl = (file: File): Promise<string> =>
     });
 
 export const AdminBrandPage = () => {
-    const { snapshot, updateBrand } = useSellerData();
+    const snapshot = SNAPSHOT;
+    const updateBrand = async () => { };
     const [form, setForm] = useState<BrandForm>({
         brandName: snapshot?.brand.brandName ?? "",
         brandDescription: snapshot?.brand.brandDescription ?? "",
@@ -529,7 +532,8 @@ export const AdminBrandPage = () => {
     }, []);
 
     return (
-        <AdminShell title="Редактирование бренда" hideTabs>
+        <>
+            <SetAdminChrome title="Редактирование бренда" />
             <PreviewTitle>Превью</PreviewTitle>
             <BannerPreview $backgroundImage={previewBanner}>
                 <AvatarPreview>
@@ -678,6 +682,6 @@ export const AdminBrandPage = () => {
                     </ModalActions>
                 </ModalLayout>
             </ModalOverlay>
-        </AdminShell>
+        </>
     );
 };

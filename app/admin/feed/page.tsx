@@ -1,5 +1,5 @@
-import { AdminFeedPage } from "@/src/main_pages/admin-feed-page";
+import { AuthorFeedPage } from "@/src/fsd/pages/AuthorFeedPage";
 
 export default function AdminFeedRoute() {
-    return <AdminFeedPage />;
+    return <AuthorFeedPage />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AuthPage } from "@/src/main_pages/auth-page";
+import { AuthPage } from "@pages";
 
 export const metadata: Metadata = {
     title: "Вход",

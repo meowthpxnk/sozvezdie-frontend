@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
-import { AdminShell } from "@/src/main_pages/admin-shell";
-import { useSellerData } from "@/src/shared/lib/use-seller-data";
+import { SetAdminChrome } from "@widgets/AdminShell";
+import { createDefaultSellerSnapshot } from "@/src/shared/mocks/seller-snapshot-factory";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
+
+const SNAPSHOT = createDefaultSellerSnapshot();
 
 const AddProductButton = styled(Link)`
     width: 28px;
@@ -270,23 +272,27 @@ const getCoverImage = (images: { id: string; url: string }[], coverImageId: stri
     images.find((image) => image.id === coverImageId)?.url ?? images[0]?.url ?? "none";
 
 export const AdminProductsPage = () => {
-    const { snapshot, deleteProduct } = useSellerData();
+    const snapshot = SNAPSHOT;
+
+    const deleteProduct = async (_id: string) => { };
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
     const [isDeleting, setDeleting] = useState(false);
     const products = snapshot?.products ?? [];
     const deletingProduct = products.find((product) => product.id === deletingProductId) ?? null;
 
+    const titleRight = useMemo(
+        () => (
+            <AddProductButton href="/admin/products/new" aria-label="Добавить товар">
+                <Plus aria-hidden />
+            </AddProductButton>
+        ),
+        []
+    );
+
     return (
-        <AdminShell
-            title="Товары"
-            hideTabs
-            titleRight={
-                <AddProductButton href="/admin/products/new" aria-label="Добавить товар">
-                    <Plus aria-hidden />
-                </AddProductButton>
-            }
-        >
+        <>
+            <SetAdminChrome title="Товары" titleRight={titleRight} />
             <List>
                 {products.map((product) => (
                     <Item key={product.id}>
@@ -372,6 +378,6 @@ export const AdminProductsPage = () => {
                     </ModalActions>
                 </ModalCard>
             </ModalOverlay>
-        </AdminShell>
+        </>
     );
 };

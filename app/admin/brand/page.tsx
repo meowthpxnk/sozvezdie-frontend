@@ -1,6 +1,5 @@
-import { AdminBrandPage } from "@/src/main_pages/admin-brand-page";
+import { AuthorBrandPage } from "@pages";
 
 export default function AdminBrandRoute() {
-    return <AdminBrandPage />;
+    return <AuthorBrandPage />;
 }
-

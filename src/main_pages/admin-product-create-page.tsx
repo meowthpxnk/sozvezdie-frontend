@@ -6,8 +6,7 @@ import styled from "styled-components";
 import { AnimatePresence, motion, Reorder, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, Type, Upload, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { AdminShell } from "@/src/main_pages/admin-shell";
-import { useSellerData } from "@/src/shared/lib/use-seller-data";
+import { SetAdminChrome } from "@widgets/AdminShell";
 import type { SellerProductImage } from "@/src/shared/types/seller";
 
 const FormCard = styled.section`
@@ -209,7 +208,7 @@ const ProductMainImageButton = styled.button`
     display: block;
 `;
 
-const ProductImagesRow = styled(Reorder.Group)<{ $touchReorderActive: boolean }>`
+const ProductImagesRow = styled(Reorder.Group) <{ $touchReorderActive: boolean }>`
     display: flex;
     gap: 8px;
     overflow-x: auto;
@@ -226,7 +225,7 @@ const ProductImagesRow = styled(Reorder.Group)<{ $touchReorderActive: boolean }>
     }
 `;
 
-const ProductImageThumbButton = styled(Reorder.Item)<{ $active: boolean }>`
+const ProductImageThumbButton = styled(Reorder.Item) <{ $active: boolean }>`
     border: 0;
     border-radius: 10px;
     padding: 0;
@@ -726,7 +725,7 @@ export const AdminProductCreatePage = ({
     onSubmitForm,
 }: AdminProductComposerProps = {}) => {
     const router = useRouter();
-    const { createProduct } = useSellerData();
+    const createProduct = async () => { };
     const [form, setForm] = useState<ProductForm>({
         name: "",
         description: "",
@@ -1126,7 +1125,8 @@ export const AdminProductCreatePage = ({
     }, [confirmScrollMetrics.clientWidth, confirmScrollMetrics.scrollWidth]);
 
     return (
-        <AdminShell title={shellTitle} hideTabs>
+        <>
+            <SetAdminChrome title={shellTitle} />
             <FormCard>
                 <FormTitle>{formTitle}</FormTitle>
                 <FormDescription>{formDescription}</FormDescription>
@@ -1427,12 +1427,12 @@ export const AdminProductCreatePage = ({
                                     const submitPromise = onSubmitForm
                                         ? onSubmitForm(form)
                                         : createProduct({
-                                              name: form.name.trim(),
-                                              description: form.description.trim(),
-                                              price: Number(form.price),
-                                              images: form.images,
-                                              coverImageId: form.coverImageId,
-                                          });
+                                            name: form.name.trim(),
+                                            description: form.description.trim(),
+                                            price: Number(form.price),
+                                            images: form.images,
+                                            coverImageId: form.coverImageId,
+                                        });
                                     void submitPromise
                                         .then(() => {
                                             setConfirmModalOpen(false);
@@ -1519,6 +1519,6 @@ export const AdminProductCreatePage = ({
                     <X />
                 </LightboxCloseButton>
             ) : null}
-        </AdminShell>
+        </>
     );
 };

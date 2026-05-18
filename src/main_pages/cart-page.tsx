@@ -1,13 +1,14 @@
 "use client";
 
 import styled from "styled-components";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Heart, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { Header } from "@/src/main_pages/headder";
-import { PRODUCTS_LIST } from "@/src/shared/mocks/products";
+import { Header } from "@widgets/Header/ui/Header";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
-import { useCatalogStorage } from "@/src/shared/lib/catalog-storage";
+import { getStaticStorefrontProducts } from "@/src/shared/mocks/storefront-static";
+import { MOCK_CART_QUANTITIES, MOCK_LIKED_PRODUCT_IDS } from "@/src/shared/mocks/static-user-session";
+import { CartItem } from "../fsd/widgets/CartItem";
 
 const MainWrapper = styled.div`
     padding: 20px;
@@ -30,136 +31,6 @@ const CartItemsWrapper = styled.ul`
     display: flex;
     flex-direction: column;
     gap: 14px;
-`;
-
-const CartItemRow = styled.li`
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: #f6f7f9;
-`;
-
-const CartItemLeft = styled.div`
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-width: 0;
-`;
-
-const CartItemImageWrapper = styled.div`
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    flex-shrink: 0;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    /* Keep sizing but hide the image when it is "none" */
-    img[src="none"] {
-        visibility: hidden;
-    }
-`;
-
-const CartItemImageLink = styled(Link)`
-    display: flex;
-    flex-shrink: 0;
-`;
-
-const CartItemMeta = styled.div`
-    display: flex;
-    flex-direction: column;
-    /* gap: 4px; */
-    min-width: 0;
-`;
-
-const CartItemNameLink = styled(Link)`
-    text-decoration: none;
-    color: inherit;
-`;
-
-const CartItemName = styled.span`
-    font-weight: 600;
-    font-size: 16px;
-`;
-
-const CartItemPrice = styled.span`
-    font-weight: 600;
-    color: #4f83e3;
-    font-size: 20px;
-`;
-
-const CartItemPriceRow = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-`;
-
-const CartItemStock = styled.span`
-    color: #666;
-    font-size: 13px;
-    font-weight: 500;
-`;
-
-const CartItemBrand = styled.span`
-    color: #666;
-    font-size: 14px;
-    font-weight: 500;
-`;
-
-const CartMetaActions = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-`;
-
-const CartActionButton = styled(IconActionButton)``;
-const CartFavoriteButton = styled(IconActionButton) <{ $active: boolean }>``;
-
-const CartItemRight = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 8px;
-    flex-shrink: 0;
-`;
-
-const CartQtyWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e6e6e6;
-    background: #fff;
-    /* height: 100%; */
-`;
-
-const CartQtyValue = styled.span`
-    font-weight: 600;
-    min-width: 18px;
-    text-align: center;
-    padding: 0 10px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #4f83e3;
-    color: #fff;
-    font-size: 16px;
 `;
 
 const CartPlusButton = styled.button`
@@ -322,18 +193,16 @@ type ConfirmAction = {
 };
 
 export const CartPage = () => {
-    const defaultLikedIds = useMemo(
-        () =>
-            PRODUCTS_LIST.filter((item) => "favourite" in item && Boolean(item.favourite)).map(
-                (item) => item.id,
-            ),
-        [],
-    );
-    const { isLiked, getCartQuantity, toggleLike, setCartQuantity } = useCatalogStorage(defaultLikedIds);
+    const productsCatalog = getStaticStorefrontProducts();
+    const isLiked = (id: string) => MOCK_LIKED_PRODUCT_IDS.includes(id);
+    const getCartQuantity = (id: string) => MOCK_CART_QUANTITIES[id] ?? 0;
+    const toggleLike = () => { };
+    const setCartQuantity = (_productId: string, _quantity: number) => { };
+
     const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
 
     const onPlus = (productId: string) => {
-        const product = PRODUCTS_LIST.find((item) => item.id === productId);
+        const product = productsCatalog.find((item) => item.id === productId);
         const currentQty = getCartQuantity(productId);
         if (product && currentQty >= product.stockCount) {
             return;
@@ -348,7 +217,7 @@ export const CartPage = () => {
             return;
         }
 
-        const product = PRODUCTS_LIST.find((item) => item.id === productId);
+        const product = productsCatalog.find((item) => item.id === productId);
         if (!product) {
             return;
         }
@@ -361,7 +230,7 @@ export const CartPage = () => {
     };
 
     const onDelete = (productId: string) => {
-        const product = PRODUCTS_LIST.find((item) => item.id === productId);
+        const product = productsCatalog.find((item) => item.id === productId);
         if (!product) {
             return;
         }
@@ -377,7 +246,7 @@ export const CartPage = () => {
         toggleLike(productId);
     };
 
-    const visibleProducts = PRODUCTS_LIST.filter((p) => getCartQuantity(p.id) > 0);
+    const visibleProducts = productsCatalog.filter((p) => getCartQuantity(p.id) > 0);
     const totalItems = visibleProducts.reduce((acc, product) => acc + getCartQuantity(product.id), 0);
     const totalPrice = visibleProducts.reduce((acc, product) => {
         const unitPrice = Number.parseInt(product.priceText.replace(/[^\d]/g, ""), 10) || 0;
@@ -415,72 +284,7 @@ export const CartPage = () => {
                 <CartCardWrapper>
                     <CartItemsWrapper>
                         {visibleProducts.map((product) => (
-                            <CartItemRow key={product.id}>
-                                <CartItemLeft>
-                                    <CartItemImageLink href={`/product/${product.id}`} aria-label={`Open ${product.nameText}`}>
-                                        <CartItemImageWrapper>
-                                            <img src={product.imageSrc} alt={product.imageAlt ?? product.nameText} />
-                                        </CartItemImageWrapper>
-                                    </CartItemImageLink>
-                                    <CartItemMeta>
-                                        <CartItemNameLink href={`/product/${product.id}`} aria-label={`Open ${product.nameText}`}>
-                                            <CartItemName>{product.nameText}</CartItemName>
-                                        </CartItemNameLink>
-                                        <CartMetaActions>
-                                            <CartFavoriteButton
-                                                $active={isLiked(product.id)}
-                                                type="button"
-                                                aria-label={`Favorite ${product.nameText}`}
-                                                onClick={() => onToggleLike(product.id)}
-                                            >
-                                                <Heart
-                                                    size={14}
-                                                    fill={isLiked(product.id) ? "#fff" : "none"}
-                                                    stroke={isLiked(product.id) ? "#fff" : "#4f83e3"}
-                                                    strokeWidth={2}
-                                                />
-                                            </CartFavoriteButton>
-                                            <CartActionButton
-                                                $active={false}
-                                                type="button"
-                                                aria-label={`Remove ${product.nameText}`}
-                                                onClick={() => onDelete(product.id)}
-                                            >
-                                                <Trash2 size={14} stroke="#4f83e3" strokeWidth={2} />
-                                            </CartActionButton>
-                                        </CartMetaActions>
-                                    </CartItemMeta>
-                                </CartItemLeft>
-
-                                <CartItemRight>
-                                    <CartItemPriceRow>
-                                        <CartItemPrice>{getProductTotalPriceText(product.id, product.priceText)}</CartItemPrice>
-                                        <CartItemStock>В наличии: {product.stockCount} шт.</CartItemStock>
-                                    </CartItemPriceRow>
-                                    <CartQtyWrapper>
-                                        <CartMinusButton
-                                            type="button"
-                                            aria-label={`Remove one of ${product.nameText}`}
-                                            onClick={() => onMinus(product.id)}
-                                        >
-                                            -
-                                        </CartMinusButton>
-                                        <CartQtyValue>{getCartQuantity(product.id)}</CartQtyValue>
-                                        <CartPlusButton
-                                            type="button"
-                                            disabled={getCartQuantity(product.id) >= product.stockCount}
-                                            aria-label={
-                                                getCartQuantity(product.id) >= product.stockCount
-                                                    ? `Достигнут лимит склада для ${product.nameText}`
-                                                    : `Add one more of ${product.nameText}`
-                                            }
-                                            onClick={() => onPlus(product.id)}
-                                        >
-                                            +
-                                        </CartPlusButton>
-                                    </CartQtyWrapper>
-                                </CartItemRight>
-                            </CartItemRow>
+                            <CartItem product={product} />
                         ))}
                     </CartItemsWrapper>
 

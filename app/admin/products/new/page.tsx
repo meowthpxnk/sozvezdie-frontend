@@ -1,6 +1,5 @@
-import { AdminProductCreatePage } from "@/src/main_pages/admin-product-create-page";
+import { AuthorProductCreatePage } from "@/src/fsd/pages/AuthorProductCreatePage";
 
 export default function AdminProductCreateRoute() {
-    return <AdminProductCreatePage />;
+    return <AuthorProductCreatePage />;
 }
-

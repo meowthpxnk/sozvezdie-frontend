@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { AdminDashboardPage } from "@/src/main_pages/admin-dashboard-page";
+import { AuthorDashboardPage } from "@pages";
 
 export const metadata: Metadata = {
-    title: "Seller Admin",
+    title: "Кабинет автора",
 };
 
 export default function AdminRoute() {
-    return <AdminDashboardPage />;
+    return <AuthorDashboardPage />;
 }
-

@@ -1,4 +1,7 @@
-import { PRODUCTS_LIST, type ProductMock } from "./products";
+import type { ProductMock } from "./types";
+import { MOCK_PRODUCTS_CATALOG } from "./static-user-session";
+
+const PRODUCTS_LIST = MOCK_PRODUCTS_CATALOG;
 
 export type OrderLineItem = {
     productId: string;

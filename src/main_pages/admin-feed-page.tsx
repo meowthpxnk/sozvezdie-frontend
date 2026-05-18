@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Check, CircleAlert, Clock3, List as ListIcon } from "lucide-react";
-import { AdminShell } from "@/src/main_pages/admin-shell";
+import { SetAdminChrome } from "@widgets/AdminShell";
 import { ADMIN_FEED_OPERATIONS, ADMIN_OPERATION_LABELS } from "@/src/shared/mocks/admin-feed";
 import type { ModerationStatus } from "@/src/shared/types/seller";
 
@@ -216,7 +216,8 @@ export const AdminFeedPage = () => {
     }, []);
 
     return (
-        <AdminShell title="Feed" hideTabs>
+        <>
+            <SetAdminChrome title="Feed" />
             <FilterWrap>
                 <FilterRow ref={filtersRef}>
                     <FilterButton type="button" $active={filter === "all"} onClick={() => setFilter("all")}>
@@ -270,6 +271,6 @@ export const AdminFeedPage = () => {
                     </Item>
                 ))}
             </List>
-        </AdminShell>
+        </>
     );
 };

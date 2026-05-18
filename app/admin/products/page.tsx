@@ -1,6 +1,5 @@
-import { AdminProductsPage } from "@/src/main_pages/admin-products-page";
+import { AuthorProductsPage } from "@pages";
 
 export default function AdminProductsRoute() {
-    return <AdminProductsPage />;
+    return <AuthorProductsPage />;
 }
-

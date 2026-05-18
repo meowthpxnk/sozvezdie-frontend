@@ -1,4 +1,4 @@
-import { ModerationPage } from "@/src/main_pages/moderation-page";
+import { ModerationPage } from "@/src/fsd/pages/ModerationPage";
 
 export default function ModerationRoute() {
     return <ModerationPage />;
