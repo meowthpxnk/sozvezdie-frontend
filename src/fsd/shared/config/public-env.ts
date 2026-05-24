@@ -1,5 +1,5 @@
-const DEFAULT_API_URL = "http://localhost:8000";
-const DEFAULT_MEDIA_URL = "http://localhost:4003";
+const DEFAULT_API_URL = "https://constellationshop.ru/api";
+const DEFAULT_MEDIA_URL = "https://constellationshop.ru/minio";
 
 function readPublicEnv(name: string, fallback: string): string {
     const value = process.env[name]?.trim();

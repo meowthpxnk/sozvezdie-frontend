@@ -6,8 +6,8 @@ COPY package*.json ./
 RUN npm ci
 
 FROM base AS builder
-ARG NEXT_PUBLIC_API_URL=http://localhost:2000
-ARG NEXT_PUBLIC_MEDIA_URL=http://localhost:4003
+ARG NEXT_PUBLIC_API_URL=https://constellationshop.ru/api
+ARG NEXT_PUBLIC_MEDIA_URL=https://constellationshop.ru/minio
 ARG NEXT_PUBLIC_MEDIA_BUCKET_URL=
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
