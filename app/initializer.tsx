@@ -10,6 +10,7 @@ import {
     fetchFavouriteProducts,
 } from "@/src/fsd/entities/favourite/favouriteThunk";
 
+
 export const AppInitializer = () => {
     const dispatch = useAppDispatch();
 

@@ -6,7 +6,8 @@ import {
     IUserProfileResponse,
     mapBackendRole,
 } from "./auth.types";
-import { RootState } from "../../shared/store/store";
+
+type AuthProfileState = Pick<User, "fullName" | "email" | "phone" | "role">;
 
 const mapMeToUser = (
     me: Awaited<ReturnType<typeof authService.getMe>>
@@ -43,7 +44,7 @@ export const fetchMe = createAsyncThunk("auth/fetchMe", async (_, thunkAPI) => {
 export const updateUserProfile = createAsyncThunk(
     "auth/updateUserProfile",
     async (_, { getState, rejectWithValue }) => {
-        const { auth } = getState() as RootState;
+        const { auth } = getState() as { auth: AuthProfileState };
 
         try {
             const profile = await authService.updateProfile({

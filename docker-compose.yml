@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:2000}
-        NEXT_PUBLIC_MEDIA_URL: ${NEXT_PUBLIC_MEDIA_URL:-http://localhost:4003}
-        NEXT_PUBLIC_MEDIA_BUCKET_URL: ${NEXT_PUBLIC_MEDIA_BUCKET_URL:-}
-    container_name: sozvezdie-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
+    frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://soz-api.meowthland.ru}
+                NEXT_PUBLIC_MEDIA_URL: ${NEXT_PUBLIC_MEDIA_URL:-https://soz-minio.meowthland.ru}
+                NEXT_PUBLIC_MEDIA_BUCKET_URL: ${NEXT_PUBLIC_MEDIA_BUCKET_URL:-}
+        container_name: sozvezdie-frontend
+        restart: unless-stopped
+        ports:
+            - "3000:3000"
+        environment:
+            NODE_ENV: production
+            PORT: 3000

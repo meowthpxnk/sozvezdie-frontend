@@ -2,7 +2,6 @@ import {
     getAccessToken,
     removeAccessToken,
 } from "@shared/services/auth-token.service";
-import authService from "@shared/services/auth.service";
 import { API_URL, MEDIA_URL } from "@shared/config/public-env";
 import { parse422 } from "@shared/utils/Error422";
 import axios, { CreateAxiosDefaults } from "axios";
@@ -53,8 +52,10 @@ axiosWithAuth.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const response = await authService.refreshSession();
-                const newAccessToken = response;
+                const { default: authService } = await import(
+                    "@shared/services/auth.service"
+                );
+                const newAccessToken = await authService.refreshSession();
 
                 refreshSubscribers.forEach((callback) =>
                     callback(newAccessToken)

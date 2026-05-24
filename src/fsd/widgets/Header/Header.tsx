@@ -15,6 +15,7 @@ import {
     type HeaderNavMode,
 } from "./header-nav";
 import Link from "next/link";
+import { openMessengerHandler } from "@/app/vk";
 
 const PAGE_CONTENT_MAX_WIDTH = 1200;
 
@@ -88,9 +89,10 @@ export const Header = ({ hideSearch = false, role }: HeaderProps) => {
             <HeaderBar>
                 <HeaderInner className="indent-box int-12 flex jc-sb ai-c">
                     <div className="flex-center indent-list int-12">
-                        <Link href="/">
-                            <Logo />
-                        </Link>
+                        {/* <Link href="/"> */}
+                        <button onClick={openMessengerHandler}><Logo /></button>
+
+                        {/* </Link> */}
                     </div>
                     {showSearch ? <HeaderSearchSection /> : null}
                     <div className="flex-center indent-list int-12">

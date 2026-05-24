@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
     FavouriteAuthorItem,
     FavouriteProductItem,
-} from "@entities/favourite";
+} from "../../entities/favourite/favourite-item";
 import {
     fetchFavouriteAuthors,
     fetchFavouriteProducts,

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { cartService } from "@entities/cart";
+import cartService from "./cart.service";
 
 export const fetchCart = createAsyncThunk(
     "cart/fetchCart",

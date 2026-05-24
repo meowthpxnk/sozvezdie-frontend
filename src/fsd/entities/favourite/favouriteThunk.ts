@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { favouriteService } from "@entities/favourite";
+import favouriteService from "./favourite.service";
 
 export const fetchFavouriteProducts = createAsyncThunk(
     "favourite/fetchFavouriteProducts",

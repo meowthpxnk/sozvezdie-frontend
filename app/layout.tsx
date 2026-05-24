@@ -4,6 +4,10 @@ import { StyledComponentsRegistry } from "@/src/shared/lib/styled-components-reg
 import { PageShell } from "@widgets";
 import "@shared/ui/styles/index.scss";
 import { AppInitializer } from "./initializer";
+
+
+
+
 // import { getAccessToken } from "@shared/services/auth-token.service";
 // import { cartSlice } from "@/src/fsd/shared/store/CartSlice";
 // import { useData } from "@/src/fsd/shared/hooks/useData";

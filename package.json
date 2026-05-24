@@ -11,8 +11,11 @@
     "dependencies": {
         "@reduxjs/toolkit": "^2.12.0",
         "@tanstack/react-query": "^5.100.5",
+        "@vkontakte/superappkit": "^1.62.0",
         "axios": "^1.15.2",
         "clsx": "^2.1.1",
+        "crypto": "^1.0.1",
+        "crypto-js": "^4.2.0",
         "dotenv": "^17.4.2",
         "framer-motion": "^12.38.0",
         "lucide-react": "^1.11.0",
