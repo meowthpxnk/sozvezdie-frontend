@@ -17,7 +17,7 @@ services:
             NODE_ENV: production
             PORT: 3000
         networks:
-            - appnet
+            - nginx_appnet
 networks:
-    appnet:
+    nginx_appnet:
         external: true
