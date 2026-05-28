@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     Auth,
@@ -14,18 +14,20 @@ import {
 
 import { VKID_APP_ID, VKID_REDIRECT_URL } from "@shared/config/public-env";
 
+type VkLoginPayload = {
+    code: string;
+    device_id: string;
+};
+
 type VkIdOneTapProps = {
     onVkAuth: (vkAccessToken: string) => Promise<void>;
-    disabled?: boolean;
     onError?: (error: unknown) => void;
 };
 
-export function VkIdOneTap({
-    onVkAuth,
-    disabled = false,
-    onError,
-}: VkIdOneTapProps) {
+export function VkIdOneTap({ onVkAuth, onError }: VkIdOneTapProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const isLoadingRef = useRef(false);
     const onVkAuthRef = useRef(onVkAuth);
     const onErrorRef = useRef(onError);
 
@@ -33,7 +35,8 @@ export function VkIdOneTap({
     onErrorRef.current = onError;
 
     useEffect(() => {
-        if (!containerRef.current || disabled) return;
+        const container = containerRef.current;
+        if (!container) return;
 
         Config.init({
             app: VKID_APP_ID,
@@ -45,41 +48,54 @@ export function VkIdOneTap({
 
         const oneTap = new OneTap();
 
-        const handleError = (error: unknown) => {
-            onErrorRef.current?.(error);
-        };
-
         oneTap
             .render({
-                container: containerRef.current,
+                container,
                 fastAuthEnabled: false,
             })
-            .on(WidgetEvents.ERROR, handleError)
-            .on(OneTapInternalEvents.LOGIN_SUCCESS, async (payload: { code: string; device_id: string }) => {
+            .on(WidgetEvents.ERROR, (error: unknown) => {
+                onErrorRef.current?.(error);
+            })
+            .on(OneTapInternalEvents.LOGIN_SUCCESS, async (payload: VkLoginPayload) => {
+                if (isLoadingRef.current) return;
+
+                isLoadingRef.current = true;
+                setIsLoading(true);
+
                 try {
-                    const response = await Auth.exchangeCode(
+                    const tokens = await Auth.exchangeCode(
                         payload.code,
                         payload.device_id
                     );
 
-                    await onVkAuthRef.current(response.access_token);
+                    const vkAccessToken = tokens.access_token?.trim();
+                    if (!vkAccessToken) {
+                        throw new Error("VK не вернул access_token");
+                    }
+
+                    await onVkAuthRef.current(vkAccessToken);
                 } catch (error) {
-                    handleError(error);
+                    onErrorRef.current?.(error);
+                } finally {
+                    isLoadingRef.current = false;
+                    setIsLoading(false);
                 }
             });
 
         return () => {
-            if (containerRef.current) {
-                containerRef.current.innerHTML = "";
-            }
+            container.innerHTML = "";
         };
-    }, [disabled]);
+    }, []);
 
     return (
         <div
             ref={containerRef}
             id="VkIdSdkOneTap"
-            style={disabled ? { pointerEvents: "none", opacity: 0.65 } : undefined}
+            style={
+                isLoading
+                    ? { pointerEvents: "none", opacity: 0.65 }
+                    : undefined
+            }
         />
     );
 }

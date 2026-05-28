@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, PropsWithChildren, useState } from "react";
+import { forwardRef, PropsWithChildren, useCallback, useState } from "react";
 import {
     KeyRound,
     LucideProps,
@@ -280,10 +280,12 @@ export const AuthPage = () => {
             toast.success("Вы вошли через VK ID");
             router.push("/");
         },
-        onError(error) {
-            toast.error(getMutationErrorMessage(error));
-        },
     });
+
+    const handleVkAuth = useCallback(
+        (vkAccessToken: string) => vkAuthMutation.mutateAsync(vkAccessToken),
+        [vkAuthMutation.mutateAsync]
+    );
 
     const registerMutation = useMutation({
         mutationKey: ["auth", "register"],
@@ -458,8 +460,10 @@ export const AuthPage = () => {
                     {loginMutation.isPending ? "Вход..." : "Войти"}
                 </SubmitButton>
                 <VkIdOneTap
-                    disabled={isPending}
-                    onVkAuth={(token) => vkAuthMutation.mutateAsync(token)}
+                    onVkAuth={handleVkAuth}
+                    onError={(error) =>
+                        toast.error(getMutationErrorMessage(error))
+                    }
                 />
                 <ModeSwitch type="button" onClick={() => switchMode("register")}>
                     Зарегистрироваться
