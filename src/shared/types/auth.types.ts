@@ -17,5 +17,7 @@ export interface AccessTokenResponse {
 }
 
 export interface IVkAuthoriseRequest {
-    vk_access_token: string;
+    code: string;
+    deviceId: string;
+    codeVerifier: string;
 }

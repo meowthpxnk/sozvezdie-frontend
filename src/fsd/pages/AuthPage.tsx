@@ -273,8 +273,11 @@ export const AuthPage = () => {
 
     const vkAuthMutation = useMutation({
         mutationKey: ["auth", "vk"],
-        mutationFn: (vkAccessToken: string) =>
-            authService.authoriseVk(vkAccessToken),
+        mutationFn: (payload: {
+            code: string;
+            deviceId: string;
+            codeVerifier: string;
+        }) => authService.authoriseVk(payload),
         async onSuccess() {
             await dispatch(fetchMe());
             toast.success("Вы вошли через VK ID");
@@ -283,7 +286,11 @@ export const AuthPage = () => {
     });
 
     const handleVkAuth = useCallback(
-        (vkAccessToken: string) => vkAuthMutation.mutateAsync(vkAccessToken),
+        (payload: {
+            code: string;
+            deviceId: string;
+            codeVerifier: string;
+        }) => vkAuthMutation.mutateAsync(payload),
         [vkAuthMutation.mutateAsync]
     );
 

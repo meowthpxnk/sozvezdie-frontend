@@ -26,11 +26,10 @@ class AuthService {
         saveAccessToken(response.data["Access-Token"]);
     }
 
-    async authoriseVk(vk_access_token: string) {
-        const body: IVkAuthoriseRequest = { vk_access_token };
+    async authoriseVk(payload: IVkAuthoriseRequest) {
         const response = await axiosClassic.post<AccessTokenResponse>(
             `${this.BASE_URL}/authorise_vk`,
-            body
+            payload
         );
         saveAccessToken(response.data["Access-Token"]);
     }
