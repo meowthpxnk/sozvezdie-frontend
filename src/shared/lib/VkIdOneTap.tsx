@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import {
     Config,
@@ -29,18 +29,29 @@ type VkLoginPayload = {
 type VkIdOneTapProps = {
     onVkAuth: (payload: VkAuthorisePayload) => Promise<void>;
     onError?: (error: unknown) => void;
+    onLoadingChange?: (loading: boolean) => void;
 };
 
-export function VkIdOneTap({ onVkAuth, onError }: VkIdOneTapProps) {
+export function VkIdOneTap({
+    onVkAuth,
+    onError,
+    onLoadingChange,
+}: VkIdOneTapProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const codeVerifierRef = useRef<string>(generateCodeVerifier());
-    const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
+    const onLoadingChangeRef = useRef(onLoadingChange);
     const onVkAuthRef = useRef(onVkAuth);
     const onErrorRef = useRef(onError);
 
     onVkAuthRef.current = onVkAuth;
     onErrorRef.current = onError;
+    onLoadingChangeRef.current = onLoadingChange;
+
+    const setLoading = (loading: boolean) => {
+        isLoadingRef.current = loading;
+        onLoadingChangeRef.current?.(loading);
+    };
 
     useEffect(() => {
         const container = containerRef.current;
@@ -68,8 +79,7 @@ export function VkIdOneTap({ onVkAuth, onError }: VkIdOneTapProps) {
             .on(OneTapInternalEvents.LOGIN_SUCCESS, (payload: VkLoginPayload) => {
                 if (isLoadingRef.current) return;
 
-                isLoadingRef.current = true;
-                setIsLoading(true);
+                setLoading(true);
 
                 void onVkAuthRef
                     .current({
@@ -78,11 +88,8 @@ export function VkIdOneTap({ onVkAuth, onError }: VkIdOneTapProps) {
                         codeVerifier: codeVerifierRef.current,
                     })
                     .catch((error: unknown) => {
+                        setLoading(false);
                         onErrorRef.current?.(error);
-                    })
-                    .finally(() => {
-                        isLoadingRef.current = false;
-                        setIsLoading(false);
                     });
             });
 
@@ -91,15 +98,5 @@ export function VkIdOneTap({ onVkAuth, onError }: VkIdOneTapProps) {
         };
     }, []);
 
-    return (
-        <div
-            ref={containerRef}
-            id="VkIdSdkOneTap"
-            style={
-                isLoading
-                    ? { pointerEvents: "none", opacity: 0.65 }
-                    : undefined
-            }
-        />
-    );
+    return <div ref={containerRef} id="VkIdSdkOneTap" />;
 }

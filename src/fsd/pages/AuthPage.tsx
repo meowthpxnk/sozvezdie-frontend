@@ -3,6 +3,7 @@
 import { forwardRef, PropsWithChildren, useCallback, useState } from "react";
 import {
     KeyRound,
+    Loader2,
     LucideProps,
     Mail,
     Phone,
@@ -98,6 +99,29 @@ const HintText = styled.p`
     line-height: 1.45;
     color: ${AUTH_PLACEHOLDER};
     text-align: center;
+`;
+
+const VkAuthLoadingCard = styled.div`
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+`;
+
+const VkAuthSpinner = styled(Loader2)`
+    width: 40px;
+    height: 40px;
+    color: var(--main-color, #4f83e3);
+    animation: vk-auth-spin 0.8s linear infinite;
+
+    @keyframes vk-auth-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 `;
 
 export type TypeLucideImage = React.ForwardRefExoticComponent<
@@ -254,6 +278,7 @@ export const AuthPage = () => {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const [mode, setMode] = useState<AuthMode>("login");
+    const [vkAuthLoading, setVkAuthLoading] = useState(false);
 
     const loginForm = useForm<IAuthForm>({ mode: "onChange" });
     const registerForm = useForm<IRegisterForm>({ mode: "onChange" });
@@ -283,16 +308,25 @@ export const AuthPage = () => {
             toast.success("Вы вошли через VK ID");
             router.push("/");
         },
+        onError(error) {
+            setVkAuthLoading(false);
+            toast.error(getMutationErrorMessage(error));
+        },
     });
 
     const handleVkAuth = useCallback(
-        (payload: {
+        async (payload: {
             code: string;
             deviceId: string;
             codeVerifier: string;
-        }) => vkAuthMutation.mutateAsync(payload),
+        }) => {
+            setVkAuthLoading(true);
+            await vkAuthMutation.mutateAsync(payload);
+        },
         [vkAuthMutation.mutateAsync]
     );
+
+    const isVkAuthInProgress = vkAuthLoading || vkAuthMutation.isPending;
 
     const registerMutation = useMutation({
         mutationKey: ["auth", "register"],
@@ -434,6 +468,18 @@ export const AuthPage = () => {
 
     const { register, handleSubmit, formState } = loginForm;
 
+    if (isVkAuthInProgress) {
+        return (
+            <PageRoot>
+                <VkAuthLoadingCard>
+                    <VkAuthSpinner aria-hidden />
+                    <AuthTitle>Вход через VK ID</AuthTitle>
+                    <HintText>Подождите, выполняем авторизацию…</HintText>
+                </VkAuthLoadingCard>
+            </PageRoot>
+        );
+    }
+
     return (
         <PageRoot>
             <AuthFormWrapper onSubmit={handleSubmit(onLoginSubmit)}>
@@ -468,9 +514,8 @@ export const AuthPage = () => {
                 </SubmitButton>
                 <VkIdOneTap
                     onVkAuth={handleVkAuth}
-                    onError={(error) =>
-                        toast.error(getMutationErrorMessage(error))
-                    }
+                    onLoadingChange={setVkAuthLoading}
+                    onError={() => setVkAuthLoading(false)}
                 />
                 <ModeSwitch type="button" onClick={() => switchMode("register")}>
                     Зарегистрироваться
