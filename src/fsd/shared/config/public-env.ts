@@ -19,7 +19,7 @@ export const MEDIA_BUCKET_URL = readPublicEnv(
 );
 
 export const VKID_APP_ID = Number(
-    readPublicEnv("NEXT_PUBLIC_VKID_APP_ID", "54607259"),
+    readPublicEnv("NEXT_PUBLIC_VKID_APP_ID", "54614063"),
 );
 
 export const VKID_REDIRECT_URL = readPublicEnv(
