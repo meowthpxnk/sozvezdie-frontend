@@ -89,10 +89,10 @@ export const Header = ({ hideSearch = false, role }: HeaderProps) => {
             <HeaderBar>
                 <HeaderInner className="indent-box int-12 flex jc-sb ai-c">
                     <div className="flex-center indent-list int-12">
-                        {/* <Link href="/"> */}
-                        <button onClick={openMessengerHandler}><Logo /></button>
-
-                        {/* </Link> */}
+                        <Link href="/">
+                            {/* <button onClick={openMessengerHandler}></button> */}
+                            <Logo />
+                        </Link>
                     </div>
                     {showSearch ? <HeaderSearchSection /> : null}
                     <div className="flex-center indent-list int-12">

@@ -20,6 +20,7 @@ import { BaseAction } from "@features";
 import { authService, fetchMe } from "@entities/auth";
 import { IAuthForm, IRegisterForm } from "@shared/types/auth.types";
 import { useAppDispatch } from "@shared/store/store";
+import { VkIdOneTap } from "@/src/shared/lib/VkIdOneTap";
 
 const AUTH_RADIUS = "12px";
 const AUTH_TEXT = "#132647";
@@ -439,6 +440,7 @@ export const AuthPage = () => {
                 <SubmitButton type="submit" disabled={isPending}>
                     {loginMutation.isPending ? "Вход..." : "Войти"}
                 </SubmitButton>
+                <VkIdOneTap />
                 <ModeSwitch type="button" onClick={() => switchMode("register")}>
                     Зарегистрироваться
                 </ModeSwitch>
