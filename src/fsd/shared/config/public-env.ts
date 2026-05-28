@@ -24,5 +24,5 @@ export const VKID_APP_ID = Number(
 
 export const VKID_REDIRECT_URL = readPublicEnv(
     "NEXT_PUBLIC_VKID_REDIRECT_URL",
-    "https://soz-front.meowthland.ru",
+    "https://constellationshop.ru",
 );
