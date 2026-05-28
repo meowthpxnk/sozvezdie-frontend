@@ -15,3 +15,7 @@ export interface IRegisterForm extends IAuthForm {
 export interface AccessTokenResponse {
     "Access-Token": TypeAccessToken;
 }
+
+export interface IVkAuthoriseRequest {
+    vk_access_token: string;
+}

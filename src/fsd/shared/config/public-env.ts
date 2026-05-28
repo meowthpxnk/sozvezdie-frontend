@@ -17,3 +17,12 @@ export const MEDIA_BUCKET_URL = readPublicEnv(
     "NEXT_PUBLIC_MEDIA_BUCKET_URL",
     `${MEDIA_URL}/images-bucket`,
 );
+
+export const VKID_APP_ID = Number(
+    readPublicEnv("NEXT_PUBLIC_VKID_APP_ID", "54607259"),
+);
+
+export const VKID_REDIRECT_URL = readPublicEnv(
+    "NEXT_PUBLIC_VKID_REDIRECT_URL",
+    "https://constellationshop.ru",
+);

@@ -12,15 +12,32 @@ import {
     WidgetEvents,
 } from "@vkid/sdk";
 
-export function VkIdOneTap() {
+import { VKID_APP_ID, VKID_REDIRECT_URL } from "@shared/config/public-env";
+
+type VkIdOneTapProps = {
+    onVkAuth: (vkAccessToken: string) => Promise<void>;
+    disabled?: boolean;
+    onError?: (error: unknown) => void;
+};
+
+export function VkIdOneTap({
+    onVkAuth,
+    disabled = false,
+    onError,
+}: VkIdOneTapProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const onVkAuthRef = useRef(onVkAuth);
+    const onErrorRef = useRef(onError);
+
+    onVkAuthRef.current = onVkAuth;
+    onErrorRef.current = onError;
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || disabled) return;
 
         Config.init({
-            app: Number(54614063),
-            redirectUrl: "https://constellationshop.ru",
+            app: VKID_APP_ID,
+            redirectUrl: VKID_REDIRECT_URL,
             responseMode: ConfigResponseMode.Callback,
             source: ConfigSource.LOWCODE,
             scope: "",
@@ -28,12 +45,8 @@ export function VkIdOneTap() {
 
         const oneTap = new OneTap();
 
-        const onSuccess = async (data: unknown) => {
-            console.log("VK Auth success:", data);
-        };
-
-        const onError = (error: unknown) => {
-            console.error("VK Auth error:", error);
+        const handleError = (error: unknown) => {
+            onErrorRef.current?.(error);
         };
 
         oneTap
@@ -41,34 +54,32 @@ export function VkIdOneTap() {
                 container: containerRef.current,
                 fastAuthEnabled: false,
             })
-            .on(WidgetEvents.ERROR, onError)
-            .on(
-                OneTapInternalEvents.LOGIN_SUCCESS,
-                async (payload) => {
-                    try {
-                        const code = payload.code;
-                        const deviceId = payload.device_id;
+            .on(WidgetEvents.ERROR, handleError)
+            .on(OneTapInternalEvents.LOGIN_SUCCESS, async (payload: { code: string; device_id: string }) => {
+                try {
+                    const response = await Auth.exchangeCode(
+                        payload.code,
+                        payload.device_id
+                    );
 
-                        const response = await Auth.exchangeCode(
-                            code,
-                            deviceId
-                        );
-
-                        await onSuccess(response);
-                    } catch (error) {
-                        onError(error);
-                    }
+                    await onVkAuthRef.current(response.access_token);
+                } catch (error) {
+                    handleError(error);
                 }
-            );
+            });
 
         return () => {
-            /**
-             * cleanup
-             * чтобы не было дублей при remount
-             */
-            containerRef.current!.innerHTML = "";
+            if (containerRef.current) {
+                containerRef.current.innerHTML = "";
+            }
         };
-    }, []);
+    }, [disabled]);
 
-    return <div ref={containerRef} id="VkIdSdkOneTap" />;
+    return (
+        <div
+            ref={containerRef}
+            id="VkIdSdkOneTap"
+            style={disabled ? { pointerEvents: "none", opacity: 0.65 } : undefined}
+        />
+    );
 }

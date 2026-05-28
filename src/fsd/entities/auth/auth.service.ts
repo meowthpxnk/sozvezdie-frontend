@@ -2,6 +2,7 @@ import {
     AccessTokenResponse,
     IAuthForm,
     IRegisterForm,
+    IVkAuthoriseRequest,
 } from "@shared/types/auth.types";
 
 import { axiosClassic, axiosWithAuth } from "@shared/api/interceptors";
@@ -22,6 +23,15 @@ class AuthService {
             data
         );
 
+        saveAccessToken(response.data["Access-Token"]);
+    }
+
+    async authoriseVk(vk_access_token: string) {
+        const body: IVkAuthoriseRequest = { vk_access_token };
+        const response = await axiosClassic.post<AccessTokenResponse>(
+            `${this.BASE_URL}/authorise_vk`,
+            body
+        );
         saveAccessToken(response.data["Access-Token"]);
     }
 

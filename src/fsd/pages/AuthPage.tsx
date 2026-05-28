@@ -271,6 +271,20 @@ export const AuthPage = () => {
         },
     });
 
+    const vkAuthMutation = useMutation({
+        mutationKey: ["auth", "vk"],
+        mutationFn: (vkAccessToken: string) =>
+            authService.authoriseVk(vkAccessToken),
+        async onSuccess() {
+            await dispatch(fetchMe());
+            toast.success("Вы вошли через VK ID");
+            router.push("/");
+        },
+        onError(error) {
+            toast.error(getMutationErrorMessage(error));
+        },
+    });
+
     const registerMutation = useMutation({
         mutationKey: ["auth", "register"],
         mutationFn: (data: IRegisterForm) => authService.register(data),
@@ -308,7 +322,10 @@ export const AuthPage = () => {
         });
     };
 
-    const isPending = loginMutation.isPending || registerMutation.isPending;
+    const isPending =
+        loginMutation.isPending ||
+        registerMutation.isPending ||
+        vkAuthMutation.isPending;
 
     if (mode === "register") {
         const { register, handleSubmit, formState } = registerForm;
@@ -440,7 +457,10 @@ export const AuthPage = () => {
                 <SubmitButton type="submit" disabled={isPending}>
                     {loginMutation.isPending ? "Вход..." : "Войти"}
                 </SubmitButton>
-                <VkIdOneTap />
+                <VkIdOneTap
+                    disabled={isPending}
+                    onVkAuth={(token) => vkAuthMutation.mutateAsync(token)}
+                />
                 <ModeSwitch type="button" onClick={() => switchMode("register")}>
                     Зарегистрироваться
                 </ModeSwitch>
