@@ -1,9 +1,10 @@
-import { RootState, useAppSelector } from "@/src/fsd/shared/store/store";
+import { Suspense } from "react";
 import { CartPage } from "@pages";
 
 export default function CartRoute() {
-    // const cart = useAppSelector((state: RootState) => state.cart);
-    // const cartItems = cart.cart;
-
-    return <CartPage />;
+    return (
+        <Suspense fallback={null}>
+            <CartPage />
+        </Suspense>
+    );
 }
