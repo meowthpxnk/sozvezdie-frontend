@@ -13,23 +13,29 @@ import { buildGlobalCatalogSearchHref } from "@shared/lib/catalog-search";
 const SearchBarStyles = styled.div<{ $hide?: boolean }>`
     flex: 1;
     min-width: 0;
-
-    background-color: var(--color);
+    max-width: 560px;
+    width: 100%;
+    background-color: var(--header-search-bg);
     height: var(--search-section-size);
-
-    border: 1px solid #d7ddea;
+    border: none;
+    border-radius: 9999px;
 
     > svg {
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
     }
+
     input {
         width: 100%;
         height: 100%;
         color: #111;
+        background: transparent;
+        border: none;
+        outline: none;
+
         &::placeholder {
-            color: #8a97b1;
+            color: #9aa3b2;
         }
     }
 
@@ -47,12 +53,20 @@ export interface SearchBarProps {
 const SearchIcon = styled.div`
     min-width: var(--search-section-size);
     min-height: var(--search-section-size);
-    color: #7687a8;
-    padding: 10px;
+    color: #9aa3b2;
+    padding: 10px 8px 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
 `;
 
 const ClearSearchButtonStyles = styled.div`
-    padding: 6px;
+    padding: 6px 10px 6px 4px;
 `;
 
 export const SearchBar = ({ hide = true, onAfterSubmit }: SearchBarProps) => {
@@ -73,26 +87,24 @@ export const SearchBar = ({ hide = true, onAfterSubmit }: SearchBarProps) => {
     };
 
     return (
-        <SearchBarStyles
-            className="flex-center pos-r b-rad-10 fg-1"
-            $hide={hide}
-        >
+        <SearchBarStyles className="flex-center pos-r fg-1" $hide={hide}>
             <SearchIcon>
                 <Search />
             </SearchIcon>
             <input
                 type="text"
-                placeholder="Поиск товара"
+                placeholder="Поиск"
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 onKeyDown={onSearchKeyDown}
             />
-            {searchValue.length > 0 && (
+            {searchValue.length > 0 ? (
                 <ClearSearchButtonStyles>
                     <ClearSearchButton onClick={() => setSearchValue("")} />
                 </ClearSearchButtonStyles>
-            )}
+            ) : null}
         </SearchBarStyles>
     );
 };
+
 export default SearchBar;

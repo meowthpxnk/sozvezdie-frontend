@@ -9,6 +9,9 @@ const MarqueListLayoutStyles = styled.div`
     width: calc(100% + 40px);
     margin-left: -20px;
     margin-right: -20px;
+    /* Запас снаружи скролла — тень карточек не режется родителем секции */
+    padding-block: 8px;
+    margin-block: -8px;
 
     @media (min-width: 960px) {
         width: 100%;
@@ -27,16 +30,17 @@ const MarqueeScroll = styled.div`
     margin-inline: 20px;
     width: auto;
     max-width: none;
-    padding-bottom: 16px;
+    /* Вертикальный запас, чтобы box-shadow карточек не обрезался */
+    padding: 10px 0 20px;
 
     @media (min-width: 960px) {
         margin-inline: 0;
-        scroll-padding-inline: 0;
-        padding-bottom: 12px;
+        scroll-padding-inline: 4px;
+        padding: 10px 4px 20px;
     }
     scrollbar-width: thin;
     scrollbar-gutter: stable;
-    scrollbar-color: rgba(79, 131, 227, 0.5) rgba(9, 14, 24, 0.08);
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 
     &::-webkit-scrollbar {
         height: 6px;
@@ -44,12 +48,12 @@ const MarqueeScroll = styled.div`
 
     &::-webkit-scrollbar-track {
         border-radius: 999px;
-        background: rgba(9, 14, 24, 0.06);
+        background: var(--scrollbar-track-subtle);
     }
 
     &::-webkit-scrollbar-thumb {
         border-radius: 999px;
-        background: rgba(79, 131, 227, 0.45);
+        background: var(--scrollbar-thumb-strong);
     }
 `;
 
@@ -57,12 +61,16 @@ const MarqueeTrack = styled.ul`
     display: flex;
     gap: 16px;
     width: max-content;
+    padding-block: 2px;
 
     li {
         flex: 0 0 min(46vw, 200px);
         width: min(46vw, 200px);
         min-width: 0;
         scroll-snap-align: start;
+        overflow: visible;
+        padding-inline: 2px;
+        box-sizing: border-box;
     }
 
     @media (min-width: 960px) {

@@ -13,6 +13,8 @@ export interface ISellerProductApiResponse {
     moderationStatus: ModerationStatus;
     createdAt: string;
     moderatorComment?: string | null;
+    deletionRequestStatus?: ModerationStatus | null;
+    deletionRequestReason?: string | null;
     categorySlug?: string | null;
     subcategorySlug?: string | null;
     fandomSlug?: string | null;
@@ -22,12 +24,20 @@ export interface SellerProduct extends Product {
     moderationStatus: ModerationStatus;
     createdAt: string;
     moderatorComment?: string;
+    deletionRequestStatus?: ModerationStatus;
+    deletionRequestReason?: string;
 }
 
 export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
     PENDING: "На модерации",
     APPROVED: "Одобрен",
     REJECTED: "Отклонён",
+};
+
+export const DELETION_REQUEST_STATUS_LABELS: Record<ModerationStatus, string> = {
+    PENDING: "Удаление на модерации",
+    APPROVED: "Удалён",
+    REJECTED: "Удаление отклонено",
 };
 
 export const MODERATION_STATUS_BADGE: Record<
@@ -55,5 +65,7 @@ export function mapSellerProduct(data: ISellerProductApiResponse): SellerProduct
         moderationStatus: data.moderationStatus,
         createdAt: data.createdAt,
         moderatorComment: data.moderatorComment ?? undefined,
+        deletionRequestStatus: data.deletionRequestStatus ?? undefined,
+        deletionRequestReason: data.deletionRequestReason ?? undefined,
     };
 }

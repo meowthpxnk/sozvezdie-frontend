@@ -16,6 +16,11 @@ import {
 } from "@entities/author/seller-product.types";
 import { formatOrderDate } from "@shared/formatters";
 
+import {
+    parseModerationRequestTarget,
+} from "@entities/author/cancel-moderation-request";
+import { useCancelModerationRequest } from "@entities/author/hooks/useCancelModerationRequest";
+
 import { useAuthorFeed } from "./useAuthorFeed";
 
 const FilterWrap = styled.div`
@@ -43,7 +48,7 @@ const ScrollbarTrack = styled.div`
     width: 100%;
     height: 6px;
     border-radius: 999px;
-    background: rgba(9, 14, 24, 0.06);
+    background: var(--scrollbar-track-subtle);
     overflow: hidden;
 `;
 
@@ -52,7 +57,7 @@ const ScrollbarThumb = styled.div<{ $widthPercent: number; $leftPercent: number 
     width: ${({ $widthPercent }) => `${$widthPercent}%`};
     transform: translateX(${({ $leftPercent }) => `${$leftPercent}%`});
     border-radius: 999px;
-    background: rgba(79, 131, 227, 0.45);
+    background: var(--scrollbar-thumb-strong);
     transition: transform 0.1s linear;
 `;
 
@@ -60,8 +65,8 @@ const FilterButton = styled.button<{ $active: boolean }>`
     min-height: 30px;
     padding: 0 7px;
     border-radius: 8px;
-    border: 1px solid ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#fff")};
+    border: 1px solid ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "#fff")};
     color: ${({ $active }) => ($active ? "#fff" : "#2d3a54")};
     font-size: 12px;
     font-weight: 600;
@@ -117,7 +122,7 @@ const MetaText = styled.span`
 
 const OperationType = styled.span`
     font-size: 12px;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
     font-weight: 700;
 `;
 
@@ -197,6 +202,30 @@ const EmptyState = styled.p`
     font-size: 14px;
 `;
 
+const CancelRequestButton = styled.button`
+    align-self: flex-start;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #d7ddea;
+    background: #fff;
+    color: #2d3a54;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: #f5f7fb;
+        border-color: #b8c4da;
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+`;
+
 const FILTERS: { value: AuthorFeedFilter; label: string; icon: typeof ListIcon }[] = [
     { value: "ALL", label: "Все", icon: ListIcon },
     { value: "PENDING", label: "На модерации", icon: Clock3 },
@@ -206,6 +235,7 @@ const FILTERS: { value: AuthorFeedFilter; label: string; icon: typeof ListIcon }
 
 export function AuthorFeedPage() {
     const { filter, setFilter, items, loading, isError } = useAuthorFeed();
+    const { cancelRequest, isCancelling } = useCancelModerationRequest();
     const filtersRef = useRef<HTMLDivElement | null>(null);
     const [thumbLeftPercent, setThumbLeftPercent] = useState(0);
     const [thumbWidthPercent, setThumbWidthPercent] = useState(100);
@@ -302,6 +332,28 @@ export function AuthorFeedPage() {
                                         <DetailRow key={`${item.id}-${detail}`}>{detail}</DetailRow>
                                     ))}
                                 </DetailsList>
+                                {item.status === "PENDING" ? (
+                                    (() => {
+                                        const target = parseModerationRequestTarget(item.id);
+                                        if (!target) {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <CancelRequestButton
+                                                type="button"
+                                                disabled={isCancelling(item.id)}
+                                                onClick={() => {
+                                                    void cancelRequest(item.id, target);
+                                                }}
+                                            >
+                                                {isCancelling(item.id)
+                                                    ? "Отмена…"
+                                                    : "Отменить заявку"}
+                                            </CancelRequestButton>
+                                        );
+                                    })()
+                                ) : null}
                                 {item.status === "REJECTED" && item.moderatorComment ? (
                                     hasExtendedModeratorCard ? (
                                         <ModeratorExtendedCard>

@@ -7,11 +7,6 @@ const ProductCartQuantityCounterStyles = styled.div<{ $hasCounter: boolean }>`
     gap: ${({ $hasCounter }) => ($hasCounter ? "10px" : "0")};
     width: 100%;
     min-height: 52px;
-
-    @media (min-width: 1200px) {
-        height: 100%;
-        align-items: stretch;
-    }
 `;
 
 export interface ProductCartQuantityCounterProps {
@@ -25,11 +20,6 @@ const AddToCartButton = styled.button<{ $active: boolean; $disabled: boolean }>`
     height: 52px;
     flex: 1;
     min-width: 0;
-
-    @media (min-width: 1200px) {
-        height: auto;
-        min-height: 52px;
-    }
 
     background: ${({ $active, $disabled }) =>
         $disabled
@@ -48,13 +38,6 @@ const CounterWrapper = styled.div<{ $visible: boolean }>`
     transform: translateX(${({ $visible }) => ($visible ? "0" : "-8px")});
     transition: width 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
     pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
-`;
-
-const CartQtyStyles = styled.div`
-    @media (min-width: 1200px) {
-        height: 100%;
-        min-height: 52px;
-    }
 `;
 
 const CartNumberStyles = styled.div`
@@ -107,7 +90,7 @@ export const ProductCartQuantityCounter = ({
                 {isOutOfStock ? "Нет в наличии" : inCart ? "В корзине" : "В корзину"}
             </AddToCartButton>
             <CounterWrapper $visible={inCart && !isOutOfStock} aria-hidden={!inCart}>
-                <CartQtyStyles className="h-52 flex-r ai-c stl-mbc stl-fc b-rad-10">
+                <div className="h-52 flex-r ai-c stl-mbc stl-fc b-rad-10">
                     <CartMinusButton
                         size={52}
                         padding={12}
@@ -123,7 +106,7 @@ export const ProductCartQuantityCounter = ({
                         active={canIncrease}
                         onClick={() => setQuantity(quantity + 1)}
                     />
-                </CartQtyStyles>
+                </div>
             </CounterWrapper>
         </ProductCartQuantityCounterStyles>
     );

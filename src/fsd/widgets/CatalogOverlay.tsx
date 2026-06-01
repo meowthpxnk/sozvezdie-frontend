@@ -81,15 +81,15 @@ const CatalogCloseButton = styled.button`
     height: 42px;
     border-radius: 10px;
     border: 1px solid #d7ddea;
-    background: #e9edf5;
+    background: var(--neutral-surface-bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4f83e3;
+    color: var(--main-color);
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 
     &:hover {
-        background: #dce4f3;
+        background: var(--main-color-tint-hover);
         border-color: #c8d3e8;
     }
 `;
@@ -158,12 +158,12 @@ const CatalogCategoryCount = styled.span`
     font-weight: 700;
     text-align: center;
     color: #314e7b;
-    background: #e4eef9;
+    background: var(--main-color-tint-soft);
 `;
 
 const CatalogAllLink = styled(Link)`
     ${catalogItemStyles}
-    background: #e4eef9;
+    background: var(--main-color-tint-soft);
     border-color: #c8d8f0;
     font-weight: 600;
 `;
@@ -254,22 +254,28 @@ export const CatalogOverlay = ({ isCatalogOpen, close }: CatalogOverlayProps) =>
                                 </CatalogEmptyState>
                             </li>
                         ) : (
-                            categories.map((category) => (
-                                <li key={category.slug}>
-                                    <CatalogCategoryLink
-                                        href={`/products/${category.slug}`}
-                                        onClick={handleClose}
-                                    >
-                                        <CatalogCategoryName>
-                                            {category.title}
-                                        </CatalogCategoryName>
-                                        <CatalogCategoryCount>
-                                            {categoryCounts.get(category.slug) ??
-                                                0}
-                                        </CatalogCategoryCount>
-                                    </CatalogCategoryLink>
-                                </li>
-                            ))
+                            categories
+                                .filter(
+                                    (category) =>
+                                        (categoryCounts.get(category.slug) ?? 0) >
+                                        0
+                                )
+                                .map((category) => (
+                                    <li key={category.slug}>
+                                        <CatalogCategoryLink
+                                            href={`/products/${category.slug}`}
+                                            onClick={handleClose}
+                                        >
+                                            <CatalogCategoryName>
+                                                {category.title}
+                                            </CatalogCategoryName>
+                                            <CatalogCategoryCount>
+                                                {categoryCounts.get(category.slug) ??
+                                                    0}
+                                            </CatalogCategoryCount>
+                                        </CatalogCategoryLink>
+                                    </li>
+                                ))
                         )}
                     </CatalogCategoriesGrid>
                 </CatalogContentCard>

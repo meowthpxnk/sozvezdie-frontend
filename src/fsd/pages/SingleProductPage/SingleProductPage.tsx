@@ -29,7 +29,7 @@ const SingleProductPageStyles = styled.div`
     margin: 0 auto;
 `;
 
-const PRODUCT_SPLIT_BP = 581;
+const PRODUCT_SPLIT_BP = 660;
 
 const ProductLayout = styled.div`
     display: flex;
@@ -96,12 +96,6 @@ const PurchaseActionsRow = styled.div`
     flex-direction: column;
     gap: 12px;
     width: 100%;
-
-    @media (min-width: 1200px) {
-        flex-direction: row;
-        align-items: stretch;
-        gap: 12px;
-    }
 `;
 
 const AuthorLink = styled(Link)`
@@ -109,20 +103,10 @@ const AuthorLink = styled(Link)`
     color: inherit;
     min-width: 0;
     width: 100%;
-
-    @media (min-width: 1200px) {
-        flex: 1;
-        display: flex;
-    }
 `;
 
 const CartActionsWrap = styled.div`
     width: 100%;
-
-    @media (min-width: 1200px) {
-        flex: 1.15;
-        min-width: 0;
-    }
 `;
 
 const SimilarSection = styled.section`

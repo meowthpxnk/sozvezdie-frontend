@@ -2,8 +2,9 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 
-import { removeAccessToken } from "../auth-token.service";
-import { logout } from "../../../shared/store/AuthSlice";
+import { getAccessToken, removeAccessToken } from "../auth-token.service";
+import { clearStoreOnLogout } from "../../../shared/store/clearClientStore";
+import { isAuthSessionReady } from "../../../shared/lib/auth-session";
 import { RootState, useAppDispatch, useAppSelector } from "../../../shared/store/store";
 import sessionService from "../../../shared/services/session.service";
 
@@ -11,6 +12,8 @@ export const useAuth = () => {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const auth = useAppSelector((state: RootState) => state.auth);
+    const hasAccessToken = Boolean(getAccessToken());
+    const authReady = isAuthSessionReady(hasAccessToken, auth.sessionChecked);
 
     const handleLogout = useCallback(async () => {
         try {
@@ -19,7 +22,7 @@ export const useAuth = () => {
             // session may already be invalid
         }
         removeAccessToken();
-        dispatch(logout());
+        clearStoreOnLogout(dispatch);
         router.push("/auth");
     }, [dispatch, router]);
 
@@ -32,6 +35,8 @@ export const useAuth = () => {
         phone: auth.phone,
         loading: auth.loading,
         isAuthenticated: auth.isAuthenticated,
+        hasAccessToken,
+        authReady,
         logout: handleLogout,
     };
 };

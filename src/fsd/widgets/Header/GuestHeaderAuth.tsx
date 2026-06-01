@@ -14,6 +14,7 @@ export function GuestHeaderAuth() {
         <HeaderLinkButton
             href="/auth"
             Icon={LogIn}
+            label="Войти"
             active={isNavLinkActive(pathname, "/auth")}
         />
     );

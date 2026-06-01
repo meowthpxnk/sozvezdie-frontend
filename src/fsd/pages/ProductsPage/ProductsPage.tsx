@@ -34,7 +34,7 @@ const PageTitle = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const Breadcrumbs = styled.nav`
@@ -47,7 +47,7 @@ const Breadcrumbs = styled.nav`
 `;
 
 const BreadcrumbLink = styled(Link)`
-    color: var(--main-color, #4f83e3);
+    color: var(--main-color, var(--main-color));
     text-decoration: none;
 
     &:hover {
@@ -181,11 +181,13 @@ export const ProductsPage = ({
 
     const categoryOptions = useMemo(
         () =>
-            categories.map((category) => ({
-                slug: category.slug,
-                title: category.title,
-                count: categoryCounts.get(category.slug) ?? 0,
-            })),
+            categories
+                .map((category) => ({
+                    slug: category.slug,
+                    title: category.title,
+                    count: categoryCounts.get(category.slug) ?? 0,
+                }))
+                .filter((category) => category.count > 0),
         [categories, categoryCounts]
     );
 
@@ -206,11 +208,13 @@ export const ProductsPage = ({
 
         return [
             { slug: null, title: "Все", count: subcategoryFacets?.total ?? 0 },
-            ...subcategories.map((subcategory) => ({
-                slug: subcategory.slug,
-                title: subcategory.title,
-                count: subcategoryCounts.get(subcategory.slug) ?? 0,
-            })),
+            ...subcategories
+                .map((subcategory) => ({
+                    slug: subcategory.slug,
+                    title: subcategory.title,
+                    count: subcategoryCounts.get(subcategory.slug) ?? 0,
+                }))
+                .filter((subcategory) => subcategory.count > 0),
         ];
     }, [categorySlug, subcategories, subcategoryCounts, subcategoryFacets]);
 

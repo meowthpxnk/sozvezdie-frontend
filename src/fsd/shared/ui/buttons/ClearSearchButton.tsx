@@ -5,7 +5,7 @@ const ClearSearchButtonStyles = styled.button`
     width: 28px;
     height: 28px;
     border: none;
-    background-color: #e9edf5;
+    background-color: var(--neutral-surface-bg);
     color: #5d6b84;
 
     cursor: pointer;
@@ -14,7 +14,7 @@ const ClearSearchButtonStyles = styled.button`
     padding: 4px;
 
     &:hover {
-        background-color: #dce4f3;
+        background-color: var(--main-color-tint-hover);
         color: #2d3a54;
     }
 `;

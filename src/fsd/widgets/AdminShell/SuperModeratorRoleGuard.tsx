@@ -18,23 +18,24 @@ type SuperModeratorRoleGuardProps = {
 
 export function SuperModeratorRoleGuard({ children }: SuperModeratorRoleGuardProps) {
     const router = useRouter();
-    const { isAuthenticated, loading, role } = useAuth();
+    const { isAuthenticated, role, authReady, hasAccessToken } = useAuth();
 
     useEffect(() => {
-        if (loading) {
+        if (!authReady) {
             return;
         }
 
-        if (!isAuthenticated) {
+        if (!hasAccessToken || !isAuthenticated) {
+            router.replace("/auth");
             return;
         }
 
         if (role !== "SUPER_MODERATOR") {
             router.replace("/");
         }
-    }, [isAuthenticated, loading, role, router]);
+    }, [authReady, hasAccessToken, isAuthenticated, role, router]);
 
-    if (loading) {
+    if (!authReady) {
         return <Message>Загрузка панели SuperAdmin…</Message>;
     }
 

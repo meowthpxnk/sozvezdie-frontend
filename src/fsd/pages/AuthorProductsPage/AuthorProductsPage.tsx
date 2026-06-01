@@ -7,12 +7,17 @@ import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { SetAdminChrome } from "@widgets/AdminShell";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
 import {
+    DELETION_REQUEST_STATUS_LABELS,
     MODERATION_STATUS_BADGE,
     MODERATION_STATUS_LABELS,
+    type SellerProduct,
 } from "@entities/author/seller-product.types";
+import authorService from "@entities/author/author.service";
 import { getMediaImageUrl } from "@shared/lib/media-url";
 import { priceFormatter } from "@shared/formatters";
+import { useCancelModerationRequest } from "@entities/author/hooks/useCancelModerationRequest";
 import { toast } from "sonner";
+
 import { useAuthorProducts } from "./useAuthorProducts";
 
 const AddProductButton = styled(Link)`
@@ -20,7 +25,7 @@ const AddProductButton = styled(Link)`
     height: 28px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -32,11 +37,11 @@ const AddProductButton = styled(Link)`
     appearance: none;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -129,7 +134,7 @@ const EditButton = styled(Link)`
     text-decoration: none;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -139,7 +144,7 @@ const EditButton = styled(Link)`
     appearance: none;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     svg {
@@ -173,7 +178,7 @@ const PriceStockColumn = styled.div`
 const ItemPrice = styled.span`
     font-size: 20px;
     font-weight: 600;
-    color: #4f83e3;
+    color: var(--main-color);
     line-height: 1.1;
 `;
 
@@ -203,7 +208,7 @@ const EmptyState = styled.p`
 `;
 
 const EmptyLink = styled(Link)`
-    color: #4f83e3;
+    color: var(--main-color);
     font-weight: 600;
     text-decoration: none;
 
@@ -293,6 +298,29 @@ const DangerButton = styled.button`
     }
 `;
 
+const ReasonField = styled.textarea`
+    width: 100%;
+    min-height: 88px;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    padding: 10px;
+    font-size: 14px;
+    color: #000;
+    resize: vertical;
+    box-sizing: border-box;
+
+    &:focus {
+        outline: 2px solid var(--main-color);
+        outline-offset: 2px;
+    }
+`;
+
+const BadgeRow = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+`;
+
 const SecondaryButton = styled.button`
     min-height: 34px;
     padding: 0 10px;
@@ -311,12 +339,48 @@ const SecondaryButton = styled.button`
 const getProductImage = (images: string[]): string =>
     getMediaImageUrl(images[0]) ?? "https://placeholdpicsum.dev/photo/200/200?seed=product";
 
+type DeleteModalMode = "cancel-create" | "request-deletion" | "cancel-deletion";
+
+function resolveDeleteModalMode(product: SellerProduct | null): DeleteModalMode | null {
+    if (!product) {
+        return null;
+    }
+
+    if (product.moderationStatus === "PENDING") {
+        return "cancel-create";
+    }
+
+    if (product.deletionRequestStatus === "PENDING") {
+        return "cancel-deletion";
+    }
+
+    if (product.moderationStatus === "APPROVED") {
+        return "request-deletion";
+    }
+
+    return null;
+}
+
+function canShowDeleteAction(product: SellerProduct): boolean {
+    return resolveDeleteModalMode(product) !== null;
+}
+
 export const AuthorProductsPage = () => {
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
-    const [isDeleting, setDeleting] = useState(false);
-    const { products, loading, isError } = useAuthorProducts();
+    const [deletionReason, setDeletionReason] = useState("");
+    const [isSubmitting, setSubmitting] = useState(false);
+    const { products, loading, isError, refetch } = useAuthorProducts();
+    const { cancelRequest, isCancelling } = useCancelModerationRequest();
     const deletingProduct = products.find((product) => product.id === deletingProductId) ?? null;
+    const deleteModalMode = resolveDeleteModalMode(deletingProduct);
+    const isPendingCancellation =
+        deleteModalMode === "cancel-create" && deletingProductId
+            ? isCancelling(`product-${deletingProductId}`)
+            : deleteModalMode === "cancel-deletion" && deletingProductId
+              ? isCancelling(`product-delete-${deletingProductId}`)
+              : false;
+    const isBusy = isPendingCancellation || isSubmitting;
 
     const titleRight = useMemo(
         () => (
@@ -363,23 +427,50 @@ export const AuthorProductsPage = () => {
                             </ItemImageWrapper>
                             <ItemMeta>
                                 <ItemName>{product.name}</ItemName>
-                                <StatusBadge $status={product.moderationStatus}>
-                                    {MODERATION_STATUS_LABELS[product.moderationStatus]}
-                                </StatusBadge>
+                                <BadgeRow>
+                                    <StatusBadge $status={product.moderationStatus}>
+                                        {MODERATION_STATUS_LABELS[product.moderationStatus]}
+                                    </StatusBadge>
+                                    {product.deletionRequestStatus ? (
+                                        <StatusBadge $status={product.deletionRequestStatus}>
+                                            {
+                                                DELETION_REQUEST_STATUS_LABELS[
+                                                    product.deletionRequestStatus
+                                                ]
+                                            }
+                                        </StatusBadge>
+                                    ) : null}
+                                </BadgeRow>
                                 <ItemActions>
-                                    <EditButton href={`/admin/products/${product.id}/edit`} aria-label={`Редактировать ${product.name}`}>
-                                        <Pencil size={14} />
-                                    </EditButton>
-                                    <DeleteButton
-                                        type="button"
-                                        aria-label={`Удалить ${product.name}`}
-                                        onClick={() => {
-                                            setDeletingProductId(product.id);
-                                            setDeleteModalOpen(true);
-                                        }}
-                                    >
-                                        <Trash2 size={14} />
-                                    </DeleteButton>
+                                    {product.deletionRequestStatus !== "PENDING" ? (
+                                        <EditButton
+                                            href={`/admin/products/${product.id}/edit`}
+                                            aria-label={`Редактировать ${product.name}`}
+                                        >
+                                            <Pencil size={14} />
+                                        </EditButton>
+                                    ) : null}
+                                    {canShowDeleteAction(product) ? (
+                                        <DeleteButton
+                                            type="button"
+                                            aria-label={
+                                                product.deletionRequestStatus === "PENDING"
+                                                    ? `Отменить заявку на удаление ${product.name}`
+                                                    : product.moderationStatus === "PENDING"
+                                                      ? `Отменить заявку на модерацию ${product.name}`
+                                                      : `Запросить удаление ${product.name}`
+                                            }
+                                            onClick={() => {
+                                                setDeletingProductId(product.id);
+                                                setDeletionReason(
+                                                    product.deletionRequestReason ?? ""
+                                                );
+                                                setDeleteModalOpen(true);
+                                            }}
+                                        >
+                                            <Trash2 size={14} />
+                                        </DeleteButton>
+                                    ) : null}
                                 </ItemActions>
                                 <ItemBottomRow>
                                     <PriceStockColumn>
@@ -393,50 +484,145 @@ export const AuthorProductsPage = () => {
                 ))}
             </List>
             )}
-            <ModalOverlay $isOpen={isDeleteModalOpen} onClick={() => (!isDeleting ? setDeleteModalOpen(false) : undefined)}>
+            <ModalOverlay
+                $isOpen={isDeleteModalOpen}
+                onClick={() => (!isBusy ? setDeleteModalOpen(false) : undefined)}
+            >
                 <ModalCard onClick={(event) => event.stopPropagation()}>
                     <ModalCloseButton
                         type="button"
                         aria-label="Закрыть модальное окно"
                         onClick={() => {
-                            if (!isDeleting) {
+                            if (!isBusy) {
                                 setDeleteModalOpen(false);
                                 setDeletingProductId(null);
+                                setDeletionReason("");
                             }
                         }}
                     >
                         <X size={16} />
                     </ModalCloseButton>
-                    <ModalTitle>Удалить товар?</ModalTitle>
+                    <ModalTitle>
+                        {deleteModalMode === "request-deletion"
+                            ? "Запросить удаление товара?"
+                            : deleteModalMode === "cancel-deletion"
+                              ? "Отменить заявку на удаление?"
+                              : "Отменить заявку на модерацию?"}
+                    </ModalTitle>
                     <ModalText>
-                        {deletingProduct ? `Товар «${deletingProduct.name}» будет удален без возможности восстановления.` : "Этот товар будет удален без возможности восстановления."}
+                        {deleteModalMode === "request-deletion" && deletingProduct
+                            ? `Товар «${deletingProduct.name}» останется в каталоге до решения модератора. После одобрения он будет удалён без возможности восстановления.`
+                            : deleteModalMode === "cancel-deletion" && deletingProduct
+                              ? `Заявка на удаление «${deletingProduct.name}» будет отменена, товар снова останется активным.`
+                              : deletingProduct
+                                ? `Товар «${deletingProduct.name}» будет удалён, заявка исчезнет из ленты модерации.`
+                                : "Заявка будет отменена."}
                     </ModalText>
+                    {deleteModalMode === "request-deletion" ? (
+                        <ReasonField
+                            value={deletionReason}
+                            onChange={(event) => setDeletionReason(event.target.value)}
+                            placeholder="Причина удаления (необязательно)"
+                        />
+                    ) : null}
                     <ModalActions>
                         <SecondaryButton
                             type="button"
                             onClick={() => {
                                 setDeleteModalOpen(false);
                                 setDeletingProductId(null);
+                                setDeletionReason("");
                             }}
-                            disabled={isDeleting}
+                            disabled={isBusy}
                         >
-                            Отмена
+                            Назад
                         </SecondaryButton>
                         <DangerButton
                             type="button"
-                            disabled={isDeleting || !deletingProductId}
+                            disabled={isBusy || !deletingProductId || !deleteModalMode}
                             onClick={() => {
-                                if (!deletingProductId) {
+                                if (!deletingProductId || !deleteModalMode) {
                                     return;
                                 }
-                                setDeleting(true);
-                                toast.info("Удаление товаров будет доступно позже");
-                                setDeleteModalOpen(false);
-                                setDeletingProductId(null);
-                                setDeleting(false);
+
+                                if (deleteModalMode === "request-deletion") {
+                                    setSubmitting(true);
+                                    void authorService
+                                        .requestProductDeletion(
+                                            deletingProductId,
+                                            deletionReason
+                                        )
+                                        .then(() => {
+                                            toast.success(
+                                                "Заявка на удаление отправлена модератору"
+                                            );
+                                            setDeleteModalOpen(false);
+                                            setDeletingProductId(null);
+                                            setDeletionReason("");
+                                            void refetch();
+                                        })
+                                        .catch((error: unknown) => {
+                                            const detail =
+                                                typeof error === "object" &&
+                                                error !== null &&
+                                                "response" in error &&
+                                                typeof (
+                                                    error as {
+                                                        response?: { data?: { detail?: string } };
+                                                    }
+                                                ).response?.data?.detail === "string"
+                                                    ? (
+                                                          error as {
+                                                              response: {
+                                                                  data: { detail: string };
+                                                              };
+                                                          }
+                                                      ).response.data.detail
+                                                    : null;
+                                            toast.error(
+                                                detail ??
+                                                    "Не удалось отправить заявку на удаление"
+                                            );
+                                        })
+                                        .finally(() => setSubmitting(false));
+                                    return;
+                                }
+
+                                const cancelTarget =
+                                    deleteModalMode === "cancel-deletion"
+                                        ? {
+                                              feedItemId: `product-delete-${deletingProductId}`,
+                                              target: {
+                                                  kind: "product-deletion" as const,
+                                                  productId: deletingProductId,
+                                              },
+                                          }
+                                        : {
+                                              feedItemId: `product-${deletingProductId}`,
+                                              target: {
+                                                  kind: "product" as const,
+                                                  productId: deletingProductId,
+                                              },
+                                          };
+
+                                void cancelRequest(
+                                    cancelTarget.feedItemId,
+                                    cancelTarget.target
+                                ).then((success) => {
+                                    if (success) {
+                                        setDeleteModalOpen(false);
+                                        setDeletingProductId(null);
+                                        setDeletionReason("");
+                                        void refetch();
+                                    }
+                                });
                             }}
                         >
-                            {isDeleting ? "Удаляем..." : "Да, удалить"}
+                            {isBusy
+                                ? "Обработка…"
+                                : deleteModalMode === "request-deletion"
+                                  ? "Отправить на удаление"
+                                  : "Да, отменить"}
                         </DangerButton>
                     </ModalActions>
                 </ModalCard>

@@ -1,5 +1,32 @@
 import { axiosWithAuth, axiosClassic } from "@shared/api/interceptors";
 import { Author } from "./author";
+import type { ModerationStatus } from "./seller-product.types";
+
+type IAuthorApiResponse = {
+    id: string;
+    name: string;
+    desc: string;
+    bannerImage: string | null;
+    avatarImage: string | null;
+    tiktokUrl?: string | null;
+    telegramChannelUrl?: string | null;
+    vkUrl?: string | null;
+    moderationStatus?: ModerationStatus;
+};
+
+function mapAuthorFromApi(data: IAuthorApiResponse): Author {
+    return {
+        id: data.id,
+        name: data.name,
+        description: data.desc,
+        bannerImage: data.bannerImage ?? undefined,
+        avatarImage: data.avatarImage ?? undefined,
+        tiktokUrl: data.tiktokUrl ?? undefined,
+        telegramChannelUrl: data.telegramChannelUrl ?? undefined,
+        vkUrl: data.vkUrl ?? undefined,
+        moderationStatus: data.moderationStatus,
+    };
+}
 import {
     type AuthorDashboard,
     type IAuthorDashboardApiResponse,
@@ -17,21 +44,20 @@ class AuthorService {
     private AUTHORS_URL = "/authors";
 
     async getAuthors() {
-        const response = await axiosClassic.get<Author[]>(`${this.BASE_URL}`);
-        return response.data;
+        const response = await axiosClassic.get<IAuthorApiResponse[]>(`${this.BASE_URL}`);
+        return response.data.map(mapAuthorFromApi);
     }
 
     async getPopularAuthors() {
-        const response = await axiosClassic.get<Author[]>(this.AUTHORS_URL, {
+        const response = await axiosClassic.get<IAuthorApiResponse[]>(this.AUTHORS_URL, {
             params: { popular: true },
         });
-        return response.data;
+        return response.data.map(mapAuthorFromApi);
     }
 
     async getAuthor(id: string) {
-        const response = await axiosClassic.get<Author>(`${this.BASE_URL}/${id}`);
-        // console.log(response.data);
-        return response.data;
+        const response = await axiosClassic.get<IAuthorApiResponse>(`${this.BASE_URL}/${id}`);
+        return mapAuthorFromApi(response.data);
     }
 
     async getAuthorsBulk(ids: string[]) {
@@ -39,10 +65,10 @@ class AuthorService {
             return [];
         }
 
-        const response = await axiosClassic.get<Author[]>(`${this.BASE_URL}/bulk`, {
+        const response = await axiosClassic.get<IAuthorApiResponse[]>(`${this.BASE_URL}/bulk`, {
             params: { ids: ids.join(",") },
         });
-        return response.data;
+        return response.data.map(mapAuthorFromApi);
     }
 
     async getProductsByAuthor(authorId: string) {
@@ -124,34 +150,26 @@ class AuthorService {
         desc: string;
         avatarFile: File;
         bannerFile: File;
+        tiktokUrl?: string;
+        telegramChannelUrl?: string;
+        vkUrl?: string;
     }) {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("desc", data.desc);
         formData.append("avatar_image", data.avatarFile);
         formData.append("banner_image", data.bannerFile);
+        formData.append("tiktok_url", data.tiktokUrl?.trim() ?? "");
+        formData.append("telegram_channel_url", data.telegramChannelUrl?.trim() ?? "");
+        formData.append("vk_url", data.vkUrl?.trim() ?? "");
 
-        const response = await axiosWithAuth.post<{
-            id: string;
-            name: string;
-            desc: string;
-            bannerImage: string | null;
-            avatarImage: string | null;
-            moderationStatus: import("./seller-product.types").ModerationStatus;
-        }>(`${this.BASE_URL}`, formData, {
+        const response = await axiosWithAuth.post<IAuthorApiResponse>(`${this.BASE_URL}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
 
-        return {
-            id: response.data.id,
-            name: response.data.name,
-            description: response.data.desc,
-            bannerImage: response.data.bannerImage ?? undefined,
-            avatarImage: response.data.avatarImage ?? undefined,
-            moderationStatus: response.data.moderationStatus,
-        } satisfies Author;
+        return mapAuthorFromApi(response.data);
     }
 
     async updateSellerCard(data: {
@@ -159,10 +177,16 @@ class AuthorService {
         desc: string;
         avatarFile?: File | null;
         bannerFile?: File | null;
+        tiktokUrl?: string;
+        telegramChannelUrl?: string;
+        vkUrl?: string;
     }) {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("desc", data.desc);
+        formData.append("tiktok_url", data.tiktokUrl?.trim() ?? "");
+        formData.append("telegram_channel_url", data.telegramChannelUrl?.trim() ?? "");
+        formData.append("vk_url", data.vkUrl?.trim() ?? "");
         if (data.avatarFile) {
             formData.append("avatar_image", data.avatarFile);
         }
@@ -170,27 +194,13 @@ class AuthorService {
             formData.append("banner_image", data.bannerFile);
         }
 
-        const response = await axiosWithAuth.put<{
-            id: string;
-            name: string;
-            desc: string;
-            bannerImage: string | null;
-            avatarImage: string | null;
-            moderationStatus: import("./seller-product.types").ModerationStatus;
-        }>(`${this.BASE_URL}/me`, formData, {
+        const response = await axiosWithAuth.put<IAuthorApiResponse>(`${this.BASE_URL}/me`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
 
-        return {
-            id: response.data.id,
-            name: response.data.name,
-            description: response.data.desc,
-            bannerImage: response.data.bannerImage ?? undefined,
-            avatarImage: response.data.avatarImage ?? undefined,
-            moderationStatus: response.data.moderationStatus,
-        } satisfies Author;
+        return mapAuthorFromApi(response.data);
     }
 
     async getMyBrandModerations() {
@@ -207,6 +217,33 @@ class AuthorService {
         >(`${this.BASE_URL}/me/brand-moderations`);
 
         return response.data;
+    }
+
+    async cancelProductModerationRequest(productId: string): Promise<void> {
+        await axiosWithAuth.delete(
+            `${this.BASE_URL}/me/products/${productId}/moderation-request`
+        );
+    }
+
+    async requestProductDeletion(productId: string, reason?: string): Promise<SellerProduct> {
+        const response = await axiosWithAuth.post<ISellerProductApiResponse>(
+            `${this.BASE_URL}/me/products/${productId}/deletion-request`,
+            { reason: reason?.trim() || null }
+        );
+        return mapSellerProduct(response.data);
+    }
+
+    async cancelProductDeletionRequest(productId: string): Promise<SellerProduct> {
+        const response = await axiosWithAuth.delete<ISellerProductApiResponse>(
+            `${this.BASE_URL}/me/products/${productId}/deletion-request`
+        );
+        return mapSellerProduct(response.data);
+    }
+
+    async cancelBrandModerationRequest(moderationId: string): Promise<void> {
+        await axiosWithAuth.delete(
+            `${this.BASE_URL}/me/brand-moderations/${moderationId}`
+        );
     }
 
 

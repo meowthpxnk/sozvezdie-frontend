@@ -17,12 +17,12 @@ const CartSelectButtonStyles = styled.button<{ $active?: boolean; $disabled?: bo
     opacity: ${({ $disabled }) => ($disabled ? 0.45 : 1)};
 
     background: ${({ $active = false, $disabled }) =>
-        $disabled ? "#e9edf5" : $active ? "#4f83e3" : "#e9edf5"};
+        $disabled ? "var(--neutral-surface-bg)" : $active ? "var(--main-color)" : "var(--neutral-surface-bg)"};
     color: ${({ $active = false, $disabled }) =>
-        $disabled ? "#9aa3b2" : $active ? "#fff" : "#4f83e3"};
+        $disabled ? "#9aa3b2" : $active ? "#fff" : "var(--main-color)"};
 
     &:hover:not(:disabled) {
-        background: ${({ $active = false }) => ($active ? "#3f74d6" : "#dce4f3")};
+        background: ${({ $active = false }) => ($active ? "var(--main-color-hover)" : "var(--main-color-tint-hover)")};
     }
 `;
 

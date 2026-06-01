@@ -63,7 +63,7 @@ const InputWithIconWrap = styled.div`
     background: #fff;
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -71,7 +71,7 @@ const InputWithIconWrap = styled.div`
         flex-shrink: 0;
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
         margin-left: 12px;
         margin-right: 8px;
     }
@@ -102,7 +102,7 @@ const NumberInput = styled.input`
     color: #000;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -118,13 +118,13 @@ const TextareaInput = styled.textarea`
     resize: vertical;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
 
 const UploadZone = styled.div<{ $isDragOver: boolean }>`
-    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "#4f83e3" : "#d7ddea")};
+    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "var(--main-color)" : "#d7ddea")};
     border-radius: 10px;
     padding: 12px;
     background: ${({ $isDragOver }) => ($isDragOver ? "#f5f9ff" : "#f8faff")};
@@ -152,7 +152,7 @@ const DragOverlay = styled.div<{ $isTargeted: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: ${({ $isTargeted }) => ($isTargeted ? "rgba(47, 95, 203, 0.6)" : "rgba(47, 95, 203, 0.42)")};
+    background: ${({ $isTargeted }) => ($isTargeted ? "var(--upload-drag-overlay-active)" : "var(--upload-drag-overlay)")};
     color: #fff;
     pointer-events: none;
     z-index: 3;
@@ -242,7 +242,7 @@ const ProductImageThumbButton = styled(Reorder.Item) <{ $active: boolean }>`
         content: "";
         position: absolute;
         inset: 0;
-        border: 2px solid ${({ $active }) => ($active ? "#4f83e3" : "transparent")};
+        border: 2px solid ${({ $active }) => ($active ? "var(--main-color)" : "transparent")};
         border-radius: inherit;
         pointer-events: none;
         box-sizing: border-box;
@@ -271,7 +271,7 @@ const AddPhotoThumbButton = styled.button`
     max-height: 72px;
     flex: 0 0 72px;
     background: #f1f5ff;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -328,7 +328,7 @@ const ProductImagesScrollbarThumb = styled.div<{ $leftPercent: number; $widthPer
     left: ${({ $leftPercent }) => `${$leftPercent}%`};
     width: ${({ $widthPercent }) => `${$widthPercent}%`};
     height: 100%;
-    background: #4f83e3;
+    background: var(--main-color);
     min-width: ${({ $coarse }) => ($coarse ? "52px" : "32px")};
     cursor: pointer;
     touch-action: none;
@@ -345,7 +345,7 @@ const PrimaryButton = styled.button`
     min-height: 42px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -353,7 +353,7 @@ const PrimaryButton = styled.button`
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 `;
 
@@ -486,7 +486,7 @@ const ModalProductImagesScrollbarThumb = styled.div<{ $leftPercent: number; $wid
     left: ${({ $leftPercent }) => `${$leftPercent}%`};
     width: ${({ $widthPercent }) => `${$widthPercent}%`};
     height: 100%;
-    background: #4f83e3;
+    background: var(--main-color);
     min-width: 32px;
     cursor: pointer;
     touch-action: none;
@@ -510,7 +510,7 @@ const ModalProductThumbButton = styled.button<{ $active: boolean }>`
         content: "";
         position: absolute;
         inset: 0;
-        border: 2px solid ${({ $active }) => ($active ? "#4f83e3" : "transparent")};
+        border: 2px solid ${({ $active }) => ($active ? "var(--main-color)" : "transparent")};
         border-radius: inherit;
         pointer-events: none;
         box-sizing: border-box;
@@ -533,7 +533,7 @@ const ModalProductInfo = styled.div`
 const ModalProductPrice = styled.strong`
     font-size: 32px;
     line-height: 1.1;
-    color: #4f83e3;
+    color: var(--main-color);
 `;
 
 const ModalProductTitle = styled.h4`

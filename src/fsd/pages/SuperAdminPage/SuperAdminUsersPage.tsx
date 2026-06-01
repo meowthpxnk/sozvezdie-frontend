@@ -33,7 +33,7 @@ const SearchInput = styled.input`
     box-sizing: border-box;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 1px;
     }
 `;
@@ -99,7 +99,7 @@ const SaveButton = styled.button`
     padding: 0 14px;
     border: none;
     border-radius: 8px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 13px;
     font-weight: 700;

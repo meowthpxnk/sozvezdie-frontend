@@ -78,6 +78,7 @@ export const favouriteSlice = createSlice({
                 (item) => item.author_id !== action.payload.author_id
             );
         },
+        resetFavourites: () => initialState,
     },
     extraReducers: (builder) => {
         builder
@@ -109,4 +110,5 @@ export const {
     setFavouriteAuthors,
     toggleFavouriteProduct,
     toggleFavouriteAuthor,
+    resetFavourites,
 } = favouriteSlice.actions;

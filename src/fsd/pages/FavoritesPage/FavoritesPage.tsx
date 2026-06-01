@@ -29,7 +29,7 @@ const PageTitle = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const EmptyState = styled.p`

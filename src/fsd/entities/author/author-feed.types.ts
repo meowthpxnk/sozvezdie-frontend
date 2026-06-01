@@ -7,7 +7,8 @@ export type AuthorFeedFilter = ModerationStatus | "ALL";
 export type AuthorFeedOperationType =
     | "CREATE_PRODUCT"
     | "CREATE_SHOP"
-    | "UPDATE_BRAND";
+    | "UPDATE_BRAND"
+    | "DELETE_PRODUCT";
 
 export type AuthorFeedItem = {
     id: string;
@@ -23,6 +24,7 @@ export const AUTHOR_FEED_OPERATION_LABELS: Record<AuthorFeedOperationType, strin
     CREATE_PRODUCT: "Новый товар",
     CREATE_SHOP: "Создание магазина",
     UPDATE_BRAND: "Изменение бренда",
+    DELETE_PRODUCT: "Удаление товара",
 };
 
 export function mapProductToFeedItem(product: SellerProduct): AuthorFeedItem {
@@ -42,6 +44,27 @@ export function mapProductToFeedItem(product: SellerProduct): AuthorFeedItem {
         title: product.name,
         operationType: "CREATE_PRODUCT",
         status: product.moderationStatus,
+        details,
+        moderatorComment: product.moderatorComment ?? undefined,
+    };
+}
+
+export function mapProductDeletionToFeedItem(product: SellerProduct): AuthorFeedItem {
+    const details = [
+        `Цена: ${priceFormatter(product.price)}`,
+        `В наличии: ${product.stockCount} шт.`,
+    ];
+
+    if (product.deletionRequestReason) {
+        details.push(`Причина: ${product.deletionRequestReason}`);
+    }
+
+    return {
+        id: `product-delete-${product.id}`,
+        createdAt: product.createdAt,
+        title: `Удаление «${product.name}»`,
+        operationType: "DELETE_PRODUCT",
+        status: product.deletionRequestStatus ?? "PENDING",
         details,
         moderatorComment: product.moderatorComment ?? undefined,
     };

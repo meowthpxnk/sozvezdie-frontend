@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import { Heart } from "lucide-react";
+import { AuthorLikeButton } from "@shared/ui/buttons/AuthorLikeButton";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,6 +14,7 @@ import { useAuth } from "../../entities/auth";
 import { canAccessModeration } from "@shared/lib/roles";
 import { ModeratorEditButton } from "@features/moderator-edit/ModeratorEditButton";
 import { buildBrandCatalogEditHref } from "@features/moderator-edit/moderation-edit-links";
+import { AuthorSocialLinks } from "@features/author-social";
 import { MEDIA_URL } from "../../shared/api/interceptors";
 
 const PageRoot = styled.div`
@@ -35,14 +36,19 @@ const MainWrapper = styled.div`
     }
 `;
 
-const AuthorBannerWrapper = styled.section<{ $backgroundImage: string }>`
+const AuthorBannerWrapper = styled.section<{
+    $backgroundImage: string;
+    $hasSocialLinks: boolean;
+}>`
+    position: relative;
     width: 100%;
     min-height: 192px;
     max-height: 220px;
     border-radius: 14px;
     padding: 20px;
+    padding-bottom: ${({ $hasSocialLinks }) => ($hasSocialLinks ? "44px" : "20px")};
     background-image:
-        linear-gradient(135deg, rgba(18, 19, 23, 0.85) 0%, rgba(47, 95, 203, 0.72) 100%),
+        var(--author-banner-gradient),
         url(${({ $backgroundImage }) => $backgroundImage});
     background-size: cover;
     background-position: center;
@@ -50,10 +56,20 @@ const AuthorBannerWrapper = styled.section<{ $backgroundImage: string }>`
     display: flex;
     align-items: center;
     gap: 18px;
+    overflow: hidden;
 
     @media (min-width: 640px) {
         padding: 24px;
+        padding-bottom: ${({ $hasSocialLinks }) => ($hasSocialLinks ? "48px" : "24px")};
     }
+`;
+
+const AuthorBannerMain = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+    width: 100%;
 `;
 
 const AuthorAvatarWrapper = styled.div`
@@ -100,33 +116,12 @@ const AuthorBannerActions = styled.div`
 
 const AuthorBannerTitleWrapper = styled.h1`
     margin: 0;
+    color: #fff;
     font-size: 22px;
     line-height: 1.1;
 
     @media (min-width: 640px) {
         font-size: 28px;
-    }
-`;
-
-const AuthorLikeButton = styled.button<{ $active: boolean }>`
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: ${({ $active }) => ($active ? "#4f83e3" : "rgba(255, 255, 255, 0.2)")};
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
-
-    &:hover {
-        background: ${({ $active }) => ($active ? "#3f74d6" : "rgba(255, 255, 255, 0.28)")};
-    }
-
-    svg {
-        width: 18px;
-        height: 18px;
     }
 `;
 
@@ -194,49 +189,56 @@ export const SingleAuthorPage = ({ authorId }: AuthorPageProps) => {
         return null;
     }
 
+    const hasSocialLinks = Boolean(
+        author.tiktokUrl || author.telegramChannelUrl || author.vkUrl
+    );
+
     return (
         <PageRoot>
             <MainWrapper>
                 <AuthorBannerWrapper
                     $backgroundImage={`${MEDIA_URL}/images-bucket/${author.bannerImage ?? ""}`}
+                    $hasSocialLinks={hasSocialLinks}
                 >
-                    <AuthorAvatarWrapper>
-                        {author.avatarImage ? (
-                            <img
-                                src={`${MEDIA_URL}/images-bucket/${author.avatarImage}`}
-                                alt={`Аватар автора ${author.name}`}
-                            />
-                        ) : (
-                            author.name.slice(0, 1).toUpperCase()
-                        )}
-                    </AuthorAvatarWrapper>
-                    <AuthorBannerContentWrapper>
-                        <AuthorBannerTopRow>
-                            <AuthorBannerTitleWrapper>{author.name}</AuthorBannerTitleWrapper>
-                            <AuthorBannerActions>
-                                {isModerator ? (
-                                    <ModeratorEditButton
-                                        href={buildBrandCatalogEditHref(authorId)}
-                                        label="Редактировать бренд"
-                                        variant="on-dark"
+                    <AuthorBannerMain>
+                        <AuthorAvatarWrapper>
+                            {author.avatarImage ? (
+                                <img
+                                    src={`${MEDIA_URL}/images-bucket/${author.avatarImage}`}
+                                    alt={`Аватар автора ${author.name}`}
+                                />
+                            ) : (
+                                author.name.slice(0, 1).toUpperCase()
+                            )}
+                        </AuthorAvatarWrapper>
+                        <AuthorBannerContentWrapper>
+                            <AuthorBannerTopRow>
+                                <AuthorBannerTitleWrapper>{author.name}</AuthorBannerTitleWrapper>
+                                <AuthorBannerActions>
+                                    {isModerator ? (
+                                        <ModeratorEditButton
+                                            href={buildBrandCatalogEditHref(authorId)}
+                                            label="Редактировать бренд"
+                                            variant="on-dark"
+                                        />
+                                    ) : null}
+                                    <AuthorLikeButton
+                                        active={Boolean(isFavourite)}
+                                        onClick={setFavourite}
                                     />
-                                ) : null}
-                                <AuthorLikeButton
-                                    type="button"
-                                    $active={Boolean(isFavourite)}
-                                    onClick={setFavourite}
-                                    aria-label="Добавить или удалить автора из избранного"
-                                >
-                                    <Heart
-                                        fill={isFavourite ? "#fff" : "none"}
-                                        stroke="#fff"
-                                        strokeWidth={2}
-                                    />
-                                </AuthorLikeButton>
-                            </AuthorBannerActions>
-                        </AuthorBannerTopRow>
-                        <AuthorBannerDescriptionWrapper>{author.description}</AuthorBannerDescriptionWrapper>
-                    </AuthorBannerContentWrapper>
+                                </AuthorBannerActions>
+                            </AuthorBannerTopRow>
+                            <AuthorBannerDescriptionWrapper>
+                                {author.description}
+                            </AuthorBannerDescriptionWrapper>
+                        </AuthorBannerContentWrapper>
+                    </AuthorBannerMain>
+                    <AuthorSocialLinks
+                        placement="banner"
+                        tiktokUrl={author.tiktokUrl}
+                        telegramChannelUrl={author.telegramChannelUrl}
+                        vkUrl={author.vkUrl}
+                    />
                 </AuthorBannerWrapper>
                 <ProductsSection>
                     {products.length > 0 ? (

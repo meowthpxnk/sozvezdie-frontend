@@ -1,6 +1,18 @@
 import { axiosWithAuth } from "@shared/api/interceptors";
 import type { ModerationStatus } from "@entities/author/seller-product.types";
+import type {
+    BackendOrderStatus,
+    IUserOrderResponse,
+    OrderLineItem,
+} from "@entities/order/order.types";
 
+import {
+    type IModeratorOrderDetailApi,
+    type IModeratorOrderListItemApi,
+    type IModeratorOrdersListApi,
+    type ModeratorOrderDetail,
+    type ModeratorOrderListItem,
+} from "./moderation-orders.types";
 import {
     type IModerationEditApiResponse,
     type IModerationProposalApiResponse,
@@ -15,8 +27,94 @@ import {
     type SellerProduct,
 } from "@entities/author/seller-product.types";
 
+const mapModeratorLineItem = (
+    item: IUserOrderResponse["items"][number]
+): OrderLineItem => ({
+    productId: String(item.product_id),
+    name: item.name,
+    priceAtTime: item.price_at_time,
+    lineTotal: item.line_total,
+    image: item.image,
+    quantity: item.quantity,
+});
+
+const mapModeratorCustomer = (
+    customer: IModeratorOrderListItemApi["customer"]
+): ModeratorOrderListItem["customer"] => ({
+    id: customer.id,
+    username: customer.username,
+    fullName: customer.full_name,
+    email: customer.email,
+    phone: customer.phone,
+});
+
+const mapModeratorOrderListItem = (
+    order: IModeratorOrderListItemApi
+): ModeratorOrderListItem => ({
+    id: order.id,
+    status: order.status,
+    paymentMethod: order.payment_method,
+    deliveryMethod: order.delivery_method,
+    itemsTotal: order.items_total,
+    deliveryCost: order.delivery_cost,
+    total: order.total,
+    createdAt: order.created_at,
+    deliveryDate: order.delivery_date,
+    deliveryAddressText: order.delivery_address_text,
+    deliveryFlat: order.delivery_flat,
+    cdekPvzCode: order.cdek_pvz_code,
+    cdekPvzAddress: order.cdek_pvz_address,
+    customer: mapModeratorCustomer(order.customer),
+    itemCount: (order.items ?? []).reduce((sum, item) => sum + item.quantity, 0),
+});
+
+const mapModeratorOrderDetail = (
+    order: IModeratorOrderDetailApi
+): ModeratorOrderDetail => ({
+    ...mapModeratorOrderListItem(order),
+    cdekOrderUuid: order.cdek_order_uuid,
+    cdekError: order.cdek_error,
+    yookassaPaymentId: order.yookassa_payment_id,
+    products: (order.items ?? []).map(mapModeratorLineItem),
+});
+
 class ModerationService {
     private BASE_URL = "/moderation";
+
+    async getOrders(params?: {
+        status?: BackendOrderStatus;
+        archive?: boolean;
+        search?: string;
+        limit?: number;
+        offset?: number;
+    }): Promise<{ items: ModeratorOrderListItem[]; total: number }> {
+        const response = await axiosWithAuth.get<IModeratorOrdersListApi>(
+            `${this.BASE_URL}/orders`,
+            { params }
+        );
+        return {
+            items: response.data.items.map(mapModeratorOrderListItem),
+            total: response.data.total,
+        };
+    }
+
+    async getOrder(orderId: number): Promise<ModeratorOrderDetail> {
+        const response = await axiosWithAuth.get<IModeratorOrderDetailApi>(
+            `${this.BASE_URL}/orders/${orderId}`
+        );
+        return mapModeratorOrderDetail(response.data);
+    }
+
+    async updateOrderStatus(
+        orderId: number,
+        status: BackendOrderStatus
+    ): Promise<ModeratorOrderDetail> {
+        const response = await axiosWithAuth.patch<IModeratorOrderDetailApi>(
+            `${this.BASE_URL}/orders/${orderId}/status`,
+            { status }
+        );
+        return mapModeratorOrderDetail(response.data);
+    }
 
     async getProposals(status?: ModerationStatus): Promise<ModerationProposal[]> {
         const response = await axiosWithAuth.get<IModerationProposalApiResponse[]>(
@@ -92,11 +190,17 @@ class ModerationService {
             desc: string;
             avatarFile: File | null;
             bannerFile: File | null;
+            tiktokUrl?: string;
+            telegramChannelUrl?: string;
+            vkUrl?: string;
         }
     ): Promise<ModerationEdit> {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("desc", data.desc);
+        formData.append("tiktok_url", data.tiktokUrl?.trim() ?? "");
+        formData.append("telegram_channel_url", data.telegramChannelUrl?.trim() ?? "");
+        formData.append("vk_url", data.vkUrl?.trim() ?? "");
 
         if (data.avatarFile) {
             formData.append("avatar_image", data.avatarFile);
@@ -208,12 +312,18 @@ class ModerationService {
             desc: string;
             avatarFile: File | null;
             bannerFile: File | null;
+            tiktokUrl?: string;
+            telegramChannelUrl?: string;
+            vkUrl?: string;
             comment?: string;
         }
     ): Promise<ModerationEdit> {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("desc", data.desc);
+        formData.append("tiktok_url", data.tiktokUrl?.trim() ?? "");
+        formData.append("telegram_channel_url", data.telegramChannelUrl?.trim() ?? "");
+        formData.append("vk_url", data.vkUrl?.trim() ?? "");
 
         if (data.avatarFile) {
             formData.append("avatar_image", data.avatarFile);

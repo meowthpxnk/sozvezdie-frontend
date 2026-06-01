@@ -8,6 +8,9 @@ export interface IAuthorDashboardApiResponse {
         desc: string;
         bannerImage: string | null;
         avatarImage: string | null;
+        tiktokUrl?: string | null;
+        telegramChannelUrl?: string | null;
+        vkUrl?: string | null;
         moderationStatus: ModerationStatus;
         createdAt?: string;
     } | null;
@@ -38,6 +41,9 @@ export function mapAuthorDashboard(
                   description: data.seller_card.desc,
                   bannerImage: data.seller_card.bannerImage ?? undefined,
                   avatarImage: data.seller_card.avatarImage ?? undefined,
+                  tiktokUrl: data.seller_card.tiktokUrl ?? undefined,
+                  telegramChannelUrl: data.seller_card.telegramChannelUrl ?? undefined,
+                  vkUrl: data.seller_card.vkUrl ?? undefined,
                   moderationStatus: data.seller_card.moderationStatus,
               }
             : null,

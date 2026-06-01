@@ -32,14 +32,23 @@ const mapProfileResponseToUser = (
     phone: profile.phone,
 });
 
-export const fetchMe = createAsyncThunk("auth/fetchMe", async (_, thunkAPI) => {
-    try {
-        const me = await authService.getMe();
-        return mapMeToUser(me);
-    } catch {
-        return thunkAPI.rejectWithValue("Failed to fetch user profile");
+export const fetchMe = createAsyncThunk(
+    "auth/fetchMe",
+    async (_, thunkAPI) => {
+        try {
+            const me = await authService.getMe();
+            return mapMeToUser(me);
+        } catch {
+            return thunkAPI.rejectWithValue("Failed to fetch user profile");
+        }
+    },
+    {
+        condition: (_, { getState }) => {
+            const { auth } = getState() as { auth: { loading: boolean } };
+            return !auth.loading;
+        },
     }
-});
+);
 
 export const updateUserProfile = createAsyncThunk(
     "auth/updateUserProfile",

@@ -37,7 +37,7 @@ const CartPlusButton = styled.button`
     width: 28px;
     height: 28px;
     border-radius: 0;
-    background-color: #4f83e3;
+    background-color: var(--main-color);
     color: #fff;
     display: flex;
     align-items: center;
@@ -48,13 +48,13 @@ const CartPlusButton = styled.button`
     transition: background-color 0.2s ease;
 
     &:hover:not(:disabled) {
-        background-color: #3f74d6;
+        background-color: var(--main-color-hover);
     }
 
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
-        background-color: #a8b8e0;
+        background-color: var(--main-color-disabled);
     }
 `;
 
@@ -101,7 +101,7 @@ const checkoutButtonCss = `
     width: 100%;
     height: 40px;
     border-radius: 8px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -115,7 +115,7 @@ const checkoutButtonCss = `
     cursor: pointer;
 
     &:hover {
-        background-color: #3f74d6;
+        background-color: var(--main-color-hover);
     }
 `;
 
@@ -125,11 +125,11 @@ const CartCheckoutButton = styled.button`
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
-        background: #a8b8e0;
+        background: var(--main-color-disabled);
     }
 
     &:disabled:hover {
-        background: #a8b8e0;
+        background: var(--main-color-disabled);
     }
 `;
 
@@ -182,7 +182,7 @@ const ConfirmButton = styled.button<{ $danger?: boolean }>`
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-    background: ${({ $danger }) => ($danger ? "#e44b4b" : "#e9edf5")};
+    background: ${({ $danger }) => ($danger ? "#e44b4b" : "var(--neutral-surface-bg)")};
     color: ${({ $danger }) => ($danger ? "#fff" : "#2f3440")};
 `;
 

@@ -40,6 +40,7 @@ export const PageShell = ({ children }: PageShellProps) => {
         <Footer links={[
             { href: "/products", label: "Каталог" },
             { href: "/authors", label: "Авторы" },
+            { href: "/faq", label: "FAQ" },
         ]} />
     </PageShellStyles>;
 };

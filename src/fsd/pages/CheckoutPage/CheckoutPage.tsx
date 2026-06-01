@@ -6,8 +6,11 @@ import styled from "styled-components";
 import { Check, Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { toast } from "sonner";
+import {
+    getApiErrorMessage,
+    isInsufficientStockApiError,
+} from "@shared/lib/api-order-error";
 
 // import { Header } from "@widgets/Header/ui/Header";
 import { priceFormatter } from "@shared/formatters";
@@ -16,15 +19,64 @@ import { useAuth } from "../../entities/auth/hooks";
 import { useAppDispatch } from "../../shared/store/store";
 import { removeManyFromCart } from "../../shared/store/CartSlice";
 import { fetchCart } from "../../entities/cart/cartThunk";
+import { refreshCartStockState } from "../../entities/cart/refreshCartStockState";
 
+import { CheckoutDeliverySection } from "./CheckoutDeliverySection";
+import { applyPaidOrderToStore } from "../../entities/order/applyPaidOrder";
+import { usePendingPaymentSync } from "../../entities/order/usePendingPaymentSync";
+import {
+    clearPendingCheckoutId,
+    savePendingCheckoutId,
+} from "../../entities/order/pendingCheckoutStorage";
 import { mapCheckoutToOrderRequest } from "./checkout.mappers";
-import type { CheckoutFormState } from "./checkout.types";
+import type { CheckoutFormState, DeliveryCalcState } from "./checkout.types";
 import { useCheckoutLines } from "./useCheckoutLines";
 
 const INFO_ALERT_TEXT =
     "Пожалуйста, проверяйте свою электронную почту. Туда будут приходить важные уведомления о статусе заказа и возможных корректировках наличия товаров.";
 
-const DEFAULT_PICKUP_ADDRESS = "г. Санкт-Петербург, м. Петроградская, ул. Королева 61";
+const PaymentOverlay = styled.div`
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #000;
+`;
+
+const PaymentOverlayTitle = styled.div`
+    font-size: 20px;
+    font-weight: 700;
+`;
+
+const PaymentOverlayHint = styled.div`
+    font-size: 15px;
+    color: #555;
+    max-width: 320px;
+    text-align: center;
+    line-height: 1.45;
+`;
+
+const PaymentSpinner = styled.div`
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e6e6e6;
+    border-top-color: var(--main-color);
+    border-radius: 50%;
+    animation: checkout-spin 0.8s linear infinite;
+
+    @keyframes checkout-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+`;
+
+const DEFAULT_PICKUP_ADDRESS = "г. Санкт-Петербург, ул. Печатника Григорьева, 8";
 const DEFAULT_STORAGE_PERIOD = "5 дней с момента оформления заказа";
 
 const MainWrapper = styled.div`
@@ -45,7 +97,7 @@ const PageTitle = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color);
+    color: var(--title-color);
 `;
 
 const PageTitleMeta = styled.span`
@@ -57,7 +109,7 @@ const PageTitleMeta = styled.span`
 const BackToCart = styled(Link)`
     display: inline-block;
     margin-bottom: 8px;
-    color: #4f83e3;
+    color: var(--main-color);
     text-decoration: none;
     font-size: 15px;
     font-weight: 600;
@@ -110,20 +162,20 @@ const OptionCardLabel = styled.label<{ $checked: boolean }>`
     display: block;
     cursor: pointer;
     border-radius: 10px;
-    border: 2px solid ${({ $checked }) => ($checked ? "#4f83e3" : "#e6e6e6")};
+    border: 2px solid ${({ $checked }) => ($checked ? "var(--main-color)" : "#e6e6e6")};
     background: #fff;
     padding: 12px 40px 12px 14px;
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
-    box-shadow: ${({ $checked }) => ($checked ? "0 0 0 1px rgba(79, 131, 227, 0.2)" : "none")};
+    box-shadow: ${({ $checked }) => ($checked ? "0 0 0 1px var(--focus-ring-color-soft)" : "none")};
 
     &:hover {
-        border-color: ${({ $checked }) => ($checked ? "#4f83e3" : "#cfd4dc")};
+        border-color: ${({ $checked }) => ($checked ? "var(--main-color)" : "#cfd4dc")};
     }
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -165,7 +217,7 @@ const OptionCheck = styled.span<{ $visible: boolean }>`
     width: 22px;
     height: 22px;
     border-radius: 999px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     opacity: ${({ $visible }) => ($visible ? 1 : 0)};
     pointer-events: none;
@@ -216,9 +268,9 @@ const SecondaryButton = styled.button`
     min-height: 38px;
     padding: 0 14px;
     border-radius: 8px;
-    border: 1px solid #4f83e3;
+    border: 1px solid var(--main-color);
     background: #fff;
-    color: #4f83e3;
+    color: var(--main-color);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -231,7 +283,7 @@ const SecondaryButton = styled.button`
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -248,7 +300,7 @@ const InfoAlert = styled.div`
     align-items: flex-start;
     padding: 12px 14px;
     border-radius: 10px;
-    background: #e4eef9;
+    background: var(--main-color-tint-soft);
     color: #314e7b;
     font-size: 14px;
     font-weight: 500;
@@ -288,7 +340,7 @@ const TextArea = styled.textarea`
     line-height: 1.45;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -349,7 +401,7 @@ const LineItemImageLink = styled(Link)`
     color: inherit;
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -374,7 +426,7 @@ const LineItemName = styled(Link)`
     text-decoration: none;
 
     &:hover {
-        color: #4f83e3;
+        color: var(--main-color);
     }
 `;
 
@@ -389,7 +441,7 @@ const LineItemBottom = styled.div`
 
 const LineItemPrice = styled.span`
     font-weight: 600;
-    color: #4f83e3;
+    color: var(--main-color);
     font-size: 17px;
 `;
 
@@ -443,7 +495,7 @@ const PrimaryWideButton = styled.button`
     min-height: 44px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -451,7 +503,7 @@ const PrimaryWideButton = styled.button`
     transition: background-color 0.2s ease;
 
     &:hover:not(:disabled) {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:disabled {
@@ -460,7 +512,7 @@ const PrimaryWideButton = styled.button`
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -493,7 +545,7 @@ const EmptyLink = styled(Link)`
     min-height: 42px;
     padding: 0 20px;
     border-radius: 10px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     text-decoration: none;
     font-size: 14px;
@@ -501,7 +553,7 @@ const EmptyLink = styled(Link)`
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 `;
 
@@ -521,39 +573,68 @@ export const CheckoutPage = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
     const dispatch = useAppDispatch();
-    const { isAuthenticated, loading: authLoading } = useAuth();
+    const { isAuthenticated, authReady } = useAuth();
     const { lines, isLoading: linesLoading, isEmpty, hasSelection } = useCheckoutLines();
+    usePendingPaymentSync(isAuthenticated && authReady);
 
     const [form, setForm] = useState<CheckoutFormState>({
         deliveryMethod: "pickup",
         pickupAddressText: DEFAULT_PICKUP_ADDRESS,
         orderStoragePeriodText: DEFAULT_STORAGE_PERIOD,
-        paymentMethod: "on_receipt",
+        paymentMethod: "card_online",
         orderComment: "",
-        sdekAddressSelected: false,
+        selectedAddress: null,
+        deliveryDate: null,
+        pvzCode: null,
+        pvzAddress: null,
     });
+
+    const [deliveryCalc, setDeliveryCalc] = useState<DeliveryCalcState>({
+        deliveryCost: 0,
+        availableDates: [],
+        isCalculating: false,
+    });
+
+    const [paymentPhase, setPaymentPhase] = useState<"idle" | "waiting">("idle");
+    const [checkoutSessionId] = useState(() => crypto.randomUUID());
 
     const itemsCount = lines.reduce((acc, line) => acc + line.quantity, 0);
     const itemsSubtotal = lines.reduce(
         (acc, line) => acc + line.unitPrice * line.quantity,
         0
     );
-    const deliveryCost = form.deliveryMethod === "pickup" ? 0 : 0;
+    const deliveryCost =
+        form.deliveryMethod === "pickup" ? 0 : deliveryCalc.deliveryCost;
+    const hasCdekAddress = Boolean(form.selectedAddress);
+    const isCdekDeliveryReady =
+        hasCdekAddress &&
+        !deliveryCalc.isCalculating &&
+        deliveryCalc.availableDates.length > 0;
+    const showOrderTotal =
+        form.deliveryMethod === "pickup" || isCdekDeliveryReady;
     const total = itemsSubtotal + deliveryCost;
 
     const createOrderMutation = useMutation({
         mutationFn: orderService.createOrder.bind(orderService),
     });
 
+    const initiatePaymentMutation = useMutation({
+        mutationFn: orderService.initiatePayment.bind(orderService),
+    });
+
+    const isSubmitting =
+        createOrderMutation.isPending || initiatePaymentMutation.isPending;
+
     useEffect(() => {
-        if (!authLoading && !isAuthenticated) {
+        if (!authReady) {
+            return;
+        }
+        if (!isAuthenticated) {
             router.replace("/auth");
             return;
         }
-        if (isAuthenticated) {
-            void dispatch(fetchCart());
-        }
-    }, [authLoading, isAuthenticated, router, dispatch]);
+        void dispatch(fetchCart());
+    }, [authReady, isAuthenticated, router, dispatch]);
 
     useEffect(() => {
         if (!linesLoading && isAuthenticated && !hasSelection) {
@@ -563,10 +644,39 @@ export const CheckoutPage = () => {
     }, [linesLoading, isAuthenticated, hasSelection, router]);
 
     const hasStockIssues = lines.some((line) => line.quantity > line.stockCount);
+    const canConfirmOrder =
+        showOrderTotal && !isSubmitting && !hasStockIssues && paymentPhase === "idle";
+
+    const deliverySummaryLabel =
+        form.deliveryMethod === "pickup"
+            ? "бесплатно"
+            : !isCdekDeliveryReady
+              ? "..."
+              : deliveryCost > 0
+                ? priceFormatter(deliveryCost)
+                : "бесплатно";
 
     const onConfirmOrder = async () => {
-        if (form.deliveryMethod === "sdek" && !form.sdekAddressSelected) {
+        if (
+            (form.deliveryMethod === "door" || form.deliveryMethod === "pvz") &&
+            !form.selectedAddress
+        ) {
             toast.error("Выберите адрес доставки");
+            return;
+        }
+        if (
+            (form.deliveryMethod === "door" || form.deliveryMethod === "pvz") &&
+            !form.deliveryDate
+        ) {
+            toast.error("Выберите дату доставки");
+            return;
+        }
+        if (form.deliveryMethod === "pvz" && !form.pvzCode) {
+            toast.error("Пункт выдачи не определён — уточните адрес");
+            return;
+        }
+        if (deliveryCalc.isCalculating) {
+            toast.error("Дождитесь расчёта доставки");
             return;
         }
 
@@ -578,17 +688,36 @@ export const CheckoutPage = () => {
             return;
         }
 
+        const orderRequest = mapCheckoutToOrderRequest(
+            form,
+            lines.map((line) => ({
+                productId: line.productId,
+                quantity: line.quantity,
+            })),
+            deliveryCost,
+            checkoutSessionId
+        );
+
         try {
-            await createOrderMutation.mutateAsync(
-                mapCheckoutToOrderRequest(
-                    form,
-                    lines.map((line) => ({
-                        productId: line.productId,
-                        quantity: line.quantity,
-                    })),
-                    deliveryCost
-                )
-            );
+            if (form.paymentMethod === "card_online") {
+                clearPendingCheckoutId();
+                setPaymentPhase("waiting");
+                const payment = await initiatePaymentMutation.mutateAsync(orderRequest);
+
+                if (payment.already_paid && payment.order) {
+                    await applyPaidOrderToStore(payment.order, dispatch, queryClient);
+                    setPaymentPhase("idle");
+                    toast.success("Заказ оплачен");
+                    router.replace("/orders");
+                    return;
+                }
+
+                savePendingCheckoutId(payment.checkout_id);
+                window.location.href = payment.payment_confirmation_url;
+                return;
+            }
+
+            await createOrderMutation.mutateAsync(orderRequest);
             const orderedIds = lines.map((line) => line.productId);
             dispatch(removeManyFromCart(orderedIds));
             await dispatch(fetchCart());
@@ -597,14 +726,24 @@ export const CheckoutPage = () => {
             toast.success("Заказ оформлен");
             router.push("/orders");
         } catch (error) {
-            const message = isAxiosError(error)
-                ? (error.response?.data as { detail?: string })?.detail
-                : undefined;
-            toast.error(message ?? "Не удалось оформить заказ");
+            setPaymentPhase("idle");
+            if (isInsufficientStockApiError(error)) {
+                await refreshCartStockState(dispatch, queryClient);
+                router.replace("/cart?stock_depleted=1");
+                return;
+            }
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    form.paymentMethod === "card_online"
+                        ? "Не удалось перейти к оплате"
+                        : "Не удалось оформить заказ"
+                )
+            );
         }
     };
 
-    if (authLoading || !isAuthenticated) {
+    if (!authReady || !isAuthenticated) {
         return null;
     }
 
@@ -637,6 +776,16 @@ export const CheckoutPage = () => {
 
     return (
         <div>
+            {paymentPhase === "waiting" ? (
+                <PaymentOverlay role="alertdialog" aria-busy="true" aria-live="polite">
+                    <PaymentSpinner aria-hidden />
+                    <PaymentOverlayTitle>Ожидание оплаты</PaymentOverlayTitle>
+                    <PaymentOverlayHint>
+                        Сейчас откроется страница ЮKassa. Корзина сохранится, пока оплата не
+                        завершится.
+                    </PaymentOverlayHint>
+                </PaymentOverlay>
+            ) : null}
             {/* <Header /> */}
             <MainWrapper>
                 <BackToCart href="/cart">← Корзина</BackToCart>
@@ -655,7 +804,15 @@ export const CheckoutPage = () => {
                                         type="radio"
                                         name="delivery"
                                         checked={form.deliveryMethod === "pickup"}
-                                        onChange={() => setForm((f) => ({ ...f, deliveryMethod: "pickup" }))}
+                                        onChange={() =>
+                                            setForm((f) => ({
+                                                ...f,
+                                                deliveryMethod: "pickup",
+                                                deliveryDate: null,
+                                                pvzCode: null,
+                                                pvzAddress: null,
+                                            }))
+                                        }
                                     />
                                     <OptionCheck $visible={form.deliveryMethod === "pickup"}>
                                         <Check strokeWidth={3} />
@@ -664,39 +821,63 @@ export const CheckoutPage = () => {
                                     <OptionCardHint>бесплатно</OptionCardHint>
                                 </OptionCardLabel>
 
-                                <OptionCardLabel $checked={form.deliveryMethod === "sdek"}>
+                                <OptionCardLabel $checked={form.deliveryMethod === "door"}>
                                     <OptionCardInput
                                         type="radio"
                                         name="delivery"
-                                        checked={form.deliveryMethod === "sdek"}
-                                        onChange={() => setForm((f) => ({ ...f, deliveryMethod: "sdek" }))}
+                                        checked={form.deliveryMethod === "door"}
+                                        onChange={() =>
+                                            setForm((f) => ({
+                                                ...f,
+                                                deliveryMethod: "door",
+                                                deliveryDate: null,
+                                                pvzCode: null,
+                                                pvzAddress: null,
+                                            }))
+                                        }
                                     />
-                                    <OptionCheck $visible={form.deliveryMethod === "sdek"}>
+                                    <OptionCheck $visible={form.deliveryMethod === "door"}>
                                         <Check strokeWidth={3} />
                                     </OptionCheck>
-                                    <OptionCardTitle>Доставка</OptionCardTitle>
-                                    <OptionCardHint>По всей России</OptionCardHint>
+                                    <OptionCardTitle>До двери</OptionCardTitle>
+                                    <OptionCardHint>СДЭК</OptionCardHint>
+                                </OptionCardLabel>
+
+                                <OptionCardLabel $checked={form.deliveryMethod === "pvz"}>
+                                    <OptionCardInput
+                                        type="radio"
+                                        name="delivery"
+                                        checked={form.deliveryMethod === "pvz"}
+                                        onChange={() =>
+                                            setForm((f) => ({
+                                                ...f,
+                                                deliveryMethod: "pvz",
+                                                deliveryDate: null,
+                                                pvzCode: null,
+                                                pvzAddress: null,
+                                            }))
+                                        }
+                                    />
+                                    <OptionCheck $visible={form.deliveryMethod === "pvz"}>
+                                        <Check strokeWidth={3} />
+                                    </OptionCheck>
+                                    <OptionCardTitle>До пункта выдачи</OptionCardTitle>
+                                    <OptionCardHint>СДЭК</OptionCardHint>
                                 </OptionCardLabel>
                             </OptionList>
 
-                            {form.deliveryMethod === "sdek" && (
-                                <SdekRow>
-                                    <SecondaryButton
-                                        type="button"
-                                        onClick={() => setForm((f) => ({ ...f, sdekAddressSelected: true }))}
-                                    >
-                                        Выберите адрес
-                                    </SecondaryButton>
-                                    {form.sdekAddressSelected ? (
-                                        <SdekNote>Адрес выбран (заглушка)</SdekNote>
-                                    ) : null}
-                                </SdekRow>
-                            )}
+                            <CheckoutDeliverySection
+                                form={form}
+                                setForm={setForm}
+                                lines={lines}
+                                deliveryCalc={deliveryCalc}
+                                setDeliveryCalc={setDeliveryCalc}
+                            />
                         </SectionCard>
 
                         {form.deliveryMethod === "pickup" && (
                             <SectionCard aria-labelledby="pickup-heading">
-                                <BlockTitle id="pickup-heading">Адрес самовывоза</BlockTitle>
+                                <BlockTitle id="pickup-heading">Адрес</BlockTitle>
                                 <MutedBlock>{form.pickupAddressText}</MutedBlock>
                                 <MutedTitle style={{ marginTop: 16 }}>Срок хранения заказа</MutedTitle>
                                 <MutedBlockTight as="p">{form.orderStoragePeriodText}</MutedBlockTight>
@@ -706,12 +887,29 @@ export const CheckoutPage = () => {
                         <SectionCard aria-labelledby="payment-heading">
                             <BlockTitle id="payment-heading">Способ оплаты</BlockTitle>
                             <OptionList>
+                                <OptionCardLabel $checked={form.paymentMethod === "card_online"}>
+                                    <OptionCardInput
+                                        type="radio"
+                                        name="payment"
+                                        checked={form.paymentMethod === "card_online"}
+                                        onChange={() =>
+                                            setForm((f) => ({ ...f, paymentMethod: "card_online" }))
+                                        }
+                                    />
+                                    <OptionCheck $visible={form.paymentMethod === "card_online"}>
+                                        <Check strokeWidth={3} />
+                                    </OptionCheck>
+                                    <OptionCardTitle>Картой онлайн</OptionCardTitle>
+                                    <OptionCardHint>Оплата через ЮKassa</OptionCardHint>
+                                </OptionCardLabel>
                                 <OptionCardLabel $checked={form.paymentMethod === "on_receipt"}>
                                     <OptionCardInput
                                         type="radio"
                                         name="payment"
                                         checked={form.paymentMethod === "on_receipt"}
-                                        onChange={() => setForm((f) => ({ ...f, paymentMethod: "on_receipt" }))}
+                                        onChange={() =>
+                                            setForm((f) => ({ ...f, paymentMethod: "on_receipt" }))
+                                        }
                                     />
                                     <OptionCheck $visible={form.paymentMethod === "on_receipt"}>
                                         <Check strokeWidth={3} />
@@ -779,26 +977,32 @@ export const CheckoutPage = () => {
                                 <span>Товары ({itemsCount})</span>
                                 <span>{priceFormatter(itemsSubtotal)}</span>
                             </OrderSummaryRow>
-                            <OrderSummaryRow>
-                                <span>{form.deliveryMethod === "pickup" ? "Самовывоз" : "Доставка"}</span>
-                                <span>
-                                    {deliveryCost > 0
-                                        ? priceFormatter(deliveryCost)
-                                        : "бесплатно"}
-                                </span>
-                            </OrderSummaryRow>
-                            <OrderSummaryTotalRow>
-                                <span>Итого</span>
-                                <span>{priceFormatter(total)}</span>
-                            </OrderSummaryTotalRow>
+                            {form.deliveryMethod !== "pickup" ? (
+                                <OrderSummaryRow>
+                                    <span>
+                                        {form.deliveryMethod === "door"
+                                            ? "Доставка до двери"
+                                            : "Доставка до ПВЗ"}
+                                    </span>
+                                    <span>{deliverySummaryLabel}</span>
+                                </OrderSummaryRow>
+                            ) : null}
+                            {showOrderTotal ? (
+                                <OrderSummaryTotalRow>
+                                    <span>Итого</span>
+                                    <span>{priceFormatter(total)}</span>
+                                </OrderSummaryTotalRow>
+                            ) : null}
 
                             <PrimaryWideButton
                                 type="button"
                                 onClick={onConfirmOrder}
-                                disabled={createOrderMutation.isPending || hasStockIssues}
+                                disabled={!canConfirmOrder}
                             >
-                                {createOrderMutation.isPending
-                                    ? "Оформление…"
+                                {isSubmitting
+                                    ? form.paymentMethod === "card_online"
+                                        ? "Переход к оплате…"
+                                        : "Оформление…"
                                     : "Подтвердить заказ"}
                             </PrimaryWideButton>
                         </SummaryCard>

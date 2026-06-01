@@ -6,11 +6,6 @@ import { MEDIA_URL } from "@shared/api/interceptors";
 const AuthorInfoStyles = styled.div`
     width: 100%;
     height: 52px;
-
-    @media (min-width: 1200px) {
-        height: 100%;
-        min-height: 52px;
-    }
 `;
 
 export interface AuthorInfoProps {
@@ -24,22 +19,24 @@ const AuthorCardButton = styled.div`
     background: var(--product-author-card-bg);
     text-align: left;
     height: 100%;
-    min-height: 52px;
     border-radius: 8px 0 0 8px;
     flex: 1;
     min-width: 0;
 `;
 
 const AuthorAvatar = styled.div`
+    flex-shrink: 0;
     background: var(--product-author-avatar-bg);
     color: var(--product-author-avatar-fg);
-    height: 100%;
-    img {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-    }
     --size: 40px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
 `;
 
 const AuthorInfoContent = styled.div`
@@ -48,6 +45,8 @@ const AuthorInfoContent = styled.div`
 
 const AuthorLikeButton = styled.div`
     flex-shrink: 0;
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: stretch;
     background: var(--product-author-like-button-bg);
@@ -61,7 +60,7 @@ export const AuthorInfo = ({ author, isFavourite, setFavourite }: AuthorInfoProp
     return (
         <AuthorInfoStyles className="flex-r ai-c cur-p">
             <AuthorCardButton className="flex-r ai-c indent-list int-8">
-                <AuthorAvatar className="b-rad-10 size-box flex-center shrink-0 ov-h">
+                <AuthorAvatar className="image-box size-box b-rad-10 flex-center ov-h">
                     {author.avatarImage ? (
                         <img src={`${MEDIA_URL}/images-bucket/${avatarImage}`} />
                     ) : <h3>{name.slice(0, 1).toUpperCase()}</h3>}

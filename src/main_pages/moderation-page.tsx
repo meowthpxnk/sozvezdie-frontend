@@ -25,8 +25,8 @@ const FilterButton = styled.button<{ $active: boolean }>`
     min-height: 32px;
     padding: 0 10px;
     border-radius: 8px;
-    border: 1px solid ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#fff")};
+    border: 1px solid ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "#fff")};
     color: ${({ $active }) => ($active ? "#fff" : "#2d3a54")};
     font-size: 12px;
     font-weight: 600;
@@ -65,13 +65,13 @@ const Row = styled.div`
 const TypeLabel = styled.span`
     font-size: 12px;
     font-weight: 700;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
 `;
 
 const ORDER_STATUS_BADGE: Record<ModerationStatus, { background: string; color: string }> = {
     rejected: { background: "#fde6e9", color: "#863838" },
     approved: { background: "#e3efd6", color: "#38593a" },
-    pending: { background: "#e4eef9", color: "#314e7b" },
+    pending: { background: "var(--main-color-tint-soft)", color: "#314e7b" },
 };
 
 const StatusBadge = styled.span<{ $status: ModerationStatus }>`
@@ -174,7 +174,7 @@ const ProductPreviewImage = styled.img`
 
 const ProductPreviewPrice = styled.strong`
     font-size: 26px;
-    color: #4f83e3;
+    color: var(--main-color);
     line-height: 1.1;
 `;
 
@@ -196,7 +196,7 @@ const BrandPreviewBanner = styled.div`
     border-radius: 12px;
     padding: 18px;
     color: #fff;
-    background: linear-gradient(135deg, rgba(18, 19, 23, 0.9) 0%, rgba(47, 95, 203, 0.78) 100%);
+    background: var(--author-banner-gradient-strong);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -261,7 +261,7 @@ const TableCell = styled.div<{ $after?: boolean; $label?: boolean; $mobileTitle?
     background: ${({ $after, $label }) => ($label ? "#f4f7fc" : $after ? "#edf6ff" : "#fafbfe")};
     padding: 8px;
     font-size: 13px;
-    color: ${({ $label }) => ($label ? "#1f3f76" : "#2d3a54")};
+    color: ${({ $label }) => ($label ? "var(--main-color-accent)" : "#2d3a54")};
     font-weight: ${({ $label }) => ($label ? 700 : 500)};
     overflow-wrap: anywhere;
 
@@ -353,7 +353,7 @@ const ApproveButton = styled.button`
     padding: 0 12px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
@@ -361,7 +361,7 @@ const ApproveButton = styled.button`
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 `;
 
@@ -444,7 +444,7 @@ export const ModerationPage = () => {
                             ) : (
                                 <BrandPreviewBanner
                                     style={{
-                                        backgroundImage: `linear-gradient(135deg, rgba(18, 19, 23, 0.9) 0%, rgba(47, 95, 203, 0.78) 100%), url(${openedProposal.previewBannerUrl ?? "https://placeholdpicsum.dev/photo/1400/700?seed=mod-fallback-banner"})`,
+                                        backgroundImage: `var(--author-banner-gradient-strong), url(${openedProposal.previewBannerUrl ?? "https://placeholdpicsum.dev/photo/1400/700?seed=mod-fallback-banner"})`,
                                     }}
                                 >
                                     <BrandPreviewAvatar

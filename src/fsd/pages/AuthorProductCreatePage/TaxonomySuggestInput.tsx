@@ -37,7 +37,7 @@ const TextInput = styled.input`
     background: #fff;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 

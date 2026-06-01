@@ -6,5 +6,8 @@ export interface Author {
     avatarImage?: string;
     bannerImage?: string;
     description?: string;
+    tiktokUrl?: string;
+    telegramChannelUrl?: string;
+    vkUrl?: string;
     moderationStatus?: ModerationStatus;
 }

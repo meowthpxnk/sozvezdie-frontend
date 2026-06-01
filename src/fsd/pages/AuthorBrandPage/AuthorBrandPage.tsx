@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
+import Image from "next/image";
 import { Type, Upload, X } from "lucide-react";
+import { SELLER_SOCIAL_ICON_PATHS } from "@shared/config/seller-social";
 import { useDropzone } from "react-dropzone";
 import { SetAdminChrome } from "@widgets/AdminShell";
 import { type BrandPageController, useAuthorBrand } from "./useAuthorBrand";
@@ -79,7 +81,7 @@ const InputWithIconWrap = styled.div`
     box-sizing: border-box;
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -87,7 +89,7 @@ const InputWithIconWrap = styled.div`
         flex-shrink: 0;
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
         margin-left: 12px;
         margin-right: 8px;
     }
@@ -109,6 +111,22 @@ const TextInput = styled.input`
     }
 `;
 
+const SocialFieldIcon = styled(Image)`
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    margin-left: 12px;
+    margin-right: 8px;
+`;
+
+const SocialHint = styled.p`
+    margin: 0;
+    font-size: 12px;
+    color: #8a96ad;
+    line-height: 1.4;
+`;
+
 const TextareaInput = styled.textarea`
     width: 100%;
     min-height: 120px;
@@ -120,13 +138,13 @@ const TextareaInput = styled.textarea`
     resize: vertical;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
 
 const UploadZone = styled.div<{ $isDragOver: boolean }>`
-    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "#4f83e3" : "#d7ddea")};
+    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "var(--main-color)" : "#d7ddea")};
     border-radius: 10px;
     padding: 12px;
     background: ${({ $isDragOver }) => ($isDragOver ? "#f5f9ff" : "#f8faff")};
@@ -144,7 +162,7 @@ const UploadButton = styled.button`
     border-radius: 10px;
     border: 1px solid #c8d3e8;
     background: #f1f5ff;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 
@@ -206,7 +224,8 @@ const DragOverlay = styled.div<{ $isTargeted: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: ${({ $isTargeted }) => ($isTargeted ? "rgba(47, 95, 203, 0.6)" : "rgba(47, 95, 203, 0.42)")};
+    background: ${({ $isTargeted }) =>
+        $isTargeted ? "var(--upload-drag-overlay-active)" : "var(--upload-drag-overlay)"};
     color: #fff;
     pointer-events: none;
     z-index: 3;
@@ -226,6 +245,31 @@ const DragOverlayContent = styled.div`
     }
 `;
 
+const CancelModerationButton = styled.button<{ $disabled?: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid #d7ddea;
+    background: #fff;
+    color: #2d3a54;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    opacity: ${({ $disabled }) => ($disabled ? 0.65 : 1)};
+    pointer-events: ${({ $disabled }) => ($disabled ? "none" : "auto")};
+
+    &:hover {
+        background: #f5f7fb;
+        border-color: #b8c4da;
+    }
+`;
+
 const PrimaryButton = styled.button<{ $disabled?: boolean }>`
     display: inline-flex;
     align-items: center;
@@ -237,7 +281,7 @@ const PrimaryButton = styled.button<{ $disabled?: boolean }>`
     padding: 0 20px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -247,11 +291,11 @@ const PrimaryButton = styled.button<{ $disabled?: boolean }>`
     pointer-events: ${({ $disabled }) => ($disabled ? "none" : "auto")};
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -390,7 +434,7 @@ const BannerPreview = styled.section<{ $backgroundImage: string }>`
     border-radius: 14px;
     padding: 24px;
     background-image:
-        linear-gradient(135deg, rgba(18, 19, 23, 0.85) 0%, rgba(47, 95, 203, 0.72) 100%),
+        var(--author-banner-gradient),
         url(${({ $backgroundImage }) => $backgroundImage});
     background-size: cover;
     background-position: center;
@@ -497,6 +541,9 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
         setAvatarFromFile,
         setBannerFromFile,
         saveBrand,
+        cancelPendingModeration,
+        canCancelPendingModeration,
+        isCancellingModeration,
         view,
     } = controller;
 
@@ -660,6 +707,75 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
                         />
                     </FieldGroup>
                     <FieldGroup>
+                        <FieldLabel htmlFor="brand-tiktok-url">TikTok</FieldLabel>
+                        <InputWithIconWrap>
+                            <SocialFieldIcon
+                                src={SELLER_SOCIAL_ICON_PATHS.tiktok}
+                                alt=""
+                                width={18}
+                                height={18}
+                                aria-hidden
+                            />
+                            <TextInput
+                                id="brand-tiktok-url"
+                                type="url"
+                                value={form.tiktokUrl}
+                                onChange={(event) =>
+                                    setForm((prev) => ({ ...prev, tiktokUrl: event.target.value }))
+                                }
+                                placeholder="https://www.tiktok.com/@username"
+                            />
+                        </InputWithIconWrap>
+                        <SocialHint>Ссылка на профиль TikTok. Поле необязательное.</SocialHint>
+                    </FieldGroup>
+                    <FieldGroup>
+                        <FieldLabel htmlFor="brand-telegram-url">Telegram-канал</FieldLabel>
+                        <InputWithIconWrap>
+                            <SocialFieldIcon
+                                src={SELLER_SOCIAL_ICON_PATHS.telegram}
+                                alt=""
+                                width={18}
+                                height={18}
+                                aria-hidden
+                            />
+                            <TextInput
+                                id="brand-telegram-url"
+                                type="url"
+                                value={form.telegramChannelUrl}
+                                onChange={(event) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        telegramChannelUrl: event.target.value,
+                                    }))
+                                }
+                                placeholder="https://t.me/your_channel"
+                            />
+                        </InputWithIconWrap>
+                        <SocialHint>Ссылка на Telegram-канал. Поле необязательное.</SocialHint>
+                    </FieldGroup>
+                    <FieldGroup>
+                        <FieldLabel htmlFor="brand-vk-url">ВКонтакте</FieldLabel>
+                        <InputWithIconWrap>
+                            <SocialFieldIcon
+                                src={SELLER_SOCIAL_ICON_PATHS.vk}
+                                alt=""
+                                width={18}
+                                height={18}
+                                aria-hidden
+                            />
+                            <TextInput
+                                id="brand-vk-url"
+                                type="url"
+                                value={form.vkUrl}
+                                onChange={(event) =>
+                                    setForm((prev) => ({ ...prev, vkUrl: event.target.value }))
+                                }
+                                placeholder="https://vk.com/your_page"
+                            />
+                        </InputWithIconWrap>
+                        <SocialHint>Ссылка на страницу или сообщество ВКонтакте. Поле необязательное.</SocialHint>
+                    </FieldGroup>
+                    <FieldGroup>
                         <FieldLabel htmlFor="brand-avatar-upload">
                             Аватар бренда <RequiredMark>*</RequiredMark>
                         </FieldLabel>
@@ -732,9 +848,24 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
                         </UploadZone>
                     </FieldGroup>
                     {hideSubmit ? null : (
-                        <PrimaryButton type="submit" $disabled={saving}>
-                            {saving ? "Сохранение…" : view.submitLabel}
-                        </PrimaryButton>
+                        <>
+                            <PrimaryButton type="submit" $disabled={saving || isCancellingModeration}>
+                                {saving ? "Сохранение…" : view.submitLabel}
+                            </PrimaryButton>
+                            {canCancelPendingModeration ? (
+                                <CancelModerationButton
+                                    type="button"
+                                    $disabled={saving || isCancellingModeration}
+                                    onClick={() => {
+                                        void cancelPendingModeration();
+                                    }}
+                                >
+                                    {isCancellingModeration
+                                        ? "Отмена заявки…"
+                                        : "Отменить заявку на модерацию"}
+                                </CancelModerationButton>
+                            ) : null}
+                        </>
                     )}
                 </Form>
             </FormCard>

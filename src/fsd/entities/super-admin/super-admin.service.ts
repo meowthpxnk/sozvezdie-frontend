@@ -1,5 +1,11 @@
 import { axiosWithAuth } from "@shared/api/interceptors";
 import type { AdvertBanner } from "@entities/advert-banner/advert-banner";
+import {
+    type FaqItem,
+    type FaqItemApiResponse,
+    type FaqItemPayload,
+    mapFaqItem,
+} from "@entities/faq/faq.types";
 
 import {
     type AssignableUserRole,
@@ -89,6 +95,54 @@ class SuperAdminService {
 
     async deleteBanner(bannerId: number): Promise<void> {
         await axiosWithAuth.delete(`${this.BASE_URL}/banners/${bannerId}`);
+    }
+
+    async getFaqItems(search?: string): Promise<FaqItem[]> {
+        const response = await axiosWithAuth.get<FaqItemApiResponse[]>(
+            `${this.BASE_URL}/faq`,
+            {
+                params: search ? { search } : undefined,
+            }
+        );
+
+        return response.data.map(mapFaqItem);
+    }
+
+    async createFaqItem(data: FaqItemPayload): Promise<FaqItem> {
+        const response = await axiosWithAuth.post<FaqItemApiResponse>(
+            `${this.BASE_URL}/faq`,
+            {
+                question: data.question,
+                answer: data.answer,
+            }
+        );
+
+        return mapFaqItem(response.data);
+    }
+
+    async updateFaqItem(itemId: number, data: FaqItemPayload): Promise<FaqItem> {
+        const response = await axiosWithAuth.put<FaqItemApiResponse>(
+            `${this.BASE_URL}/faq/${itemId}`,
+            {
+                question: data.question,
+                answer: data.answer,
+            }
+        );
+
+        return mapFaqItem(response.data);
+    }
+
+    async reorderFaqItems(orderedIds: number[]): Promise<FaqItem[]> {
+        const response = await axiosWithAuth.put<FaqItemApiResponse[]>(
+            `${this.BASE_URL}/faq/reorder`,
+            { ordered_ids: orderedIds }
+        );
+
+        return response.data.map(mapFaqItem);
+    }
+
+    async deleteFaqItem(itemId: number): Promise<void> {
+        await axiosWithAuth.delete(`${this.BASE_URL}/faq/${itemId}`);
     }
 }
 

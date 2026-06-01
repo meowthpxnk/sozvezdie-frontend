@@ -33,7 +33,7 @@ const CommentField = styled.textarea`
     color: #132647;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 1px;
     }
 `;
@@ -68,7 +68,7 @@ const ApproveButton = styled.button`
     min-height: 42px;
     border: none;
     border-radius: 10px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 14px;
     font-weight: 700;
@@ -83,11 +83,17 @@ const ApproveButton = styled.button`
 type ModerationDecisionPanelProps = {
     proposalId: string;
     onBeforeApprove?: () => Promise<boolean | void>;
+    approveLabel?: string;
+    rejectLabel?: string;
+    approvePendingLabel?: string;
 };
 
 export function ModerationDecisionPanel({
     proposalId,
     onBeforeApprove,
+    approveLabel = "Принять",
+    rejectLabel = "Отклонить",
+    approvePendingLabel = "Принимаем...",
 }: ModerationDecisionPanelProps) {
     const router = useRouter();
     const { deciding, decide } = useModerationDecide();
@@ -125,14 +131,14 @@ export function ModerationDecisionPanel({
                     disabled={deciding}
                     onClick={() => void handleDecision("REJECTED")}
                 >
-                    Отклонить
+                    {rejectLabel}
                 </RejectButton>
                 <ApproveButton
                     type="button"
                     disabled={deciding}
                     onClick={() => void handleDecision("APPROVED")}
                 >
-                    {deciding ? "Принимаем..." : "Принять"}
+                    {deciding ? approvePendingLabel : approveLabel}
                 </ApproveButton>
             </Actions>
         </Panel>

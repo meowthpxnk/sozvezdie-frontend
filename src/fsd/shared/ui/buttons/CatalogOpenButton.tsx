@@ -2,18 +2,18 @@ import { LayoutGrid } from "lucide-react";
 import styled from "styled-components";
 
 const CatalogOpenButtonStyles = styled.button<{ $showText?: boolean }>`
-    width: 42px;
     height: var(--search-section-size);
-    padding: 8px;
-    border-radius: 10px;
-    gap: 8px;
-
-    background-color: var(--main-color);
-    color: var(--color);
+    padding: 8px 12px;
+    border-radius: 9999px;
+    gap: 6px;
+    border: 1px solid #e5e5e5;
+    background-color: #fff;
+    color: var(--header-icon-color);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 
     svg {
         width: 18px;
@@ -28,38 +28,29 @@ const CatalogOpenButtonStyles = styled.button<{ $showText?: boolean }>`
         white-space: nowrap;
     }
 
-    ${({ $showText }) => ($showText ? "width: auto; padding: 8px 12px;" : "")}
+    &:hover {
+        background-color: var(--header-search-bg);
+        border-color: #d5d5d5;
+    }
 
     @media (max-width: 640px) {
-        width: auto;
-        padding: 8px 12px;
-
         span {
             display: none;
         }
     }
-
-    @media (min-width: 640px) {
-        width: auto;
-        padding: 8px 12px;
-
-        span {
-            display: inline;
-        }
-    }
 `;
-
 
 export interface CatalogOpenButtonProps {
     onClick: () => void;
 }
 
 export const CatalogOpenButton = ({ onClick }: CatalogOpenButtonProps) => {
-    return <CatalogOpenButtonStyles
-        onClick={onClick}
-    >
-        <LayoutGrid />
-        <span>Каталог</span>
-    </CatalogOpenButtonStyles>;
-}
-export default CatalogOpenButton
+    return (
+        <CatalogOpenButtonStyles onClick={onClick} type="button">
+            <LayoutGrid />
+            <span>Каталог</span>
+        </CatalogOpenButtonStyles>
+    );
+};
+
+export default CatalogOpenButton;

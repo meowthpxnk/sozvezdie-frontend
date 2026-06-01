@@ -8,14 +8,17 @@ import { CartItem as CartItemEntity, Product } from "@entities";
 
 import styled from "styled-components";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CartItem } from "@widgets";
 import { priceFormatter } from "@/src/fsd/shared/formatters";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RootState } from "../../shared/store/store";
 // import { RootState } from "@reduxjs/toolkit/query/react";
 import { useAppDispatch, useAppSelector } from "../../shared/store/store";
-import { productService } from "../../entities/product";
+import { fetchCart } from "../../entities/cart/cartThunk";
+import { useCartProducts } from "../../entities/cart/hooks/useCartProducts";
+import { refreshCartStockState } from "../../entities/cart/refreshCartStockState";
 import {
     setAllCartItemsSelected,
     setCartItemSelected,
@@ -39,7 +42,7 @@ const CartTitleWrapper = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const CartLayout = styled.div`
@@ -108,7 +111,7 @@ const CartEmptyLink = styled(Link)`
     min-height: 42px;
     padding: 8px 16px;
     border-radius: 10px;
-    background: var(--main-color, #4f83e3);
+    background: var(--main-color, var(--main-color));
     color: #fff;
     font-size: 14px;
     font-weight: 600;
@@ -116,7 +119,7 @@ const CartEmptyLink = styled(Link)`
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: var(--main-color-hover, #3f74d6);
+        background: var(--main-color-hover, var(--main-color-hover));
     }
 `;
 
@@ -290,131 +293,56 @@ type ConfirmAction = {
 // }
 
 
+const STOCK_DEPLETED_QUERY = "stock_depleted";
+
 export const CartPage = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const dispatch = useAppDispatch();
     const queryClient = useQueryClient();
+    const [showStockDepletedBanner, setShowStockDepletedBanner] = useState(false);
+    const stockSyncStartedRef = useRef(false);
     const cart = useAppSelector((state: RootState) => state.cart.cart);
     const selectedIds = useAppSelector((state: RootState) => state.cart.selectedIds);
-
-    const [cartItems, setCartItems] = useState<{ product: Product, quantity: number }[]>([]);
-
-    useEffect(() => {
-        setCartItems(cart.filter((item) => queryClient.getQueryData(["product", item.product_id])).map((item) => {
-            return {
-                product: queryClient.getQueryData(["product", item.product_id]) as Product,
-                quantity: item.quantity,
-            }
-        }));
-    }, [cart]);
-
-    // console.log("cart", cart);
-
-    const [missingIds, setMissingIds] = useState<string[]>([]);
+    const { productsById, refetchProducts } = useCartProducts(cart);
 
     useEffect(() => {
-        const ids = cart
-            .map(item => item.product_id)
-            .filter(id => !queryClient.getQueryData(["product", id]));
-        setMissingIds(ids);
-        console.log("missingIds", ids);
-    }, [cart]);
-
-    const { data: missingProducts } = useQuery({
-        queryKey: ["products-bulk", missingIds],
-        queryFn: () => productService.getProductsBulk(missingIds),
-        enabled: missingIds.length > 0,
-    });
-
-    // const [cartItems, setCartItems] = useState<{ product: Product, quantity: number }[]>([]);
-
-    // useEffect(() => {
-    //     // if (missingIds.length > 0) {
-    //     // const { data: missingProducts } = useQuery({
-    //     //     queryKey: ["products-bulk", missingIds],
-    //     //     queryFn: () => productService.getProductsBulk(missingIds),
-    //     //     enabled: missingIds.length > 0,
-    //     // });
-    //     // }
-    //     // if (missingIds.length > 0) {
-
-
-    //     // }
-
-
-    //     setCartItems(cart.map((item) => ({
-    //         product: queryClient.getQueryData(["product", item.product_id]) as Product,
-    //         quantity: item.quantity,
-    //     })));
-    //     console.log("cart", cart.map((item) => ({
-    //         product: queryClient.getQueryData(["product", item.product_id]) as Product,
-    //         quantity: item.quantity,
-    //     })));
-    // }, [missingIds]);
-
-    // const { data: missingProducts } = useQuery({
-    //     queryKey: ["products-bulk", missingIds],
-    //     queryFn: () => productService.getProductsBulk(missingIds),
-    //     enabled: missingIds.length > 0,
-    // });
+        void dispatch(fetchCart());
+    }, [dispatch]);
 
     useEffect(() => {
-        if (!missingProducts) return;
-
-        for (const product of missingProducts) {
-            queryClient.setQueryData(
-                ["product", product.id],
-                product
-            );
+        if (searchParams.get(STOCK_DEPLETED_QUERY) !== "1") {
+            return;
         }
+        if (stockSyncStartedRef.current) {
+            return;
+        }
+        stockSyncStartedRef.current = true;
+        setShowStockDepletedBanner(true);
 
-        const newCartItems = missingProducts.map((product) => ({
-            product: product,
-            quantity: cart.find((item) => item.product_id === product.id)?.quantity || 0,
-        }));
+        void (async () => {
+            await refreshCartStockState(dispatch, queryClient);
+            await refetchProducts();
+            router.replace("/cart", { scroll: false });
+        })();
+    }, [searchParams, router, dispatch, queryClient, refetchProducts]);
 
-        const oldCartItems = cartItems
-
-        setCartItems([...oldCartItems, ...newCartItems]);
-    }, [missingProducts, queryClient]);
-
-    // useEffect(() => {
-    //     console.log("cart", cart);
-    //     const ids = cart
-    //         .map(item => item.product_id)
-    //         .filter(id => !queryClient.getQueryData(["product", id]));
-
-    //     setMissingIds(ids);
-    //     console.log("missingIds", ids);
-    // }, [cart]);
-
-
-    // const { data: missingProducts } = useQuery({
-    //     queryKey: ["products-bulk", missingIds],
-    //     queryFn: () => productService.getProductsBulk(missingIds),
-    //     enabled: missingIds.length > 0,
-    // });
-
-
-    // useEffect(() => {
-    //     if (!missingProducts) return;
-
-    //     for (const product of missingProducts) {
-    //         queryClient.setQueryData(
-    //             ["product", product.id],
-    //             product
-    //         );
-    //     }
-    // }, [missingProducts, queryClient]);
-
-    // const cartItems = useMemo(() => {
-    //     const data = cart.map((item) => ({
-    //         product: queryClient.getQueryData(["product", item.product_id]) as Product,
-    //         quantity: item.quantity,
-    //     }))
-    //     return data;
-    // }, [cart, queryClient]);
-
-
+    const cartItems = useMemo(
+        () =>
+            cart
+                .map((item) => {
+                    const product = productsById.get(item.product_id);
+                    if (!product) {
+                        return null;
+                    }
+                    return { product, quantity: item.quantity };
+                })
+                .filter(
+                    (item): item is { product: Product; quantity: number } =>
+                        item !== null
+                ),
+        [cart, productsById]
+    );
 
     const sortedCartItems = useMemo(() => {
         return [...cartItems].sort((a, b) => {
@@ -509,6 +437,12 @@ export const CartPage = () => {
         <div>
             <MainWrapper className="flex-c indent-list int-16">
                 <CartTitleWrapper>Корзина</CartTitleWrapper>
+
+                {showStockDepletedBanner ? (
+                    <CartStockWarning>
+                        Некоторые товары закончились — проверьте количество в корзине
+                    </CartStockWarning>
+                ) : null}
 
                 {sortedCartItems.length === 0 ? (
                     <CartEmptyState>

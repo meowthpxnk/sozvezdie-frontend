@@ -22,13 +22,13 @@ const CheckboxButton = styled.button<{
     border-radius: 6px;
     border: 2px solid
         ${({ $checked, $indeterminate }) =>
-            $checked || $indeterminate ? "#4f83e3" : "#cfd4dc"};
+            $checked || $indeterminate ? "var(--main-color)" : "#cfd4dc"};
     background: ${({ $checked, $indeterminate }) => {
         if ($checked) {
-            return "#4f83e3";
+            return "var(--main-color)";
         }
         if ($indeterminate) {
-            return "#e4eef9";
+            return "var(--main-color-tint-soft)";
         }
         return "transparent";
     }};
@@ -47,11 +47,11 @@ const CheckboxButton = styled.button<{
     }
 
     &:hover:not(:disabled) {
-        border-color: #4f83e3;
+        border-color: var(--main-color);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 

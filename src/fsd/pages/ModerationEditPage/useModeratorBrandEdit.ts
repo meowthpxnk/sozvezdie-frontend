@@ -26,6 +26,9 @@ export function useModeratorBrandEdit(proposalId: string) {
         brandDescription: "",
         avatarPreview: "",
         bannerPreview: "",
+        tiktokUrl: "",
+        telegramChannelUrl: "",
+        vkUrl: "",
     });
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -42,6 +45,9 @@ export function useModeratorBrandEdit(proposalId: string) {
             brandDescription: editData.brandDescription ?? "",
             avatarPreview: getMediaImageUrl(editData.avatarImage) ?? "",
             bannerPreview: getMediaImageUrl(editData.bannerImage) ?? "",
+            tiktokUrl: editData.tiktokUrl ?? "",
+            telegramChannelUrl: editData.telegramChannelUrl ?? "",
+            vkUrl: editData.vkUrl ?? "",
         });
         setHydrated(true);
     }, [editData, hydrated]);
@@ -82,6 +88,9 @@ export function useModeratorBrandEdit(proposalId: string) {
                 desc,
                 avatarFile,
                 bannerFile,
+                tiktokUrl: form.tiktokUrl,
+                telegramChannelUrl: form.telegramChannelUrl,
+                vkUrl: form.vkUrl,
             });
             await queryClient.invalidateQueries({ queryKey: ["moderation", "proposals"] });
             return true;
@@ -107,6 +116,9 @@ export function useModeratorBrandEdit(proposalId: string) {
         form.bannerPreview,
         form.brandDescription,
         form.brandName,
+        form.tiktokUrl,
+        form.telegramChannelUrl,
+        form.vkUrl,
         isUpdateBrand,
         proposalId,
         queryClient,

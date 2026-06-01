@@ -29,6 +29,9 @@ export function useModeratorCatalogBrandEdit(sellerCardId: string) {
         brandDescription: "",
         avatarPreview: "",
         bannerPreview: "",
+        tiktokUrl: "",
+        telegramChannelUrl: "",
+        vkUrl: "",
     });
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -45,6 +48,9 @@ export function useModeratorCatalogBrandEdit(sellerCardId: string) {
             brandDescription: editData.brandDescription ?? "",
             avatarPreview: getMediaImageUrl(editData.avatarImage) ?? "",
             bannerPreview: getMediaImageUrl(editData.bannerImage) ?? "",
+            tiktokUrl: editData.tiktokUrl ?? "",
+            telegramChannelUrl: editData.telegramChannelUrl ?? "",
+            vkUrl: editData.vkUrl ?? "",
         });
         setHydrated(true);
     }, [editData, hydrated]);
@@ -76,6 +82,9 @@ export function useModeratorCatalogBrandEdit(sellerCardId: string) {
                     desc,
                     avatarFile,
                     bannerFile,
+                    tiktokUrl: form.tiktokUrl,
+                    telegramChannelUrl: form.telegramChannelUrl,
+                    vkUrl: form.vkUrl,
                     comment: (comment ?? commentRef.current) || undefined,
                 });
                 await queryClient.invalidateQueries({ queryKey: ["moderation", "proposals"] });
@@ -107,6 +116,9 @@ export function useModeratorCatalogBrandEdit(sellerCardId: string) {
             bannerFile,
             form.brandDescription,
             form.brandName,
+            form.tiktokUrl,
+            form.telegramChannelUrl,
+            form.vkUrl,
             queryClient,
             router,
             sellerCardId,

@@ -13,7 +13,7 @@ const DashboardLayout = styled.section`
 `;
 
 const HeroCard = styled.section`
-    background: linear-gradient(135deg, #1e2f56 0%, #355ea7 45%, #4f83e3 100%);
+    background: linear-gradient(135deg, #1e2f56 0%, #355ea7 45%, var(--main-color) 100%);
     border-radius: 16px;
     padding: 18px;
     color: #fff;

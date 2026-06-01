@@ -19,16 +19,16 @@ const EditLink = styled(Link)<{ $variant: "default" | "on-dark" }>`
     appearance: none;
 
     background: ${({ $variant }) =>
-        $variant === "on-dark" ? "rgba(255, 255, 255, 0.2)" : "#4f83e3"};
+        $variant === "on-dark" ? "rgba(255, 255, 255, 0.2)" : "var(--main-color)"};
     color: #fff;
 
     &:hover {
         background: ${({ $variant }) =>
-            $variant === "on-dark" ? "rgba(255, 255, 255, 0.28)" : "#3f74d6"};
+            $variant === "on-dark" ? "rgba(255, 255, 255, 0.28)" : "var(--main-color-hover)"};
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 

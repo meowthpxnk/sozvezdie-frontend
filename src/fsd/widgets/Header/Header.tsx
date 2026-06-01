@@ -15,7 +15,6 @@ import {
     type HeaderNavMode,
 } from "./header-nav";
 import Link from "next/link";
-import { openMessengerHandler } from "@/app/vk";
 
 const PAGE_CONTENT_MAX_WIDTH = 1200;
 
@@ -26,8 +25,13 @@ const HeaderBar = styled.header`
     right: 0;
     z-index: 1000;
     box-sizing: border-box;
-    background-color: #000;
-    padding: 0 20px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--header-border-color);
+    padding: 0 12px;
+
+    @media (min-width: 640px) {
+        padding: 0 20px;
+    }
 
     @media (min-width: 960px) {
         padding: 0 32px;
@@ -39,10 +43,41 @@ const HeaderInner = styled.div`
     width: 100%;
     max-width: ${PAGE_CONTENT_MAX_WIDTH}px;
     margin: 0 auto;
-    min-height: 80px;
-    height: 80px;
+    min-height: 72px;
+    height: 72px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+
+    @media (max-width: 639px) {
+        gap: 8px;
+        min-height: 64px;
+        height: 64px;
+    }
 `;
 
+const HeaderLogoCell = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const HeaderSearchCell = styled.div`
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+`;
+
+const HeaderActionsCell = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+
+    @media (max-width: 639px) {
+        gap: 0;
+    }
+`;
 
 export interface HeaderProps {
     /** When true, the search block is hidden (e.g. admin shell). */
@@ -51,18 +86,19 @@ export interface HeaderProps {
     role?: HeaderActionsRole;
 }
 
-
 const HeaderOffset = styled.div`
-    height: 80px;
+    height: 72px;
+
+    @media (max-width: 639px) {
+        height: 64px;
+    }
 `;
-
-
 
 const isHiddenSearchBlock = false;
 
 export const Header = ({ hideSearch = false, role }: HeaderProps) => {
     const pathname = usePathname() ?? "";
-    const { role: authRole, isAuthenticated } = useAuth();
+    const { role: authRole, isAuthenticated, authReady } = useAuth();
     const [hasAccessToken, setHasAccessToken] = useState(false);
     const [navMode, setNavMode] = useState<HeaderNavMode>("storefront");
     const resolvedRole = role ?? authRole;
@@ -72,8 +108,11 @@ export const Header = ({ hideSearch = false, role }: HeaderProps) => {
     }, [isAuthenticated]);
 
     useEffect(() => {
+        if (!authReady) {
+            return;
+        }
         setNavMode(syncHeaderNavContext(pathname, resolvedRole));
-    }, [pathname, resolvedRole]);
+    }, [pathname, resolvedRole, authReady]);
 
     const showSearch =
         !hideSearch &&
@@ -84,18 +123,18 @@ export const Header = ({ hideSearch = false, role }: HeaderProps) => {
 
     return (
         <>
-            {/* HeaderOffset is used to offset the header so that the content is not hidden behind the header */}
             <HeaderOffset />
             <HeaderBar>
-                <HeaderInner className="indent-box int-12 flex jc-sb ai-c">
-                    <div className="flex-center indent-list int-12">
+                <HeaderInner>
+                    <HeaderLogoCell>
                         <Link href="/">
-                            {/* <button onClick={openMessengerHandler}></button> */}
                             <Logo />
                         </Link>
-                    </div>
-                    {showSearch ? <HeaderSearchSection /> : null}
-                    <div className="flex-center indent-list int-12">
+                    </HeaderLogoCell>
+                    <HeaderSearchCell>
+                        {showSearch ? <HeaderSearchSection /> : null}
+                    </HeaderSearchCell>
+                    <HeaderActionsCell>
                         {showNavActions ? (
                             <HeaderActions
                                 key={`${pathname}-${navMode}`}
@@ -106,10 +145,11 @@ export const Header = ({ hideSearch = false, role }: HeaderProps) => {
                         ) : (
                             <GuestHeaderAuth />
                         )}
-                    </div>
+                    </HeaderActionsCell>
                 </HeaderInner>
             </HeaderBar>
         </>
     );
-}
-export default Header
+};
+
+export default Header;

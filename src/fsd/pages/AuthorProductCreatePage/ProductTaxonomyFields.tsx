@@ -29,7 +29,7 @@ const SelectInput = styled.select`
     cursor: pointer;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 

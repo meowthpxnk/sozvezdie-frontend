@@ -22,7 +22,16 @@ export function useModerationDecide() {
                 await queryClient.cancelQueries({ queryKey: ["moderation", "edit", proposalId] });
                 queryClient.removeQueries({ queryKey: ["moderation", "edit", proposalId] });
                 await queryClient.invalidateQueries({ queryKey: ["moderation", "proposals"] });
-                toast.success(status === "APPROVED" ? "Заявка принята" : "Заявка отклонена");
+                const isDeletion = proposalId.startsWith("product-delete-");
+                toast.success(
+                    status === "APPROVED"
+                        ? isDeletion
+                            ? "Удаление подтверждено"
+                            : "Заявка принята"
+                        : isDeletion
+                          ? "Удаление отклонено"
+                          : "Заявка отклонена"
+                );
                 return true;
             } catch (error: unknown) {
                 const detail =

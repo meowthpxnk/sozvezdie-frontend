@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import type { MouseEvent } from "react";
 
 const AuthorInfoLikeButtonStyles = styled.button<{ $active?: boolean }>`
-    --size: 56px;
+    width: 100%;
+    height: 100%;
     border-radius: 0 8px 8px 0;
     border: none;
     display: flex;
@@ -12,13 +13,19 @@ const AuthorInfoLikeButtonStyles = styled.button<{ $active?: boolean }>`
     flex-shrink: 0;
     padding: 16px;
     transition: background-color 0.2s ease;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
     appearance: none;
 
-    background: ${({ $active = false }) => ($active ? "#4f83e3" : "#e9edf5")};
-    color: ${({ $active = false }) => ($active ? "#fff" : "#4f83e3")};
+    background: ${({ $active = false }) => ($active ? "var(--main-color)" : "var(--neutral-surface-bg)")};
+    color: ${({ $active = false }) => ($active ? "#fff" : "var(--main-color)")};
 
     &:hover {
-        background: ${({ $active = false }) => ($active ? "#3f74d6" : "#dce4f3")};
+        background: ${({ $active = false }) => ($active ? "var(--main-color-hover)" : "var(--main-color-tint-hover)")};
     }
 `;
 
@@ -28,10 +35,11 @@ export interface AuthorInfoLikeButtonProps {
 }
 
 export const AuthorInfoLikeButton = ({ active, onClick }: AuthorInfoLikeButtonProps) => {
-    return <AuthorInfoLikeButtonStyles $active={active} onClick={onClick} className="cur-p size-box">
-        <Heart
-            fill={active ? "var(--color)" : "none"}
-            stroke={active ? "var(--color)" : "var(--main-color)"}
+    return <AuthorInfoLikeButtonStyles $active={active} onClick={onClick} className="cur-p">
+        <Star
+            size={24}
+            fill={active ? "currentColor" : "none"}
+            stroke="currentColor"
             strokeWidth={2}
         />
     </AuthorInfoLikeButtonStyles>;

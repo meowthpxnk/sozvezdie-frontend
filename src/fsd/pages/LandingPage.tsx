@@ -17,6 +17,14 @@ const LandingPageStyles = styled.div`
     }
 `;
 
+const SectionDivider = styled.hr`
+    border: none;
+    margin: 0;
+    width: 100%;
+    height: 0;
+    border-top: 1px dashed var(--color-border-secondary, #d7ddea);
+`;
+
 export interface LandingPageProps {
     recommendedProductList: ProductWithAuthor[],
     newProductList: ProductWithAuthor[]
@@ -27,7 +35,12 @@ export interface LandingPageProps {
 export const LandingPage = ({ recommendedProductList, newProductList, advertBanners, popularAuthors, }: LandingPageProps) => {
     return (
         <LandingPageStyles className="flex-c indent-list int-16">
-            {advertBanners ? <LandingBanner banners={advertBanners} /> : null}
+            {advertBanners && advertBanners.length > 0 ? (
+                <>
+                    <LandingBanner banners={advertBanners} />
+                    <SectionDivider />
+                </>
+            ) : null}
             <ItemList
                 title="Новые товары"
                 href="/products"
@@ -35,6 +48,7 @@ export const LandingPage = ({ recommendedProductList, newProductList, advertBann
                 renderItem={(product) => <ProductCard product={product} author={product.author} />}
                 layout="marquee"
             />
+            <SectionDivider />
             <ItemList
                 title="Популярные товары"
                 href="/products"
@@ -42,6 +56,7 @@ export const LandingPage = ({ recommendedProductList, newProductList, advertBann
                 renderItem={(product) => <ProductCard product={product} author={product.author} />}
                 gridVariant="catalog"
             />
+            <SectionDivider />
             <ItemList
                 title="Популярные авторы"
                 href="/authors"

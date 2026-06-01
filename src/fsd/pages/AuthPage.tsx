@@ -18,8 +18,9 @@ import styled from "styled-components";
 import { toast } from "sonner";
 
 import { BaseAction } from "@features";
-import { authService, fetchMe } from "@entities/auth";
+import { authService } from "@entities/auth";
 import { IAuthForm, IRegisterForm } from "@shared/types/auth.types";
+import { restoreSessionAfterAuth } from "@shared/store/clearClientStore";
 import { useAppDispatch } from "@shared/store/store";
 import { VkIdOneTap } from "@/src/shared/lib/VkIdOneTap";
 
@@ -82,7 +83,7 @@ const SubmitButton = styled(BaseAction)`
 const ModeSwitch = styled.button`
     border: none;
     background: transparent;
-    color: var(--main-color, #4f83e3);
+    color: var(--main-color, var(--main-color));
     font-size: 15px;
     cursor: pointer;
     text-align: center;
@@ -114,7 +115,7 @@ const VkAuthLoadingCard = styled.div`
 const VkAuthSpinner = styled(Loader2)`
     width: 40px;
     height: 40px;
-    color: var(--main-color, #4f83e3);
+    color: var(--main-color, var(--main-color));
     animation: vk-auth-spin 0.8s linear infinite;
 
     @keyframes vk-auth-spin {
@@ -162,7 +163,7 @@ const InputShell = styled.div<{ $hasError?: boolean }>`
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus-within {
-        border-color: var(--main-color, #4f83e3);
+        border-color: var(--main-color, var(--main-color));
         box-shadow: 0 0 0 3px rgb(79 131 227 / 18%);
     }
 
@@ -287,7 +288,7 @@ export const AuthPage = () => {
         mutationKey: ["auth", "login"],
         mutationFn: (data: IAuthForm) => authService.authorisate(data),
         async onSuccess() {
-            await dispatch(fetchMe());
+            await restoreSessionAfterAuth(dispatch);
             toast.success("Вы вошли в аккаунт");
             router.push("/");
         },
@@ -304,7 +305,7 @@ export const AuthPage = () => {
             codeVerifier: string;
         }) => authService.authoriseVk(payload),
         async onSuccess() {
-            await dispatch(fetchMe());
+            await restoreSessionAfterAuth(dispatch);
             toast.success("Вы вошли через VK ID");
             router.push("/");
         },
@@ -336,7 +337,7 @@ export const AuthPage = () => {
                 username: variables.username,
                 password: variables.password,
             });
-            await dispatch(fetchMe());
+            await restoreSessionAfterAuth(dispatch);
             toast.success("Регистрация прошла успешно");
             router.push("/");
         },

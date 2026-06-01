@@ -37,7 +37,7 @@ const BannerSlide = styled(Link)`
     display: block;
     aspect-ratio: 16 / 6;
     max-height: 200px;
-    background: #e9edf5;
+    background: var(--neutral-surface-bg);
 
     @media (min-width: 960px) {
         aspect-ratio: 3 / 1;
@@ -476,6 +476,11 @@ export const LandingBanner = ({ banners }: LandingBannerProps) => {
             }
         })();
     };
+
+    if (banners.length === 0) {
+        return null;
+    }
+
     return <LandingBannerStyles>
         <BannerFrame
             ref={frameRef}
@@ -501,6 +506,8 @@ export const LandingBanner = ({ banners }: LandingBannerProps) => {
                     return (
                         <BannerSlide
                             href={banner.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             key={`${banner.id}-${activeBannerIndex}-${windowIndex}`}
                             style={{ width: frameWidth > 0 ? frameWidth : "33.3333%" }}
                             onClickCapture={onBannerSlideClickCapture}

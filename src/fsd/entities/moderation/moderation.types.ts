@@ -9,7 +9,8 @@ export type ModerationActionType =
     | "CREATE_PRODUCT"
     | "CREATE_SHOP"
     | "UPDATE_BRAND"
-    | "MODERATOR_PRODUCT_EDIT";
+    | "MODERATOR_PRODUCT_EDIT"
+    | "DELETE_PRODUCT";
 
 export type ModerationFieldDiff = {
     label: string;
@@ -56,6 +57,7 @@ export const MODERATION_ACTION_LABELS: Record<ModerationActionType, string> = {
     CREATE_SHOP: "Создание магазина",
     UPDATE_BRAND: "Редактирование бренда",
     MODERATOR_PRODUCT_EDIT: "Изменение товара модератором",
+    DELETE_PRODUCT: "Удаление товара",
 };
 
 const MODERATION_ACTION_TYPE_SET = new Set<string>([
@@ -63,6 +65,7 @@ const MODERATION_ACTION_TYPE_SET = new Set<string>([
     "CREATE_SHOP",
     "UPDATE_BRAND",
     "MODERATOR_PRODUCT_EDIT",
+    "DELETE_PRODUCT",
 ]);
 
 function parseModerationActionType(type: string): ModerationActionType {
@@ -87,6 +90,9 @@ export type ModerationEdit = {
     brandDescription?: string;
     avatarImage?: string;
     bannerImage?: string;
+    tiktokUrl?: string;
+    telegramChannelUrl?: string;
+    vkUrl?: string;
     actionType?: string;
 };
 
@@ -98,6 +104,9 @@ export interface IModerationEditApiResponse {
     brandDescription?: string | null;
     avatarImage?: string | null;
     bannerImage?: string | null;
+    tiktokUrl?: string | null;
+    telegramChannelUrl?: string | null;
+    vkUrl?: string | null;
     actionType?: string | null;
 }
 
@@ -110,6 +119,9 @@ export function mapModerationEdit(data: IModerationEditApiResponse): ModerationE
         brandDescription: data.brandDescription ?? undefined,
         avatarImage: data.avatarImage ?? undefined,
         bannerImage: data.bannerImage ?? undefined,
+        tiktokUrl: data.tiktokUrl ?? undefined,
+        telegramChannelUrl: data.telegramChannelUrl ?? undefined,
+        vkUrl: data.vkUrl ?? undefined,
         actionType: data.actionType ?? undefined,
     };
 }

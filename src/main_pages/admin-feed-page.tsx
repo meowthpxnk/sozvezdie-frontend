@@ -32,7 +32,7 @@ const ScrollbarTrack = styled.div`
     width: 100%;
     height: 6px;
     border-radius: 999px;
-    background: rgba(9, 14, 24, 0.06);
+    background: var(--scrollbar-track-subtle);
     overflow: hidden;
 `;
 
@@ -41,7 +41,7 @@ const ScrollbarThumb = styled.div<{ $widthPercent: number; $leftPercent: number 
     width: ${({ $widthPercent }) => `${$widthPercent}%`};
     transform: translateX(${({ $leftPercent }) => `${$leftPercent}%`});
     border-radius: 999px;
-    background: rgba(79, 131, 227, 0.45);
+    background: var(--scrollbar-thumb-strong);
     transition: transform 0.1s linear;
 `;
 
@@ -49,8 +49,8 @@ const FilterButton = styled.button<{ $active: boolean }>`
     min-height: 30px;
     padding: 0 7px;
     border-radius: 8px;
-    border: 1px solid ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#fff")};
+    border: 1px solid ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "#fff")};
     color: ${({ $active }) => ($active ? "#fff" : "#2d3a54")};
     font-size: 12px;
     font-weight: 600;
@@ -94,7 +94,7 @@ const MetaText = styled.span`
 
 const OperationType = styled.span`
     font-size: 12px;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
     font-weight: 700;
 `;
 
@@ -163,7 +163,7 @@ const Badge = styled.span<{ $status: ModerationStatus }>`
     font-size: 14px;
     font-weight: 700;
     color: ${({ $status }) => ($status === "approved" ? "#38593a" : $status === "rejected" ? "#863838" : "#314e7b")};
-    background: ${({ $status }) => ($status === "approved" ? "#e3efd6" : $status === "rejected" ? "#fde6e9" : "#e4eef9")};
+    background: ${({ $status }) => ($status === "approved" ? "#e3efd6" : $status === "rejected" ? "#fde6e9" : "var(--main-color-tint-soft)")};
 `;
 
 const moderationLabels: Record<ModerationStatus, string> = {

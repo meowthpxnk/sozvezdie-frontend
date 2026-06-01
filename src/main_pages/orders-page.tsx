@@ -17,8 +17,8 @@ const ORDER_STATUS_BADGE: Record<OrderStatusKey, { background: string; color: st
     cancelled: { background: "#fde6e9", color: "#863838" },
     delivered: { background: "#e3efd6", color: "#38593a" },
     received: { background: "#e3efd6", color: "#38593a" },
-    awaiting_delivery: { background: "#e4eef9", color: "#314e7b" },
-    in_transit: { background: "#e4eef9", color: "#314e7b" },
+    awaiting_delivery: { background: "var(--main-color-tint-soft)", color: "#314e7b" },
+    in_transit: { background: "var(--main-color-tint-soft)", color: "#314e7b" },
 };
 
 function parsePriceRub(text: string): number {
@@ -73,16 +73,16 @@ const OrdersLinkButton = styled(Link)`
     border-radius: 10px;
     gap: 8px;
 
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -201,7 +201,7 @@ const OrderItemImageLink = styled(Link)`
     outline-offset: 2px;
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
     }
 
     &:hover ${OrderItemImageWrapper} {
@@ -228,11 +228,11 @@ const OrderItemNameLink = styled(Link)`
     outline-offset: 2px;
 
     &:hover {
-        color: #4f83e3;
+        color: var(--main-color);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         border-radius: 4px;
     }
 `;
@@ -256,7 +256,7 @@ const OrderItemPriceRow = styled.div`
 
 const OrderItemPrice = styled.span`
     font-weight: 600;
-    color: #4f83e3;
+    color: var(--main-color);
     font-size: 20px;
 `;
 

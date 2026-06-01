@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 const PAGE_CONTENT_MAX_WIDTH = 1200;
+const CATALOG_FILTERS_OPEN_KEY = "catalog-filters-open";
 
 const ProductSearchPannelStyles = styled.div`
     width: 100%;
@@ -73,7 +74,7 @@ const SearchIconWrapper = styled(Search)`
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
-    color: #7687a8;
+    color: #9aa3b2;
 `;
 
 const SearchFieldInput = styled.input<{ $showClear: boolean; $floating?: boolean }>`
@@ -103,7 +104,7 @@ const ClearProductsSearchButton = styled.button`
     right: 8px;
     padding: 0;
     border: none;
-    background-color: #e9edf5;
+    background-color: var(--neutral-surface-bg);
     color: #5d6b84;
     border-radius: 6px;
     display: flex;
@@ -121,7 +122,7 @@ const ClearProductsSearchButton = styled.button`
     }
 
     &:hover {
-        background-color: #dce4f3;
+        background-color: var(--main-color-tint-hover);
         color: #2d3a54;
     }
 `;
@@ -131,8 +132,8 @@ const FilterButton = styled.button<{ $active: boolean; $floating?: boolean }>`
     height: 52px;
     flex-shrink: 0;
     border-radius: 12px;
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#e9edf5")};
-    color: ${({ $active }) => ($active ? "#fff" : "#4f83e3")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "var(--neutral-surface-bg)")};
+    color: ${({ $active }) => ($active ? "#fff" : "var(--main-color)")};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,7 +142,7 @@ const FilterButton = styled.button<{ $active: boolean; $floating?: boolean }>`
     transition: background-color 0.2s ease, filter 0.2s ease;
 
     &:hover {
-        background-color: ${({ $active }) => ($active ? "#3f74d6" : "#dce4f3")};
+        background-color: ${({ $active }) => ($active ? "var(--main-color-hover)" : "var(--main-color-tint-hover)")};
     }
 
     svg {
@@ -184,6 +185,41 @@ const FiltersContent = styled.div`
     box-sizing: border-box;
 `;
 
+const FiltersPanelHeader = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+`;
+
+const FiltersPanelTitle = styled.h2`
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #132647;
+`;
+
+const FiltersCloseButton = styled.button`
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #d7ddea;
+    background: #fff;
+    color: #2d3a54;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+
+    &:hover {
+        background: #f5f7fb;
+        border-color: #b8c4da;
+    }
+`;
+
 const FilterSection = styled.div`
     display: flex;
     flex-direction: column;
@@ -209,7 +245,7 @@ const FilterSearchIcon = styled(Search)`
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    color: #7687a8;
+    color: #9aa3b2;
     pointer-events: none;
 `;
 
@@ -238,7 +274,7 @@ const FilterClearSearchButton = styled.button`
     right: 8px;
     padding: 0;
     border: none;
-    background-color: #e9edf5;
+    background-color: var(--neutral-surface-bg);
     color: #5d6b84;
     border-radius: 6px;
     display: flex;
@@ -253,7 +289,7 @@ const FilterClearSearchButton = styled.button`
     }
 
     &:hover {
-        background-color: #dce4f3;
+        background-color: var(--main-color-tint-hover);
         color: #2d3a54;
     }
 `;
@@ -300,15 +336,15 @@ const filterSelectOptionStyles = `
 const FilterSelectButton = styled.button<{ $active?: boolean }>`
     ${filterSelectOptionStyles}
 
-    border-color: ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#e4eef9" : "#f6f7f9")};
+    border-color: ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color-tint-soft)" : "#f6f7f9")};
 `;
 
 const FilterSelectLink = styled(Link) <{ $active?: boolean }>`
     ${filterSelectOptionStyles}
 
-    border-color: ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#e4eef9" : "#f6f7f9")};
+    border-color: ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color-tint-soft)" : "#f6f7f9")};
 `;
 
 const FilterSelectLabel = styled.span`
@@ -326,7 +362,7 @@ const FilterSelectCount = styled.span<{ $active?: boolean }>`
     font-weight: 700;
     text-align: center;
     color: ${({ $active }) => ($active ? "#fff" : "#314e7b")};
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#e4eef9")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "var(--main-color-tint-soft)")};
 `;
 
 export type FilterSelectOption = {
@@ -432,7 +468,7 @@ export const ProductSearchPannel = ({
         return () => window.removeEventListener("resize", updateMetrics);
     }, [getFloatingControlsMetrics, isControlsFloating]);
 
-    const openFilters = () => {
+    const openFilters = useCallback(() => {
         const targetMetrics = getFloatingControlsMetrics();
 
         if (controlsRef.current) {
@@ -448,14 +484,17 @@ export const ProductSearchPannel = ({
 
         setIsControlsFloating(true);
         setIsFiltersOpen(true);
+        sessionStorage.setItem(CATALOG_FILTERS_OPEN_KEY, "1");
 
         requestAnimationFrame(() => {
             setControlsMetrics(getFloatingControlsMetrics());
         });
-    };
+    }, [getFloatingControlsMetrics]);
 
-    const closeFilters = () => {
+    const closeFilters = useCallback(() => {
         const bounds = getContentBounds();
+
+        sessionStorage.removeItem(CATALOG_FILTERS_OPEN_KEY);
 
         if (!containerRef.current) {
             setIsFiltersOpen(false);
@@ -478,7 +517,22 @@ export const ProductSearchPannel = ({
         window.setTimeout(() => {
             setIsControlsFloating(false);
         }, 250);
-    };
+    }, [getContentBounds]);
+
+    const keepFiltersOpen = useCallback(() => {
+        sessionStorage.setItem(CATALOG_FILTERS_OPEN_KEY, "1");
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        if (sessionStorage.getItem(CATALOG_FILTERS_OPEN_KEY) !== "1") {
+            return;
+        }
+
+        openFilters();
+    }, [openFilters]);
 
     const handleFandomChange = (slug: string | null) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -491,7 +545,6 @@ export const ProductSearchPannel = ({
 
         const query = params.toString();
         router.push(query ? `${pathname}?${query}` : pathname);
-        closeFilters();
     };
 
     const showFandomSection = fandomOptions.length > 0;
@@ -527,6 +580,17 @@ export const ProductSearchPannel = ({
                     onClick={(event) => event.stopPropagation()}
                 >
                     <FiltersContent>
+                        <FiltersPanelHeader>
+                            <FiltersPanelTitle>Фильтры</FiltersPanelTitle>
+                            <FiltersCloseButton
+                                type="button"
+                                onClick={closeFilters}
+                                aria-label="Закрыть фильтры"
+                            >
+                                <X size={16} aria-hidden />
+                                Готово
+                            </FiltersCloseButton>
+                        </FiltersPanelHeader>
                         {!categorySlug ? (
                             <FilterSection>
                                 <FilterSectionTitle>
@@ -535,7 +599,7 @@ export const ProductSearchPannel = ({
                                 <FilterSelectList>
                                     <FilterSelectLink
                                         href={buildCatalogHref({ fandomSlug })}
-                                        onClick={closeFilters}
+                                        onClick={keepFiltersOpen}
                                         $active={!categorySlug}
                                     >
                                         <FilterSelectLabel>
@@ -552,7 +616,7 @@ export const ProductSearchPannel = ({
                                                 categorySlug: option.slug!,
                                                 fandomSlug,
                                             })}
-                                            onClick={closeFilters}
+                                            onClick={keepFiltersOpen}
                                         >
                                             <FilterSelectLabel>
                                                 {option.title}
@@ -583,7 +647,7 @@ export const ProductSearchPannel = ({
                                                         categorySlug,
                                                         fandomSlug,
                                                     })}
-                                                    onClick={closeFilters}
+                                                    onClick={keepFiltersOpen}
                                                     $active={isActive}
                                                 >
                                                     <FilterSelectLabel>
@@ -607,7 +671,7 @@ export const ProductSearchPannel = ({
                                                         option.slug,
                                                     fandomSlug,
                                                 })}
-                                                onClick={closeFilters}
+                                                onClick={keepFiltersOpen}
                                                 $active={isActive}
                                             >
                                                 <FilterSelectLabel>
@@ -724,7 +788,6 @@ export const ProductSearchPannel = ({
                                             $active={isActive}
                                             onClick={() => {
                                                 setSortType(option.value);
-                                                closeFilters();
                                             }}
                                         >
                                             <FilterSelectLabel>

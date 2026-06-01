@@ -6,7 +6,7 @@ const AuthorBannerStyles = styled.section<{ $backgroundImage: string }>`
     color: var(--color);
 
     background-image:
-        linear-gradient(135deg, rgba(18, 19, 23, 0.85) 0%, rgba(47, 95, 203, 0.72) 100%),
+        var(--author-banner-gradient),
         url(${({ $backgroundImage }) => $backgroundImage});
     background-size: cover;
     background-position: center;

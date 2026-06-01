@@ -72,7 +72,7 @@ const InputWithIconWrap = styled.div`
     box-sizing: border-box;
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -80,7 +80,7 @@ const InputWithIconWrap = styled.div`
         flex-shrink: 0;
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
         margin-left: 12px;
         margin-right: 8px;
     }
@@ -112,7 +112,7 @@ const PrimaryButton = styled.button`
     padding: 0 20px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -126,11 +126,11 @@ const PrimaryButton = styled.button`
     }
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;

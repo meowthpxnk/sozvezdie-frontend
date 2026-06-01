@@ -8,6 +8,7 @@ import {
     type AuthorFeedFilter,
     type AuthorFeedItem,
     mapBrandModerationToFeedItem,
+    mapProductDeletionToFeedItem,
     mapProductToFeedItem,
 } from "@entities/author/author-feed.types";
 
@@ -23,7 +24,13 @@ export function useAuthorFeed() {
     });
 
     const items = useMemo<AuthorFeedItem[]>(() => {
-        const productItems = products.map(mapProductToFeedItem);
+        const productItems = products.flatMap((product) => {
+            const items = [mapProductToFeedItem(product)];
+            if (product.deletionRequestStatus === "PENDING") {
+                items.push(mapProductDeletionToFeedItem(product));
+            }
+            return items;
+        });
         const brandItems = (brandQuery.data ?? []).map(mapBrandModerationToFeedItem);
         return [...productItems, ...brandItems].sort(
             (left, right) =>

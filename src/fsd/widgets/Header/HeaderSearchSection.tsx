@@ -4,13 +4,16 @@ import CatalogOpenButton from "@shared/ui/buttons/CatalogOpenButton";
 import SearchBarOpenButton from "@shared/ui/buttons/SearchBarOpenButton";
 import { SearchBarOverlay, CatalogOverlay, SearchBar } from "@widgets";
 
-const HeaderSearchSectionStyles = styled.div``;
+const HeaderSearchSectionStyles = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 640px;
+    justify-content: center;
+`;
 
-export interface HeaderSearchSectionProps {
-
-}
-
-export const HeaderSearchSection = ({ }: HeaderSearchSectionProps) => {
+export const HeaderSearchSection = () => {
     const {
         isOpen: isCatalogOpen,
         close: closeCatalog,
@@ -25,18 +28,15 @@ export const HeaderSearchSection = ({ }: HeaderSearchSectionProps) => {
 
     return (
         <>
-            <HeaderSearchSectionStyles className="flex-r indent-list int-12 fg-1">
-                <CatalogOpenButton
-                    onClick={openCatalog}
-                />
-                <SearchBarOpenButton
-                    onClick={openSearchBar}
-                />
+            <HeaderSearchSectionStyles>
+                <CatalogOpenButton onClick={openCatalog} />
+                <SearchBarOpenButton onClick={openSearchBar} />
                 <SearchBar />
             </HeaderSearchSectionStyles>
             <CatalogOverlay isCatalogOpen={isCatalogOpen} close={closeCatalog} />
             <SearchBarOverlay isSearchBarOpen={isSearchBarOpen} close={closeSearchBar} />
         </>
-    )
-}
-export default HeaderSearchSection
+    );
+};
+
+export default HeaderSearchSection;

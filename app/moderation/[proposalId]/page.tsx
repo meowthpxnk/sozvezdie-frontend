@@ -1,5 +1,6 @@
 import {
     ModeratorBrandEditPage,
+    ModeratorProductDeletionPage,
     ModeratorProductEditPage,
 } from "@/src/fsd/pages/ModerationEditPage";
 import { SetAdminChrome } from "@widgets/AdminShell";
@@ -13,6 +14,10 @@ export default async function ModerationEditRoute({ params }: ModerationEditRout
 
     if (proposalId.startsWith("brand-")) {
         return <ModeratorBrandEditPage proposalId={proposalId} />;
+    }
+
+    if (proposalId.startsWith("product-delete-")) {
+        return <ModeratorProductDeletionPage proposalId={proposalId} />;
     }
 
     if (proposalId.startsWith("product-")) {

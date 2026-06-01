@@ -30,7 +30,7 @@ const CommentField = styled.textarea`
     color: #132647;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 1px;
     }
 `;
@@ -39,7 +39,7 @@ const SaveButton = styled.button`
     min-height: 42px;
     border: none;
     border-radius: 10px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 14px;
     font-weight: 700;

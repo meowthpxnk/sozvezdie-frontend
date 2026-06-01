@@ -20,7 +20,7 @@ const PageTitle = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const ProfileGrid = styled.div`
@@ -71,22 +71,18 @@ const SectionDescription = styled.p`
     line-height: 1.45;
 `;
 
-const AccountMeta = styled.dl`
-    display: grid;
-    grid-template-columns: auto 1fr;
-    margin: 0 0 18px;
+const LoginValue = styled.p`
+    margin: 0;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    background: #f7f8fa;
     font-size: 14px;
-
-    dt {
-        margin: 0;
-        font-weight: 600;
-        color: #2d3a54;
-    }
-
-    dd {
-        margin: 0;
-        color: #000;
-    }
+    color: #000;
+    box-sizing: border-box;
 `;
 
 const FormStack = styled.form`
@@ -141,7 +137,7 @@ const InputWithIconWrap = styled.div`
     box-sizing: border-box;
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -149,7 +145,7 @@ const InputWithIconWrap = styled.div`
         flex-shrink: 0;
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
         margin-left: 12px;
         margin-right: 8px;
     }
@@ -181,7 +177,7 @@ const PrimaryButton = styled.button`
     padding: 0 20px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -195,7 +191,7 @@ const PrimaryButton = styled.button`
     }
 
     &:hover:not(:disabled) {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:disabled {
@@ -204,7 +200,7 @@ const PrimaryButton = styled.button`
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -313,11 +309,11 @@ export const ProfilePage = () => {
                     <SectionDescription>
                         Обновите информацию профиля своей учетной записи и адрес электронной почты.
                     </SectionDescription>
-                    <AccountMeta>
-                        <dt>Логин</dt>
-                        <dd>{username}</dd>
-                    </AccountMeta>
                     <FormStack onSubmit={onSaveProfile}>
+                        <FieldGroup $fullWidth>
+                            <FieldLabel>Логин</FieldLabel>
+                            <LoginValue>{username}</LoginValue>
+                        </FieldGroup>
                         <FormFieldsGrid>
                             <FieldGroup $fullWidth>
                                 <FieldLabel htmlFor="profile-full-name">

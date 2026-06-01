@@ -13,6 +13,15 @@ const PRODUCT_NAME_MAX_LENGTH = 18;
 
 const ProductCardStyles = styled(Link)`
     background-color: var(--product-card-bg);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    box-shadow: var(--product-card-shadow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+        box-shadow: var(--product-card-shadow-hover);
+        transform: translateY(-2px);
+    }
 `;
 
 const ProductName = styled.h4`

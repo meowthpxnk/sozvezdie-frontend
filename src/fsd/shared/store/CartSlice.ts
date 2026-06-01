@@ -110,6 +110,7 @@ export const cartSlice = createSlice({
 
             state.selectedIds = [...new Set(productIds)];
         },
+        resetCart: () => initialState,
     },
     extraReducers: (builder) => {
         builder
@@ -138,4 +139,5 @@ export const {
     toggleCartItemSelected,
     setCartItemSelected,
     setAllCartItemsSelected,
+    resetCart,
 } = cartSlice.actions;

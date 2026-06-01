@@ -18,8 +18,10 @@ export const useProfile = () => {
         if (!getAccessToken()) {
             return;
         }
-        dispatch(fetchMe());
-    }, [dispatch]);
+        if (!auth.isAuthenticated && !auth.loading) {
+            dispatch(fetchMe());
+        }
+    }, [dispatch, auth.isAuthenticated, auth.loading]);
 
     useEffect(() => {
         if (!auth.loading && !auth.isAuthenticated) {

@@ -26,7 +26,7 @@ const PageTitle = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const SearchBarWrapper = styled.div`
@@ -61,9 +61,9 @@ const SearchInputWrapper = styled.input`
     }
 
     &:focus-visible {
-        outline: 2px solid rgba(79, 131, 227, 0.35);
+        outline: 2px solid var(--focus-ring-color);
         outline-offset: 1px;
-        border-color: var(--main-color, #4f83e3);
+        border-color: var(--main-color, var(--main-color));
     }
 `;
 

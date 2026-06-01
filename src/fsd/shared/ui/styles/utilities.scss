@@ -1,5 +1,5 @@
 ::placeholder {
-    color: var(--placeholder-color);
+    color: var(--placeholder-color, #8a97b1);
 }
 
 .fill {

@@ -62,6 +62,10 @@ export function SuperAdminDashboardPage() {
                     <TileTitle>Баннеры</TileTitle>
                     <TileText>Управляйте каруселью на главной странице.</TileText>
                 </Tile>
+                <Tile href="/super-admin/faq">
+                    <TileTitle>FAQ</TileTitle>
+                    <TileText>Добавляйте вопросы и ответы для страницы помощи.</TileText>
+                </Tile>
             </Grid>
         </>
     );

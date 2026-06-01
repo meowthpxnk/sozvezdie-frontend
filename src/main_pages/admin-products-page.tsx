@@ -15,7 +15,7 @@ const AddProductButton = styled(Link)`
     height: 28px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -27,11 +27,11 @@ const AddProductButton = styled(Link)`
     appearance: none;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -115,7 +115,7 @@ const EditButton = styled(Link)`
     text-decoration: none;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     display: inline-flex;
     align-items: center;
@@ -125,7 +125,7 @@ const EditButton = styled(Link)`
     appearance: none;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     svg {
@@ -159,7 +159,7 @@ const PriceStockColumn = styled.div`
 const ItemPrice = styled.span`
     font-size: 20px;
     font-weight: 600;
-    color: #4f83e3;
+    color: var(--main-color);
     line-height: 1.1;
 `;
 

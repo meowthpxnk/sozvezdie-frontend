@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import authorService from "@entities/author/author.service";
+import { useCancelModerationRequest } from "@entities/author/hooks/useCancelModerationRequest";
 import { getMediaImageUrl } from "@shared/lib/media-url";
 import { useAuthorDashboard } from "../AuthorDashboardPage/useAuthorDashboard";
 
@@ -29,6 +30,9 @@ export type BrandPageController = {
     setAvatarFromFile: (file: File, previewUrl: string) => void;
     setBannerFromFile: (file: File, previewUrl: string) => void;
     saveBrand: () => Promise<boolean>;
+    cancelPendingModeration: () => Promise<boolean>;
+    canCancelPendingModeration: boolean;
+    isCancellingModeration: boolean;
     hasExistingCard: boolean;
     isApproved: boolean;
     isPendingReview: boolean;
@@ -41,6 +45,9 @@ export type BrandFormState = {
     brandDescription: string;
     avatarPreview: string;
     bannerPreview: string;
+    tiktokUrl: string;
+    telegramChannelUrl: string;
+    vkUrl: string;
 };
 
 const EMPTY_FORM: BrandFormState = {
@@ -48,18 +55,38 @@ const EMPTY_FORM: BrandFormState = {
     brandDescription: "",
     avatarPreview: "",
     bannerPreview: "",
+    tiktokUrl: "",
+    telegramChannelUrl: "",
+    vkUrl: "",
 };
 
 export function useAuthorBrand() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const { dashboard, loading: dashboardLoading } = useAuthorDashboard();
+    const { cancelRequest, isCancelling } = useCancelModerationRequest();
+    const brandModerationsQuery = useQuery({
+        queryKey: ["author", "brand-moderations"],
+        queryFn: () => authorService.getMyBrandModerations(),
+    });
     const sellerCard = dashboard?.sellerCard;
     const hasExistingCard = Boolean(sellerCard);
     const moderationStatus = sellerCard?.moderationStatus;
     const isApproved = moderationStatus === "APPROVED";
     const isPendingReview =
         moderationStatus === "PENDING" || moderationStatus === "REJECTED" || !hasExistingCard;
+
+    const pendingBrandModeration = useMemo(
+        () => brandModerationsQuery.data?.find((item) => item.status === "PENDING"),
+        [brandModerationsQuery.data]
+    );
+    const canCancelPendingModeration = Boolean(pendingBrandModeration);
+    const pendingBrandFeedItemId = pendingBrandModeration
+        ? `brand-${pendingBrandModeration.id}`
+        : null;
+    const isCancellingModeration = pendingBrandFeedItemId
+        ? isCancelling(pendingBrandFeedItemId)
+        : false;
 
     const [form, setForm] = useState<BrandFormState>(EMPTY_FORM);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -78,6 +105,9 @@ export function useAuthorBrand() {
                 brandDescription: sellerCard.description ?? "",
                 avatarPreview: getMediaImageUrl(sellerCard.avatarImage) ?? "",
                 bannerPreview: getMediaImageUrl(sellerCard.bannerImage) ?? "",
+                tiktokUrl: sellerCard.tiktokUrl ?? "",
+                telegramChannelUrl: sellerCard.telegramChannelUrl ?? "",
+                vkUrl: sellerCard.vkUrl ?? "",
             });
         }
 
@@ -93,6 +123,33 @@ export function useAuthorBrand() {
         setBannerFile(file);
         setForm((prev) => ({ ...prev, bannerPreview: previewUrl }));
     }, []);
+
+    const cancelPendingModeration = useCallback(async () => {
+        if (!pendingBrandModeration || !pendingBrandFeedItemId) {
+            toast.error("Нет заявки, которую можно отменить");
+            return false;
+        }
+
+        const success = await cancelRequest(pendingBrandFeedItemId, {
+            kind: "brand",
+            moderationId: pendingBrandModeration.id,
+        });
+
+        if (success) {
+            setForm(EMPTY_FORM);
+            setAvatarFile(null);
+            setBannerFile(null);
+            setHydrated(false);
+            router.push("/admin/feed");
+        }
+
+        return success;
+    }, [
+        cancelRequest,
+        pendingBrandFeedItemId,
+        pendingBrandModeration,
+        router,
+    ]);
 
     const saveBrand = useCallback(async () => {
         const name = form.brandName.trim();
@@ -118,6 +175,9 @@ export function useAuthorBrand() {
                     desc,
                     avatarFile,
                     bannerFile,
+                    tiktokUrl: form.tiktokUrl,
+                    telegramChannelUrl: form.telegramChannelUrl,
+                    vkUrl: form.vkUrl,
                 });
                 await queryClient.invalidateQueries({ queryKey: ["author", "dashboard"] });
                 await queryClient.invalidateQueries({ queryKey: ["author", "brand-moderations"] });
@@ -140,6 +200,9 @@ export function useAuthorBrand() {
                 desc,
                 avatarFile,
                 bannerFile,
+                tiktokUrl: form.tiktokUrl,
+                telegramChannelUrl: form.telegramChannelUrl,
+                vkUrl: form.vkUrl,
             });
             await queryClient.invalidateQueries({ queryKey: ["author", "dashboard"] });
             await queryClient.invalidateQueries({ queryKey: ["author", "brand-moderations"] });
@@ -172,6 +235,9 @@ export function useAuthorBrand() {
         bannerFile,
         form.brandDescription,
         form.brandName,
+        form.tiktokUrl,
+        form.telegramChannelUrl,
+        form.vkUrl,
         hasExistingCard,
         isApproved,
         queryClient,
@@ -208,11 +274,14 @@ export function useAuthorBrand() {
         isApproved,
         isPendingReview,
         moderationStatus,
-        loading: dashboardLoading || !hydrated,
+        loading: dashboardLoading || !hydrated || brandModerationsQuery.isLoading,
         saving,
         setAvatarFromFile,
         setBannerFromFile,
         saveBrand,
+        cancelPendingModeration,
+        canCancelPendingModeration,
+        isCancellingModeration,
         view,
     };
 }

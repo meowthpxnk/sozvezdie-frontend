@@ -5,11 +5,14 @@ import { useState } from "react";
 import { ImageLightbox } from "@widgets";
 import { MEDIA_URL } from "@shared/api/interceptors";
 
-const PRODUCT_SPLIT_BP = 581;
-const TABLET_MAIN_IMAGE_SIZE = 260;
+const PRODUCT_SPLIT_BP = 660;
+const LARGE_DESKTOP_BP = 1180;
+const TABLET_MAIN_IMAGE_SIZE = 350;
 const TABLET_THUMB_SIZE = 64;
-const DESKTOP_MAIN_IMAGE_SIZE = 400;
-const DESKTOP_THUMB_SIZE = 84;
+const MEDIUM_MAIN_IMAGE_SIZE = 500;
+const MEDIUM_THUMB_SIZE = 88;
+const DESKTOP_MAIN_IMAGE_SIZE = 680;
+const DESKTOP_THUMB_SIZE = 100;
 
 const ImageGalleryStyles = styled.div`
     display: grid;
@@ -29,8 +32,12 @@ const ImageGalleryStyles = styled.div`
     }
 
     @media (min-width: 960px) {
-        grid-template-columns: ${DESKTOP_THUMB_SIZE + 8}px minmax(0, 1fr);
+        grid-template-columns: ${MEDIUM_THUMB_SIZE + 8}px minmax(0, 1fr);
         gap: 12px;
+    }
+
+    @media (min-width: ${LARGE_DESKTOP_BP}px) {
+        grid-template-columns: ${DESKTOP_THUMB_SIZE + 8}px minmax(0, 1fr);
     }
 `;
 
@@ -58,6 +65,10 @@ const ProductImageContainer = styled.button`
     }
 
     @media (min-width: 960px) {
+        width: ${MEDIUM_MAIN_IMAGE_SIZE}px;
+    }
+
+    @media (min-width: ${LARGE_DESKTOP_BP}px) {
         width: ${DESKTOP_MAIN_IMAGE_SIZE}px;
     }
 `;
@@ -78,6 +89,10 @@ const ProductImageThumbListStyles = styled.div`
     }
 
     @media (min-width: 960px) {
+        max-height: ${MEDIUM_MAIN_IMAGE_SIZE}px;
+    }
+
+    @media (min-width: ${LARGE_DESKTOP_BP}px) {
         max-height: ${DESKTOP_MAIN_IMAGE_SIZE}px;
     }
 `;
@@ -108,6 +123,11 @@ const ProductImageThumbStyles = styled.button<{ $active: boolean }>`
     }
 
     @media (min-width: 960px) {
+        width: ${MEDIUM_THUMB_SIZE}px;
+        height: ${MEDIUM_THUMB_SIZE}px;
+    }
+
+    @media (min-width: ${LARGE_DESKTOP_BP}px) {
         width: ${DESKTOP_THUMB_SIZE}px;
         height: ${DESKTOP_THUMB_SIZE}px;
     }

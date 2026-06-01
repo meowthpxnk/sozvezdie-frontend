@@ -6,6 +6,8 @@ export interface IAuthStoreState extends User {
     loading: boolean;
     saving: boolean;
     isAuthenticated: boolean;
+    /** true после первого fetchMe (успех или ошибка) в текущей сессии */
+    sessionChecked: boolean;
 }
 
 export type ProfileFields = Pick<User, "fullName" | "email" | "phone">;
@@ -20,6 +22,7 @@ const initialState: IAuthStoreState = {
     loading: false,
     saving: false,
     isAuthenticated: false,
+    sessionChecked: false,
 };
 
 export const authSlice = createSlice({
@@ -32,6 +35,7 @@ export const authSlice = createSlice({
                 loading: false,
                 saving: false,
                 isAuthenticated: true,
+                sessionChecked: true,
             };
         },
 
@@ -48,14 +52,21 @@ export const authSlice = createSlice({
         },
 
         logout: () => initialState,
+
+        beginSessionCheck: (state) => {
+            state.sessionChecked = false;
+        },
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchMe.pending, (state) => {
-                state.loading = true;
+                if (!state.isAuthenticated) {
+                    state.loading = true;
+                }
             })
             .addCase(fetchMe.fulfilled, (state, action) => {
                 state.loading = false;
+                state.sessionChecked = true;
                 state.isAuthenticated = true;
                 state.id = action.payload.id;
                 state.username = action.payload.username;
@@ -66,6 +77,7 @@ export const authSlice = createSlice({
             })
             .addCase(fetchMe.rejected, (state) => {
                 state.loading = false;
+                state.sessionChecked = true;
                 state.isAuthenticated = false;
                 state.id = "";
                 state.username = "";
@@ -92,4 +104,5 @@ export const authSlice = createSlice({
     },
 });
 
-export const { setUser, setProfileFields, logout } = authSlice.actions;
+export const { setUser, setProfileFields, logout, beginSessionCheck } =
+    authSlice.actions;

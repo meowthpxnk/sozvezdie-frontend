@@ -94,7 +94,7 @@ const PasswordInput = styled.input`
     box-sizing: border-box;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -126,11 +126,11 @@ const CancelButton = styled(Button)`
 `;
 
 const SubmitButton = styled(Button)`
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
 
     &:hover:not(:disabled) {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 `;
 

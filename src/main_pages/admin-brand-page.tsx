@@ -64,7 +64,7 @@ const InputWithIconWrap = styled.div`
     box-sizing: border-box;
 
     &:focus-within {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 
@@ -72,7 +72,7 @@ const InputWithIconWrap = styled.div`
         flex-shrink: 0;
         width: 18px;
         height: 18px;
-        color: #7687a8;
+        color: #9aa3b2;
         margin-left: 12px;
         margin-right: 8px;
     }
@@ -105,13 +105,13 @@ const TextareaInput = styled.textarea`
     resize: vertical;
 
     &:focus {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
 
 const UploadZone = styled.div<{ $isDragOver: boolean }>`
-    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "#4f83e3" : "#d7ddea")};
+    border: 1px dashed ${({ $isDragOver }) => ($isDragOver ? "var(--main-color)" : "#d7ddea")};
     border-radius: 10px;
     padding: 12px;
     background: ${({ $isDragOver }) => ($isDragOver ? "#f5f9ff" : "#f8faff")};
@@ -129,7 +129,7 @@ const UploadButton = styled.button`
     border-radius: 10px;
     border: 1px solid #c8d3e8;
     background: #f1f5ff;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 
@@ -191,7 +191,7 @@ const DragOverlay = styled.div<{ $isTargeted: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: ${({ $isTargeted }) => ($isTargeted ? "rgba(47, 95, 203, 0.6)" : "rgba(47, 95, 203, 0.42)")};
+    background: ${({ $isTargeted }) => ($isTargeted ? "var(--upload-drag-overlay-active)" : "var(--upload-drag-overlay)")};
     color: #fff;
     pointer-events: none;
     z-index: 3;
@@ -222,7 +222,7 @@ const PrimaryButton = styled.button`
     padding: 0 20px;
     border-radius: 8px;
     border: none;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -230,11 +230,11 @@ const PrimaryButton = styled.button`
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     &:focus-visible {
-        outline: 2px solid #4f83e3;
+        outline: 2px solid var(--main-color);
         outline-offset: 2px;
     }
 `;
@@ -355,7 +355,7 @@ const BannerPreview = styled.section<{ $backgroundImage: string }>`
     border-radius: 14px;
     padding: 24px;
     background-image:
-        linear-gradient(135deg, rgba(18, 19, 23, 0.85) 0%, rgba(47, 95, 203, 0.72) 100%),
+        var(--author-banner-gradient),
         url(${({ $backgroundImage }) => $backgroundImage});
     background-size: cover;
     background-position: center;

@@ -51,7 +51,7 @@ const PrimaryButton = styled.button`
     min-height: 42px;
     border: none;
     border-radius: 10px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     font-size: 14px;
     font-weight: 700;

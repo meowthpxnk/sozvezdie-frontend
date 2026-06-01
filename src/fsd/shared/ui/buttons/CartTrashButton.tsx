@@ -14,11 +14,11 @@ const CartTrashButtonStyles = styled.button<{ $active?: boolean }>`
     transition: background-color 0.2s ease;
     appearance: none;
 
-    background: ${({ $active = false }) => ($active ? "#4f83e3" : "#e9edf5")};
-    color: ${({ $active = false }) => ($active ? "#fff" : "#4f83e3")};
+    background: ${({ $active = false }) => ($active ? "var(--main-color)" : "var(--neutral-surface-bg)")};
+    color: ${({ $active = false }) => ($active ? "#fff" : "var(--main-color)")};
 
     &:hover {
-        background: ${({ $active = false }) => ($active ? "#3f74d6" : "#dce4f3")};
+        background: ${({ $active = false }) => ($active ? "var(--main-color-hover)" : "var(--main-color-tint-hover)")};
     }
 `;
 
@@ -29,7 +29,7 @@ export interface CartTrashButtonProps {
 export const CartTrashButton = ({ onClick }: CartTrashButtonProps) => {
     return <CartTrashButtonStyles onClick={onClick} className="cur-p size-box">
         <Trash2
-            stroke="#4f83e3"
+            stroke="var(--main-color)"
             strokeWidth={2}
         />
     </CartTrashButtonStyles>;

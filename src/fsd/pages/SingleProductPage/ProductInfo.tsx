@@ -26,7 +26,7 @@ const ProductName = styled.h1`
     font-size: 26px;
     font-weight: 700;
     line-height: 1.2;
-    color: #000;
+    color: var(--title-color);
 
     @media (min-width: 960px) {
         font-size: 32px;
@@ -45,7 +45,7 @@ const ProductPrice = styled.p`
     font-size: 20px;
     font-weight: 600;
     line-height: 1.35;
-    color: var(--main-color, #4f83e3);
+    color: var(--main-color, var(--main-color));
 `;
 
 const StockLabel = styled.span`

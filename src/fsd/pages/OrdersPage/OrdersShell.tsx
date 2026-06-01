@@ -3,6 +3,9 @@
 import styled from "styled-components";
 import Link from "next/link";
 import { Archive, ClipboardList, LucideIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 import { formatOrderDate, priceFormatter } from "@shared/formatters";
 import {
@@ -12,6 +15,7 @@ import {
     OrderLineItem,
     OrderStatusKey,
     UserOrder,
+    orderService,
 } from "../../entities/order";
 import { MEDIA_URL } from "@shared/api/interceptors";
 
@@ -21,8 +25,8 @@ const ORDER_STATUS_BADGE: Record<OrderStatusKey, { background: string; color: st
     cancelled: { background: "#fde6e9", color: "#863838" },
     delivered: { background: "#e3efd6", color: "#38593a" },
     received: { background: "#e3efd6", color: "#38593a" },
-    awaiting_delivery: { background: "#e4eef9", color: "#314e7b" },
-    in_transit: { background: "#e4eef9", color: "#314e7b" },
+    awaiting_delivery: { background: "var(--main-color-tint-soft)", color: "#314e7b" },
+    in_transit: { background: "var(--main-color-tint-soft)", color: "#314e7b" },
 };
 
 const MainWrapper = styled.div`
@@ -48,7 +52,7 @@ const OrdersTitleWrapper = styled.h1`
     margin: 0;
     font-size: 28px;
     font-weight: 700;
-    color: var(--color, #132647);
+    color: var(--title-color);
 `;
 
 const OrdersLinkButton = styled(Link)`
@@ -66,12 +70,12 @@ const OrdersLinkButton = styled(Link)`
     padding: 8px 12px;
     border-radius: 10px;
     gap: 8px;
-    background: #4f83e3;
+    background: var(--main-color);
     color: #fff;
     transition: background-color 0.2s ease;
 
     &:hover {
-        background: #3f74d6;
+        background: var(--main-color-hover);
     }
 
     svg {
@@ -230,7 +234,7 @@ const OrderItemNameLink = styled(Link)`
     color: inherit;
 
     &:hover {
-        color: #4f83e3;
+        color: var(--main-color);
     }
 `;
 
@@ -264,7 +268,7 @@ const OrderItemUnitPrice = styled.span`
 
 const OrderItemPrice = styled.span`
     font-weight: 600;
-    color: #4f83e3;
+    color: var(--main-color);
     font-size: 20px;
 `;
 
@@ -311,6 +315,42 @@ const OrderSummaryTotalRow = styled(OrderSummaryRow)`
     span {
         font-size: 18px;
         font-weight: 700;
+    }
+`;
+
+const OrderActionsRow = styled.div`
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+`;
+
+const OrderActionButton = styled.button`
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    cursor: pointer;
+    text-decoration: none;
+    width: auto;
+    min-height: 40px;
+    height: 40px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #f0f1f3;
+    color: #1b2b48;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+
+    &:hover {
+        background: #e6e7ea;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 `;
 
@@ -366,6 +406,57 @@ export const OrdersShell = ({
     emptyText,
     emptyLink,
 }: OrdersShellProps) => {
+    const queryClient = useQueryClient();
+    const [cancelingOrderIds, setCancelingOrderIds] = useState<Set<string>>(
+        () => new Set()
+    );
+
+    const cancelableIds = useMemo(() => {
+        const set = new Set<string>();
+        for (const order of orders) {
+            if (order.statusKey === "awaiting_delivery") {
+                set.add(order.id);
+            }
+        }
+        return set;
+    }, [orders]);
+
+    const cancelOrder = async (orderId: string) => {
+        setCancelingOrderIds((prev) => new Set(prev).add(orderId));
+        try {
+            const result = await orderService.cancelOrder(Number(orderId));
+
+            const cdekMsg =
+                result.cdek.status === "failed"
+                    ? `СДЭК: ${result.cdek.message ?? "ошибка"}`
+                    : null;
+            const paymentMsg =
+                result.payment.status === "failed"
+                    ? `ЮKassa: ${result.payment.message ?? "ошибка"}`
+                    : null;
+
+            if (cdekMsg || paymentMsg) {
+                toast.message("Заказ отменён с предупреждениями", {
+                    description: [cdekMsg, paymentMsg].filter(Boolean).join(". "),
+                });
+            } else {
+                toast.success("Заказ отменён");
+            }
+
+            await queryClient.invalidateQueries({ queryKey: ["orders"] });
+        } catch (error: any) {
+            toast.error(
+                error?.response?.data?.detail ?? "Не удалось отменить заказ"
+            );
+        } finally {
+            setCancelingOrderIds((prev) => {
+                const next = new Set(prev);
+                next.delete(orderId);
+                return next;
+            });
+        }
+    };
+
     const NavIcon = nav ? NAV_ICONS[nav.icon] : null;
     const EmptyIcon = emptyLink ? NAV_ICONS[emptyLink.icon] : null;
 
@@ -402,6 +493,8 @@ export const OrdersShell = ({
                             (acc, product) => acc + product.quantity,
                             0
                         );
+                        const canCancel = cancelableIds.has(order.id);
+                        const canceling = cancelingOrderIds.has(order.id);
 
                         return (
                             <OrderCardWrapper key={order.id}>
@@ -440,6 +533,33 @@ export const OrdersShell = ({
                                                 {DELIVERY_METHOD_LABELS[order.deliveryMethod]}
                                             </span>
                                         </OrderSummaryRow>
+                                        {order.deliveryAddressText ? (
+                                            <OrderSummaryRow>
+                                                <span>Адрес</span>
+                                                <span>
+                                                    {order.deliveryAddressText}
+                                                    {order.deliveryFlat
+                                                        ? `, кв. ${order.deliveryFlat}`
+                                                        : ""}
+                                                </span>
+                                            </OrderSummaryRow>
+                                        ) : null}
+                                        {order.cdekPvzAddress ? (
+                                            <OrderSummaryRow>
+                                                <span>Пункт выдачи</span>
+                                                <span>{order.cdekPvzAddress}</span>
+                                            </OrderSummaryRow>
+                                        ) : null}
+                                        {order.deliveryDate ? (
+                                            <OrderSummaryRow>
+                                                <span>Дата доставки</span>
+                                                <span>
+                                                    {new Date(
+                                                        order.deliveryDate
+                                                    ).toLocaleDateString("ru-RU")}
+                                                </span>
+                                            </OrderSummaryRow>
+                                        ) : null}
                                         <OrderSummaryRow>
                                             <span>Стоимость доставки</span>
                                             <span>
@@ -460,6 +580,17 @@ export const OrdersShell = ({
                                             <span>Итого к оплате</span>
                                             <span>{priceFormatter(order.total)}</span>
                                         </OrderSummaryTotalRow>
+                                        {canCancel ? (
+                                            <OrderActionsRow>
+                                                <OrderActionButton
+                                                    type="button"
+                                                    onClick={() => void cancelOrder(order.id)}
+                                                    disabled={canceling || loading}
+                                                >
+                                                    {canceling ? "Отменяем…" : "Отменить заказ"}
+                                                </OrderActionButton>
+                                            </OrderActionsRow>
+                                        ) : null}
                                     </OrderSummaryWrapper>
                                 </OrderCardBody>
                             </OrderCardWrapper>

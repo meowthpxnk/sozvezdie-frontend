@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
-import { Check, CircleAlert, Clock3, Pencil } from "lucide-react";
+import { Check, CircleAlert, Clock3, Package, Pencil } from "lucide-react";
 import { SetAdminChrome } from "@widgets/AdminShell";
 import {
     MODERATION_ACTION_LABELS,
@@ -33,8 +34,8 @@ const FilterButton = styled.button<{ $active: boolean }>`
     min-height: 32px;
     padding: 0 10px;
     border-radius: 8px;
-    border: 1px solid ${({ $active }) => ($active ? "#4f83e3" : "#d7ddea")};
-    background: ${({ $active }) => ($active ? "#4f83e3" : "#fff")};
+    border: 1px solid ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "#fff")};
     color: ${({ $active }) => ($active ? "#fff" : "#2d3a54")};
     font-size: 12px;
     font-weight: 600;
@@ -73,7 +74,7 @@ const Row = styled.div`
 const TypeLabel = styled.span`
     font-size: 12px;
     font-weight: 700;
-    color: #2f5fcb;
+    color: var(--main-color-accent);
 `;
 
 const StatusBadge = styled.span<{ $status: ModerationStatus }>`
@@ -112,6 +113,34 @@ const EmptyState = styled.p`
     font-size: 14px;
 `;
 
+const OrdersLink = styled(Link)`
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--main-color-accent);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(17, 31, 60, 0.06);
+
+    svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        color: var(--main-color);
+    }
+`;
+
 const FILTERS: { value: ModerationFilter; label: string; icon: typeof Clock3 }[] = [
     { value: "PENDING", label: "На модерации", icon: Clock3 },
     { value: "APPROVED", label: "Принятые", icon: Check },
@@ -125,6 +154,10 @@ export function ModerationPage() {
     return (
         <>
             <SetAdminChrome title="Feed модерации" />
+            <OrdersLink href="/moderation/orders">
+                <Package size={14} />
+                Заказы и отслеживание
+            </OrdersLink>
             <FilterRow>
                 {FILTERS.map(({ value, label, icon: Icon }) => (
                     <FilterButton

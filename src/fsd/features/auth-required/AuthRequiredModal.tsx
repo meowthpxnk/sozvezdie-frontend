@@ -74,7 +74,7 @@ const PrimaryLink = styled(Link)`
     justify-content: center;
     min-height: 48px;
     border-radius: 12px;
-    background: var(--main-color, #4f83e3);
+    background: var(--main-color, var(--main-color));
     color: #fff;
     font-size: 15px;
     font-weight: 600;
@@ -82,7 +82,7 @@ const PrimaryLink = styled(Link)`
     transition: background-color 0.2s;
 
     &:hover {
-        background: var(--main-color-hover, #3f74d6);
+        background: var(--main-color-hover, var(--main-color-hover));
     }
 `;
 

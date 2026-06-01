@@ -18,24 +18,24 @@ type AuthorRoleGuardProps = {
 
 export function AuthorRoleGuard({ children }: AuthorRoleGuardProps) {
     const router = useRouter();
-    const { isAuthenticated, loading, role } = useAuth();
+    const { isAuthenticated, role, authReady, hasAccessToken } = useAuth();
 
     useEffect(() => {
-        if (loading) {
+        if (!authReady) {
             return;
         }
 
-        if (!isAuthenticated) {
-            // router.replace("/auth");
+        if (!hasAccessToken || !isAuthenticated) {
+            router.replace("/auth");
             return;
         }
 
         if (role !== "AUTHOR") {
             router.replace("/");
         }
-    }, [isAuthenticated, loading, role, router]);
+    }, [authReady, hasAccessToken, isAuthenticated, role, router]);
 
-    if (loading) {
+    if (!authReady) {
         return <Message>Загрузка кабинета…</Message>;
     }
 
