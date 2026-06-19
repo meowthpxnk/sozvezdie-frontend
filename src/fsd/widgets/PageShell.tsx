@@ -41,6 +41,7 @@ export const PageShell = ({ children }: PageShellProps) => {
             { href: "/products", label: "Каталог" },
             { href: "/authors", label: "Авторы" },
             { href: "/faq", label: "FAQ" },
+            { href: "/legal-details", label: "Реквизиты" },
         ]} />
     </PageShellStyles>;
 };
