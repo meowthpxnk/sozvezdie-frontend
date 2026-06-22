@@ -43,6 +43,10 @@ const CartTitleWrapper = styled.h1`
     font-size: 28px;
     font-weight: 700;
     color: var(--title-color);
+
+    @media (max-width: 480px) {
+        font-size: 22px;
+    }
 `;
 
 const CartLayout = styled.div`
@@ -182,6 +186,12 @@ const CartSummaryRow = styled.div`
         font-weight: 500;
         color: var(--cart-summary-text-color);
     }
+
+    @media (max-width: 480px) {
+        span {
+            font-size: 13px;
+        }
+    }
 `;
 
 const CartSummaryTotalRow = styled(CartSummaryRow)`
@@ -190,6 +200,12 @@ const CartSummaryTotalRow = styled(CartSummaryRow)`
     span {
         font-size: 18px;
         font-weight: 700;
+    }
+
+    @media (max-width: 480px) {
+        span {
+            font-size: 16px;
+        }
     }
 `;
 
@@ -239,6 +255,10 @@ const CartStockWarning = styled.p`
     font-weight: 600;
     color: var(--cart-stock-warning-color);
     line-height: 1.35;
+
+    @media (max-width: 480px) {
+        font-size: 12px;
+    }
 `;
 
 const ConfirmOverlay = styled.div`

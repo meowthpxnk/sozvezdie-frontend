@@ -2,45 +2,15 @@ import styled from "styled-components";
 import { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-const HeaderLinkButtonStyles = styled(Link)<{ $active?: boolean }>`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    min-width: 52px;
-    color: var(--header-icon-color);
-    background: transparent;
-    text-decoration: none;
-    transition: opacity 0.15s ease;
-
-    &:hover {
-        opacity: 0.65;
-    }
-
-    ${({ $active }) =>
-        $active
-            ? `
-        span:last-child {
-            color: var(--main-color);
-            font-weight: 600;
-        }
-    `
-            : ""}
-
-    @media (max-width: 639px) {
-        padding: 4px 6px;
-        min-width: auto;
-    }
-`;
-
-const IconWrap = styled.div`
+const IconWrap = styled.div<{ $active?: boolean }>`
     position: relative;
     width: 24px;
     height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: ${({ $active }) =>
+        $active ? "var(--main-color)" : "var(--header-icon-color)"};
 
     svg {
         width: 22px;
@@ -88,6 +58,7 @@ const ButtonBadgeWrapper = styled.div`
         font-size: 10px;
         font-weight: 700;
         line-height: 1;
+        color: #111;
     }
 
     @media (max-width: 639px) {
@@ -100,6 +71,28 @@ const ButtonBadgeWrapper = styled.div`
         span {
             font-size: 9px;
         }
+    }
+`;
+
+const HeaderLinkButtonStyles = styled(Link)`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    min-width: 52px;
+    color: var(--header-icon-color);
+    background: transparent;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+        opacity: 0.65;
+    }
+
+    @media (max-width: 639px) {
+        padding: 4px 6px;
+        min-width: auto;
     }
 `;
 
@@ -122,10 +115,9 @@ export const HeaderLinkButton = ({
         <HeaderLinkButtonStyles
             href={href}
             className="cur-p"
-            $active={active}
             aria-label={label}
         >
-            <IconWrap>
+            <IconWrap $active={active}>
                 <Icon stroke="currentColor" />
                 {badgeCount > 0 ? (
                     <ButtonBadgeWrapper className="pos-a zi-2">

@@ -57,11 +57,13 @@ const List = styled.ul`
 
 const Card = styled.li`
     background: #fff;
+    border: 1px solid #e4e9f0;
     border-radius: 12px;
     padding: 12px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: 0 8px 24px rgba(17, 31, 60, 0.05);
 `;
 
 const Row = styled.div`

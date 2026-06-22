@@ -4,6 +4,7 @@ import { StyledComponentsRegistry } from "@/src/shared/lib/styled-components-reg
 import { PageShell } from "@widgets";
 import "@shared/ui/styles/index.scss";
 import { AppInitializer } from "./initializer";
+import { SITE_TITLE, SITE_TITLE_SUFFIX } from "@shared/lib/page-metadata";
 
 
 
@@ -17,7 +18,10 @@ import { AppInitializer } from "./initializer";
 // import { setCart } from "@/src/fsd/shared/store/CartSlice";
 
 export const metadata: Metadata = {
-    title: "Созвезние | Полки",
+    title: {
+        default: SITE_TITLE,
+        template: `%s | ${SITE_TITLE_SUFFIX}`,
+    },
     icons: {
         icon: "/favicon.png",
     },

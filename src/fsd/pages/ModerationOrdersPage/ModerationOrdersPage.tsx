@@ -41,31 +41,37 @@ const FilterButton = styled.button<{ $active: boolean }>`
 `;
 
 const SearchRow = styled.form`
-    display: flex;
-    gap: 8px;
     margin-top: 12px;
 `;
 
-const SearchInput = styled.input`
-    flex: 1;
-    min-height: 40px;
-    border-radius: 10px;
-    border: 1px solid #d7ddea;
-    padding: 0 12px;
-    font-size: 14px;
+const SearchBarWrapper = styled.div`
+    position: relative;
+    width: 100%;
 `;
 
-const SearchButton = styled.button`
-    min-height: 40px;
-    min-width: 40px;
-    border: none;
+const SearchIcon = styled(Search)`
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: #6b7890;
+    pointer-events: none;
+`;
+
+const SearchInput = styled.input`
+    width: 100%;
+    min-height: 36px;
     border-radius: 10px;
-    background: var(--main-color);
-    color: #fff;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid #d7ddea;
+    padding: 0 12px 0 32px;
+    font-size: 14px;
+    box-sizing: border-box;
+
+    &::placeholder {
+        color: #8a97b1;
+    }
 `;
 
 const List = styled.ul`
@@ -183,14 +189,14 @@ export function ModerationOrdersPage() {
                     applySearch();
                 }}
             >
-                <SearchInput
-                    value={searchInput}
-                    onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="№ заказа, логин, email, телефон"
-                />
-                <SearchButton type="submit" aria-label="Поиск">
-                    <Search size={16} />
-                </SearchButton>
+                <SearchBarWrapper>
+                    <SearchIcon aria-hidden />
+                    <SearchInput
+                        value={searchInput}
+                        onChange={(event) => setSearchInput(event.target.value)}
+                        placeholder="№ заказа, логин, email, телефон"
+                    />
+                </SearchBarWrapper>
             </SearchRow>
 
             {!loading && !isError ? (

@@ -31,7 +31,7 @@ const BannerFrame = styled.div<{ $draggable: boolean }>`
     }
 `;
 
-const BannerSlide = styled(Link)`
+const bannerSlideStyles = `
     position: relative;
     flex-shrink: 0;
     display: block;
@@ -51,6 +51,29 @@ const BannerSlide = styled(Link)`
         display: block;
     }
 `;
+
+const BannerSlide = styled(Link)`${bannerSlideStyles}`;
+const BannerSlideExternal = styled.a`${bannerSlideStyles}`;
+const BannerSlideStatic = styled.div`${bannerSlideStyles}`;
+
+const BANNER_HREF_PROTOCOL_RE = /^https?:\/\//i;
+
+function resolveBannerHref(href: string): { href: string; external: boolean } | null {
+    const trimmed = href.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    if (BANNER_HREF_PROTOCOL_RE.test(trimmed)) {
+        return { href: trimmed, external: true };
+    }
+
+    if (trimmed.startsWith("/")) {
+        return { href: trimmed, external: false };
+    }
+
+    return { href: `https://${trimmed}`, external: true };
+}
 
 const BannerSlideTextBlock = styled.div`
     position: absolute;
@@ -503,20 +526,55 @@ export const LandingBanner = ({ banners }: LandingBannerProps) => {
             >
                 {bannerWindowIndexes.map((bannerIndex, windowIndex) => {
                     const banner = banners[bannerIndex];
-                    return (
-                        <BannerSlide
-                            href={banner.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            key={`${banner.id}-${activeBannerIndex}-${windowIndex}`}
-                            style={{ width: frameWidth > 0 ? frameWidth : "33.3333%" }}
-                            onClickCapture={onBannerSlideClickCapture}
-                            aria-label={`${banner.title}. ${banner.image}`}
-                        >
+                    const resolvedHref = resolveBannerHref(banner.href);
+                    const slideStyle = { width: frameWidth > 0 ? frameWidth : "33.3333%" };
+                    const slideKey = `${banner.id}-${activeBannerIndex}-${windowIndex}`;
+                    const slideContent = (
+                        <>
                             <img src={`${MEDIA_URL}/images-bucket/${banner.image}`} alt="" draggable={false} />
                             <BannerSlideTextBlock>
                                 <BannerSlideTitle>{banner.title}</BannerSlideTitle>
                             </BannerSlideTextBlock>
+                        </>
+                    );
+
+                    if (!resolvedHref) {
+                        return (
+                            <BannerSlideStatic
+                                key={slideKey}
+                                style={slideStyle}
+                                aria-label={banner.title}
+                            >
+                                {slideContent}
+                            </BannerSlideStatic>
+                        );
+                    }
+
+                    if (resolvedHref.external) {
+                        return (
+                            <BannerSlideExternal
+                                href={resolvedHref.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                key={slideKey}
+                                style={slideStyle}
+                                onClickCapture={onBannerSlideClickCapture}
+                                aria-label={`${banner.title}. ${banner.image}`}
+                            >
+                                {slideContent}
+                            </BannerSlideExternal>
+                        );
+                    }
+
+                    return (
+                        <BannerSlide
+                            href={resolvedHref.href}
+                            key={slideKey}
+                            style={slideStyle}
+                            onClickCapture={onBannerSlideClickCapture}
+                            aria-label={`${banner.title}. ${banner.image}`}
+                        >
+                            {slideContent}
                         </BannerSlide>
                     );
                 })}
