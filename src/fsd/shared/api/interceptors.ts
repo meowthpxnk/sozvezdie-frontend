@@ -63,8 +63,8 @@ axiosWithAuth.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return axiosWithAuth.request(originalRequest);
             } catch (error) {
-                // refreshSubscribers = [];
-                // redirectToLogin();
+                refreshSubscribers = [];
+                redirectToLogin();
                 return Promise.reject(error);
             } finally {
                 isRefreshing = false;
