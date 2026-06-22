@@ -288,15 +288,15 @@ export const AuthPage = () => {
     const [mode, setMode] = useState<AuthMode>("login");
     const [vkAuthLoading, setVkAuthLoading] = useState(false);
 
-    useEffect(() => {
-        if (authReady && hasAccessToken && isAuthenticated) {
-            router.replace("/");
-        }
-    }, [authReady, hasAccessToken, isAuthenticated, router]);
+    // useEffect(() => {
+    //     if (authReady && hasAccessToken && isAuthenticated) {
+    //         router.replace("/");
+    //     }
+    // }, [authReady, hasAccessToken, isAuthenticated, router]);
 
-    if (authReady && hasAccessToken && isAuthenticated) {
-        return null;
-    }
+    // if (authReady && hasAccessToken && isAuthenticated) {
+    //     return null;
+    // }
 
     const loginForm = useForm<IAuthForm>({ mode: "onChange" });
     const registerForm = useForm<IRegisterForm>({ mode: "onChange" });

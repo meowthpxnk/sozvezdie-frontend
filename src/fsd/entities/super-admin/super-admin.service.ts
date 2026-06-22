@@ -97,6 +97,15 @@ class SuperAdminService {
         await axiosWithAuth.delete(`${this.BASE_URL}/banners/${bannerId}`);
     }
 
+    async reorderBanners(orderedIds: number[]): Promise<AdvertBanner[]> {
+        const response = await axiosWithAuth.put<AdvertBanner[]>(
+            `${this.BASE_URL}/banners/reorder`,
+            { ordered_ids: orderedIds }
+        );
+
+        return response.data;
+    }
+
     async getFaqItems(search?: string): Promise<FaqItem[]> {
         const response = await axiosWithAuth.get<FaqItemApiResponse[]>(
             `${this.BASE_URL}/faq`,

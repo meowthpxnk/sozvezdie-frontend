@@ -44,7 +44,10 @@ export default function HomePage() {
         queryFn: () => advertBannerService.getAdvertBanners(),
     });
 
-    const newestProducts = newestProductsPage?.items ?? [];
+    const newestProducts = useMemo(
+        () => newestProductsPage?.items ?? [],
+        [newestProductsPage?.items]
+    );
 
     useEffect(() => {
         for (const product of newestProducts) {
@@ -105,8 +108,8 @@ export default function HomePage() {
         productsLoading && newestProducts.length === 0
             ? []
             : authorsResolved || !bulkAuthorsLoading
-              ? productsWithAuthors
-              : [];
+                ? productsWithAuthors
+                : [];
 
     return (
         <LandingPage
