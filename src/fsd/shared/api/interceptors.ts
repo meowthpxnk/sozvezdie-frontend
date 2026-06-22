@@ -1,7 +1,5 @@
-import {
-    getAccessToken,
-    removeAccessToken,
-} from "@shared/services/auth-token.service";
+import { getAccessToken } from "@shared/services/auth-token.service";
+import { redirectToLogin } from "@shared/lib/auth-session";
 import { API_URL, MEDIA_URL } from "@shared/config/public-env";
 import { parse422 } from "@shared/utils/Error422";
 import axios, { CreateAxiosDefaults } from "axios";
@@ -65,8 +63,8 @@ axiosWithAuth.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                 return axiosWithAuth.request(originalRequest);
             } catch (error) {
-                // removeAccessToken();
-                // window.location.href = "/auth";
+                refreshSubscribers = [];
+                redirectToLogin();
                 return Promise.reject(error);
             } finally {
                 isRefreshing = false;
@@ -79,11 +77,6 @@ axiosWithAuth.interceptors.response.use(
             toast.error("Validation error", {
                 description: parse422(error?.response?.data).join("; "),
             });
-        } else if (error?.response?.status === 403) {
-            // removeAccessToken();
-            console.log("sajkdkasjdkaskjd");
-
-            // window.location.href = "/auth";
         }
 
         throw error;

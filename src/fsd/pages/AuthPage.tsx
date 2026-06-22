@@ -1,6 +1,12 @@
 "use client";
 
-import { forwardRef, PropsWithChildren, useCallback, useState } from "react";
+import {
+    forwardRef,
+    PropsWithChildren,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 import {
     KeyRound,
     Loader2,
@@ -18,7 +24,7 @@ import styled from "styled-components";
 import { toast } from "sonner";
 
 import { BaseAction } from "@features";
-import { authService } from "@entities/auth";
+import { authService, useAuth } from "@entities/auth";
 import { IAuthForm, IRegisterForm } from "@shared/types/auth.types";
 import { restoreSessionAfterAuth } from "@shared/store/clearClientStore";
 import { useAppDispatch } from "@shared/store/store";
@@ -278,8 +284,19 @@ function getMutationErrorMessage(error: unknown): string {
 export const AuthPage = () => {
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const { hasAccessToken, isAuthenticated, authReady } = useAuth();
     const [mode, setMode] = useState<AuthMode>("login");
     const [vkAuthLoading, setVkAuthLoading] = useState(false);
+
+    useEffect(() => {
+        if (authReady && hasAccessToken && isAuthenticated) {
+            router.replace("/");
+        }
+    }, [authReady, hasAccessToken, isAuthenticated, router]);
+
+    if (authReady && hasAccessToken && isAuthenticated) {
+        return null;
+    }
 
     const loginForm = useForm<IAuthForm>({ mode: "onChange" });
     const registerForm = useForm<IRegisterForm>({ mode: "onChange" });
