@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductsPage } from "@pages";
+import { createPageMetadata } from "@shared/lib/page-metadata";
+import { fetchSubcategoryTitle } from "@shared/lib/server-metadata";
 
 type SubcategoryProductsRouteProps = {
     params: Promise<{
@@ -12,10 +14,10 @@ type SubcategoryProductsRouteProps = {
 export async function generateMetadata({
     params,
 }: SubcategoryProductsRouteProps): Promise<Metadata> {
-    const { subcategorySlug } = await params;
-    return {
-        title: subcategorySlug,
-    };
+    const { categorySlug, subcategorySlug } = await params;
+    const title = await fetchSubcategoryTitle(categorySlug, subcategorySlug);
+
+    return createPageMetadata(title ?? "Каталог");
 }
 
 export default async function SubcategoryProductsRoute({
