@@ -1,13 +1,13 @@
 import { Product } from "@/src/fsd/entities";
 import styled from "styled-components";
 import { priceFormatter } from "@shared/formatters";
+import { FormattedParagraphs } from "@shared/ui/FormattedParagraphs";
 
 const ProductInfoStyles = styled.div`
     width: 100%;
 `;
 
-const ProductDescription = styled.p`
-    margin: 0;
+const ProductDescription = styled(FormattedParagraphs)`
     line-height: 1.5;
 
     @media (min-width: 960px) {
@@ -79,9 +79,10 @@ export const ProductInfo = ({ price, stockCount, name, description }: ProductInf
                         </StockLabel>
                     </PriceStockRow>
                 </ProductHeader>
-                <ProductDescription className="span-not-important">
-                    {description}
-                </ProductDescription>
+                <ProductDescription
+                    text={description}
+                    paragraphClassName="span-not-important"
+                />
             </div>
         </ProductInfoStyles>
     );

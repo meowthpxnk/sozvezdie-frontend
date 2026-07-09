@@ -51,9 +51,14 @@ export const SearchBarOverlay = ({ isSearchBarOpen, close }: SearchBarOverlayPro
             $isOpen={isSearchBarOpen}
             onClick={handleClose}
         >
-            <SearchPanel onClick={(event) => event.stopPropagation()}>
-                <SearchBarStyles>
-                    <SearchBar hide={false} onAfterSubmit={handleClose} />
+            <SearchPanel onClick={handleClose}>
+                <SearchBarStyles onClick={(event) => event.stopPropagation()}>
+                    <SearchBar
+                        hide={false}
+                        autoFocus={isSearchBarOpen}
+                        onAfterSubmit={handleClose}
+                        onClose={handleClose}
+                    />
                 </SearchBarStyles>
             </SearchPanel>
         </SearchBarOverlayStyles>

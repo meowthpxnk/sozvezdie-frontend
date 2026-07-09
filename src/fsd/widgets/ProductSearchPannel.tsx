@@ -10,10 +10,24 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 const PAGE_CONTENT_MAX_WIDTH = 1200;
+
+function getPageHorizontalPadding(viewportWidth: number): number {
+    if (viewportWidth >= 960) {
+        return 32;
+    }
+
+    if (viewportWidth >= 640) {
+        return 20;
+    }
+
+    return 12;
+}
 const CATALOG_FILTERS_OPEN_KEY = "catalog-filters-open";
 
 const ProductSearchPannelStyles = styled.div`
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
 `;
 
 const FIXED_HEADER_HEIGHT = 84;
@@ -423,7 +437,7 @@ export const ProductSearchPannel = ({
             };
         }
 
-        const horizontalPadding = window.innerWidth >= 960 ? 32 : 20;
+        const horizontalPadding = getPageHorizontalPadding(window.innerWidth);
         const width = Math.min(
             PAGE_CONTENT_MAX_WIDTH,
             window.innerWidth - horizontalPadding * 2

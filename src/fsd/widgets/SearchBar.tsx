@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import {
     useCallback,
+    useEffect,
+    useRef,
     useState,
     type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
@@ -48,6 +50,10 @@ export interface SearchBarProps {
     hide?: boolean;
     /** Called after navigation (e.g. close mobile overlay). */
     onAfterSubmit?: () => void;
+    /** Called when the user dismisses search (e.g. Escape in overlay). */
+    onClose?: () => void;
+    /** Focus the input when true (e.g. after opening mobile overlay). */
+    autoFocus?: boolean;
 }
 
 const SearchIcon = styled.div`
@@ -69,9 +75,22 @@ const ClearSearchButtonStyles = styled.div`
     padding: 6px 10px 6px 4px;
 `;
 
-export const SearchBar = ({ hide = true, onAfterSubmit }: SearchBarProps) => {
+export const SearchBar = ({
+    hide = true,
+    onAfterSubmit,
+    onClose,
+    autoFocus = false,
+}: SearchBarProps) => {
     const router = useRouter();
+    const inputRef = useRef<HTMLInputElement>(null);
     const [searchValue, setSearchValue] = useState("");
+
+    useEffect(() => {
+        if (!autoFocus) {
+            return;
+        }
+        inputRef.current?.focus();
+    }, [autoFocus]);
 
     const submitSearch = useCallback(() => {
         router.push(buildGlobalCatalogSearchHref(searchValue));
@@ -79,6 +98,11 @@ export const SearchBar = ({ hide = true, onAfterSubmit }: SearchBarProps) => {
     }, [onAfterSubmit, router, searchValue]);
 
     const onSearchKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Escape") {
+            event.preventDefault();
+            onClose?.();
+            return;
+        }
         if (event.key !== "Enter") {
             return;
         }
@@ -92,6 +116,7 @@ export const SearchBar = ({ hide = true, onAfterSubmit }: SearchBarProps) => {
                 <Search />
             </SearchIcon>
             <input
+                ref={inputRef}
                 type="text"
                 placeholder="Поиск"
                 value={searchValue}

@@ -17,6 +17,10 @@ import { AdvertBanner } from "@entities";
 import { MEDIA_URL } from "@shared/api/interceptors";
 
 const LandingBannerStyles = styled.section`
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
     margin-bottom: 0;
 `;
 

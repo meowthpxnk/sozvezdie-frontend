@@ -7,6 +7,7 @@ import { AnimatePresence, motion, Reorder, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, Type, Upload, X } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { SetAdminChrome } from "@widgets/AdminShell";
+import { FormattedParagraphs } from "@shared/ui/FormattedParagraphs";
 import type { SellerProductImage } from "@/src/shared/types/seller";
 
 const FormCard = styled.section`
@@ -543,8 +544,7 @@ const ModalProductTitle = styled.h4`
     color: #111;
 `;
 
-const ModalProductDescription = styled.p`
-    margin: 0;
+const ModalProductDescription = styled(FormattedParagraphs)`
     font-size: 14px;
     line-height: 1.45;
     color: #444;
@@ -1171,7 +1171,7 @@ export const AdminProductCreatePage = ({
                             id="product-description"
                             value={form.description}
                             onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-                            placeholder="Расскажите о составе, размерах и особенностях"
+                            placeholder="Расскажите о составе, размерах и особенностях. Enter — новый абзац."
                             required
                         />
                     </FieldGroup>
@@ -1409,7 +1409,7 @@ export const AdminProductCreatePage = ({
                                 <ModalProductInfo>
                                     <ModalProductPrice>{previewPrice}</ModalProductPrice>
                                     <ModalProductTitle>{previewTitle}</ModalProductTitle>
-                                    <ModalProductDescription>{previewDescription}</ModalProductDescription>
+                                    <ModalProductDescription text={previewDescription} />
                                 </ModalProductInfo>
                             </ModalProductLayout>
                         </ModalProductPreviewCard>

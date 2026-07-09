@@ -3,6 +3,10 @@ import styled from "styled-components";
 import { MarqueListLayout } from "@widgets";
 
 const ItemListStyles = styled.div`
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
     h2 {
         margin: 0;
         font-size: 20px;
@@ -42,43 +46,55 @@ const ShowAllLink = styled(Link)`
 const ListItems = styled.ul<{ $variant?: GridVariant }>`
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    /* Запас внутри сетки — box-shadow карточек не обрезается */
+    padding: 6px 4px 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    & > li {
+        min-width: 0;
+        overflow: visible;
+        padding: 2px;
+        box-sizing: border-box;
+    }
 
     ${({ $variant }) =>
         ($variant === "default" || $variant === "catalog") &&
         `
         @media (min-width: 640px) {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         @media (min-width: 960px) {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 24px;
         }
 
         @media (min-width: 1200px) {
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
         }
     `}
 
     ${({ $variant }) =>
         $variant === "authors" &&
         `
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
 
         @media (min-width: 640px) {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 16px;
         }
 
         @media (min-width: 960px) {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 20px;
         }
 
         @media (min-width: 1200px) {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
     `}
 `;

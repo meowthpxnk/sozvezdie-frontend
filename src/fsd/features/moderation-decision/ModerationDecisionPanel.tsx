@@ -4,6 +4,9 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 
+import { useModalBehavior } from "@shared/hooks/useModalBehavior";
+
+import { ModerationRejectModal } from "./ModerationRejectModal";
 import { useModerationDecide } from "./useModerationDecide";
 
 const Panel = styled.section`
@@ -97,10 +100,17 @@ export function ModerationDecisionPanel({
 }: ModerationDecisionPanelProps) {
     const router = useRouter();
     const { deciding, decide } = useModerationDecide();
-    const [comment, setComment] = useState("");
+    const rejectModal = useModalBehavior();
+    const [approveComment, setApproveComment] = useState("");
 
-    const handleDecision = async (status: "APPROVED" | "REJECTED") => {
-        if (status === "APPROVED" && onBeforeApprove) {
+    const isDeletion = proposalId.startsWith("product-delete-");
+    const rejectModalTitle = isDeletion ? "Отклонить удаление?" : "Отклонить заявку?";
+    const rejectModalDescription = isDeletion
+        ? "Укажите причину отказа в удалении — автор увидит комментарий в личном кабинете."
+        : "Укажите причину отказа — автор увидит комментарий в личном кабинете.";
+
+    const handleApprove = async () => {
+        if (onBeforeApprove) {
             try {
                 const canProceed = await onBeforeApprove();
                 if (canProceed === false) {
@@ -111,36 +121,60 @@ export function ModerationDecisionPanel({
             }
         }
 
-        const success = await decide(proposalId, status, comment.trim() || undefined);
+        const success = await decide(
+            proposalId,
+            "APPROVED",
+            approveComment.trim() || undefined
+        );
         if (success) {
             router.replace("/moderation");
         }
     };
 
+    const handleReject = async (comment: string) => {
+        const success = await decide(proposalId, "REJECTED", comment);
+        if (success) {
+            rejectModal.close();
+            router.replace("/moderation");
+        }
+    };
+
     return (
-        <Panel>
-            <PanelTitle>Решение по заявке</PanelTitle>
-            <CommentField
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder="Комментарий для автора (необязателен при принятии)"
+        <>
+            <Panel>
+                <PanelTitle>Решение по заявке</PanelTitle>
+                <CommentField
+                    value={approveComment}
+                    onChange={(event) => setApproveComment(event.target.value)}
+                    placeholder="Комментарий при принятии (необязательно)"
+                />
+                <Actions>
+                    <RejectButton
+                        type="button"
+                        disabled={deciding}
+                        onClick={rejectModal.open}
+                    >
+                        {rejectLabel}
+                    </RejectButton>
+                    <ApproveButton
+                        type="button"
+                        disabled={deciding}
+                        onClick={() => void handleApprove()}
+                    >
+                        {deciding ? approvePendingLabel : approveLabel}
+                    </ApproveButton>
+                </Actions>
+            </Panel>
+
+            <ModerationRejectModal
+                isOpen={rejectModal.isOpen}
+                title={rejectModalTitle}
+                description={rejectModalDescription}
+                confirmLabel={rejectLabel}
+                submitting={deciding}
+                onClose={rejectModal.close}
+                onConfirm={handleReject}
             />
-            <Actions>
-                <RejectButton
-                    type="button"
-                    disabled={deciding}
-                    onClick={() => void handleDecision("REJECTED")}
-                >
-                    {rejectLabel}
-                </RejectButton>
-                <ApproveButton
-                    type="button"
-                    disabled={deciding}
-                    onClick={() => void handleDecision("APPROVED")}
-                >
-                    {deciding ? approvePendingLabel : approveLabel}
-                </ApproveButton>
-            </Actions>
-        </Panel>
+        </>
     );
 }

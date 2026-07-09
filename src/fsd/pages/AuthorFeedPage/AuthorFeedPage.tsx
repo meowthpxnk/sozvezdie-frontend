@@ -145,33 +145,38 @@ const DetailRow = styled.li`
     color: #4a5872;
 `;
 
-const ModeratorNote = styled.section`
+const ModeratorNote = styled.section<{ $variant: "approved" | "rejected" }>`
     border-radius: 10px;
-    border: 1px solid #f3c1c1;
-    background: #fff5f5;
+    border: 1px solid
+        ${({ $variant }) => ($variant === "rejected" ? "#f3c1c1" : "#c8dcc0")};
+    background: ${({ $variant }) => ($variant === "rejected" ? "#fff5f5" : "#f4faf1")};
     padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 6px;
 `;
 
-const ModeratorLabel = styled.strong`
+const ModeratorLabel = styled.strong<{ $variant: "approved" | "rejected" }>`
     font-size: 12px;
-    color: #863838;
+    color: ${({ $variant }) => ($variant === "rejected" ? "#863838" : "#38593a")};
     text-transform: uppercase;
 `;
 
-const ModeratorText = styled.p`
+const ModeratorText = styled.p<{ $variant: "approved" | "rejected" }>`
     margin: 0;
     font-size: 13px;
-    color: #7b2b2b;
+    color: ${({ $variant }) => ($variant === "rejected" ? "#7b2b2b" : "#3f5a42")};
     line-height: 1.45;
 `;
 
-const ModeratorExtendedCard = styled.section`
+const ModeratorExtendedCard = styled.section<{ $variant: "approved" | "rejected" }>`
     border-radius: 12px;
-    border: 1px solid #f2b7b7;
-    background: linear-gradient(180deg, #fff5f5 0%, #fff 100%);
+    border: 1px solid
+        ${({ $variant }) => ($variant === "rejected" ? "#f2b7b7" : "#b8d4ae")};
+    background: ${({ $variant }) =>
+        $variant === "rejected"
+            ? "linear-gradient(180deg, #fff5f5 0%, #fff 100%)"
+            : "linear-gradient(180deg, #f4faf1 0%, #fff 100%)"};
     padding: 12px;
     display: flex;
     flex-direction: column;
@@ -311,9 +316,12 @@ export function AuthorFeedPage() {
             {!loading && !isError && items.length > 0 ? (
                 <List>
                     {items.map((item) => {
+                        const hasModeratorComment =
+                            item.status !== "PENDING" && Boolean(item.moderatorComment);
+                        const moderatorVariant =
+                            item.status === "REJECTED" ? "rejected" : "approved";
                         const hasExtendedModeratorCard =
-                            Boolean(item.moderatorComment) &&
-                            item.moderatorComment!.length > 120;
+                            hasModeratorComment && item.moderatorComment!.length > 120;
 
                         return (
                             <Item key={item.id}>
@@ -354,16 +362,24 @@ export function AuthorFeedPage() {
                                         );
                                     })()
                                 ) : null}
-                                {item.status === "REJECTED" && item.moderatorComment ? (
+                                {hasModeratorComment ? (
                                     hasExtendedModeratorCard ? (
-                                        <ModeratorExtendedCard>
-                                            <ModeratorLabel>Комментарий модератора</ModeratorLabel>
-                                            <ModeratorText>{item.moderatorComment}</ModeratorText>
+                                        <ModeratorExtendedCard $variant={moderatorVariant}>
+                                            <ModeratorLabel $variant={moderatorVariant}>
+                                                Комментарий модератора
+                                            </ModeratorLabel>
+                                            <ModeratorText $variant={moderatorVariant}>
+                                                {item.moderatorComment}
+                                            </ModeratorText>
                                         </ModeratorExtendedCard>
                                     ) : (
-                                        <ModeratorNote>
-                                            <ModeratorLabel>Комментарий модератора</ModeratorLabel>
-                                            <ModeratorText>{item.moderatorComment}</ModeratorText>
+                                        <ModeratorNote $variant={moderatorVariant}>
+                                            <ModeratorLabel $variant={moderatorVariant}>
+                                                Комментарий модератора
+                                            </ModeratorLabel>
+                                            <ModeratorText $variant={moderatorVariant}>
+                                                {item.moderatorComment}
+                                            </ModeratorText>
                                         </ModeratorNote>
                                     )
                                 ) : null}

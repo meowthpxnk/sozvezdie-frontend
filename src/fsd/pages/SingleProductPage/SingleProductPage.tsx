@@ -25,8 +25,8 @@ const SIMILAR_PRODUCTS_LIMIT = 20;
 
 const SingleProductPageStyles = styled.div`
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
+    min-width: 0;
 `;
 
 const PRODUCT_SPLIT_BP = 660;

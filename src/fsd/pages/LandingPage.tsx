@@ -6,8 +6,8 @@ import { AuthorMiniCard, LandingBanner, ProductCard } from "@widgets";
 
 const LandingPageStyles = styled.div`
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 28px;

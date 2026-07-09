@@ -6,40 +6,33 @@ export interface MarqueListLayoutProps {
 
 const MarqueListLayoutStyles = styled.div`
     box-sizing: border-box;
-    width: calc(100% + 40px);
-    margin-left: -20px;
-    margin-right: -20px;
-    /* Запас снаружи скролла — тень карточек не режется родителем секции */
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    /* Вертикальный запас — тень карточек не режется секцией сверху/снизу */
     padding-block: 8px;
     margin-block: -8px;
-
-    @media (min-width: 960px) {
-        width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-    }
 `;
 
 const MarqueeScroll = styled.div`
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 8px;
     box-sizing: border-box;
-    margin-inline: 20px;
-    width: auto;
-    max-width: none;
-    /* Вертикальный запас, чтобы box-shadow карточек не обрезался */
-    padding: 10px 0 20px;
+    width: 100%;
+    max-width: 100%;
+    /* Горизонтальный и вертикальный запас внутри скролла — тени карточек видны */
+    padding: 12px 8px 24px;
 
     @media (min-width: 960px) {
-        margin-inline: 0;
         scroll-padding-inline: 4px;
-        padding: 10px 4px 20px;
+        padding: 12px 4px 24px;
     }
+
     scrollbar-width: thin;
-    scrollbar-gutter: stable;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 
     &::-webkit-scrollbar {
@@ -64,8 +57,8 @@ const MarqueeTrack = styled.ul`
     padding-block: 2px;
 
     li {
-        flex: 0 0 min(46vw, 200px);
-        width: min(46vw, 200px);
+        flex: 0 0 168px;
+        width: 168px;
         min-width: 0;
         scroll-snap-align: start;
         overflow: visible;
@@ -84,12 +77,12 @@ const MarqueeTrack = styled.ul`
 `;
 
 export const MarqueListLayout = ({ children }: MarqueListLayoutProps) => {
-    return <MarqueListLayoutStyles>
-        <MarqueeScroll>
-            <MarqueeTrack>
-                {children}
-            </MarqueeTrack>
-        </MarqueeScroll>
-    </MarqueListLayoutStyles>
-}
-export default MarqueListLayout
+    return (
+        <MarqueListLayoutStyles>
+            <MarqueeScroll>
+                <MarqueeTrack>{children}</MarqueeTrack>
+            </MarqueeScroll>
+        </MarqueListLayoutStyles>
+    );
+};
+export default MarqueListLayout;
