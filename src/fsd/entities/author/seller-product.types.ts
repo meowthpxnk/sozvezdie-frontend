@@ -19,6 +19,9 @@ export interface ISellerProductApiResponse {
     categorySlug?: string | null;
     subcategorySlug?: string | null;
     fandomSlug?: string | null;
+    categoryTitle?: string | null;
+    subcategoryTitle?: string | null;
+    fandomTitle?: string | null;
 }
 
 export interface SellerProduct extends Product {
@@ -28,6 +31,9 @@ export interface SellerProduct extends Product {
     deletionRequestStatus?: ModerationStatus;
     deletionRequestReason?: string;
     deletionModeratorComment?: string;
+    categoryTitle?: string;
+    subcategoryTitle?: string;
+    fandomTitle?: string;
 }
 
 export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
@@ -64,6 +70,9 @@ export function mapSellerProduct(data: ISellerProductApiResponse): SellerProduct
         categorySlug: data.categorySlug,
         subcategorySlug: data.subcategorySlug,
         fandomSlug: data.fandomSlug,
+        categoryTitle: data.categoryTitle ?? undefined,
+        subcategoryTitle: data.subcategoryTitle ?? undefined,
+        fandomTitle: data.fandomTitle ?? undefined,
         moderationStatus: data.moderationStatus,
         createdAt: data.createdAt,
         moderatorComment: data.moderatorComment ?? undefined,

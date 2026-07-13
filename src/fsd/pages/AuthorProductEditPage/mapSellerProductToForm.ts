@@ -17,9 +17,9 @@ export function mapSellerProductToForm(product: SellerProduct): AuthorProductFor
         stockCount: String(product.stockCount),
         categorySlug: product.categorySlug ?? "",
         subcategorySlug: product.subcategorySlug ?? "",
-        subcategoryLabel: product.subcategorySlug ?? "",
+        subcategoryLabel: product.subcategoryTitle ?? product.subcategorySlug ?? "",
         fandomSlug: product.fandomSlug ?? "",
-        fandomLabel: product.fandomSlug ?? "",
+        fandomLabel: product.fandomTitle ?? product.fandomSlug ?? "",
         images,
         coverImageId: images[0]?.id ?? "",
     };

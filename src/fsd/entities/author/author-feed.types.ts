@@ -30,12 +30,12 @@ export const AUTHOR_FEED_OPERATION_LABELS: Record<AuthorFeedOperationType, strin
 export function mapProductToFeedItem(product: SellerProduct): AuthorFeedItem {
     const details = [`Цена: ${priceFormatter(product.price)}`, `В наличии: ${product.stockCount} шт.`];
 
-    if (product.categorySlug) {
-        details.push(`Категория: ${product.categorySlug}`);
+    if (product.categoryTitle || product.categorySlug) {
+        details.push(`Категория: ${product.categoryTitle ?? product.categorySlug}`);
     }
 
-    if (product.fandomSlug) {
-        details.push(`Фандом: ${product.fandomSlug}`);
+    if (product.fandomTitle || product.fandomSlug) {
+        details.push(`Фандом: ${product.fandomTitle ?? product.fandomSlug}`);
     }
 
     return {
