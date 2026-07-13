@@ -16,20 +16,22 @@ const MarqueListLayoutStyles = styled.div`
 
 const MarqueeScroll = styled.div`
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    touch-action: pan-x pinch-zoom;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 8px;
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     /* Горизонтальный и вертикальный запас внутри скролла — тени карточек видны */
-    padding: 12px 8px 24px;
+    padding: 12px 8px 20px;
 
     @media (min-width: 960px) {
         scroll-padding-inline: 4px;
-        padding: 12px 4px 24px;
+        padding: 12px 4px 20px;
     }
 
     scrollbar-width: thin;

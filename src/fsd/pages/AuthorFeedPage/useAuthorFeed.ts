@@ -25,8 +25,11 @@ export function useAuthorFeed() {
 
     const items = useMemo<AuthorFeedItem[]>(() => {
         const productItems = products.flatMap((product) => {
-            const items = [mapProductToFeedItem(product)];
-            if (product.deletionRequestStatus === "PENDING") {
+            const items =
+                product.deletionRequestStatus === "APPROVED"
+                    ? []
+                    : [mapProductToFeedItem(product)];
+            if (product.deletionRequestStatus) {
                 items.push(mapProductDeletionToFeedItem(product));
             }
             return items;

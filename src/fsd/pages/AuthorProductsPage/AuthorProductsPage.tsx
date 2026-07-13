@@ -71,7 +71,8 @@ const Item = styled.li`
     border-radius: 10px;
     padding: 10px 12px;
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
     position: relative;
     min-height: 100px;
 `;
@@ -82,6 +83,7 @@ const ItemLeft = styled.div`
     gap: 12px;
     min-width: 0;
     flex: 1;
+    position: relative;
 `;
 
 const ItemImageWrapper = styled.div`
@@ -321,6 +323,21 @@ const BadgeRow = styled.div`
     gap: 6px;
 `;
 
+const ModeratorComment = styled.p<{ $variant: "approved" | "rejected" }>`
+    margin: 0;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid
+        ${({ $variant }) => ($variant === "rejected" ? "#f3c1c1" : "#c8dcc0")};
+    background: ${({ $variant }) => ($variant === "rejected" ? "#fff5f5" : "#f4faf1")};
+    color: ${({ $variant }) => ($variant === "rejected" ? "#7b2b2b" : "#3f5a42")};
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+`;
+
 const SecondaryButton = styled.button`
     min-height: 34px;
     padding: 0 10px;
@@ -343,6 +360,10 @@ type DeleteModalMode = "cancel-create" | "request-deletion" | "cancel-deletion";
 
 function resolveDeleteModalMode(product: SellerProduct | null): DeleteModalMode | null {
     if (!product) {
+        return null;
+    }
+
+    if (product.deletionRequestStatus === "APPROVED") {
         return null;
     }
 
@@ -442,7 +463,8 @@ export const AuthorProductsPage = () => {
                                     ) : null}
                                 </BadgeRow>
                                 <ItemActions>
-                                    {product.deletionRequestStatus !== "PENDING" ? (
+                                    {product.deletionRequestStatus !== "PENDING" &&
+                                    product.deletionRequestStatus !== "APPROVED" ? (
                                         <EditButton
                                             href={`/admin/products/${product.id}/edit`}
                                             aria-label={`Редактировать ${product.name}`}
@@ -480,6 +502,17 @@ export const AuthorProductsPage = () => {
                                 </ItemBottomRow>
                             </ItemMeta>
                         </ItemLeft>
+                        {product.moderationStatus !== "PENDING" && product.moderatorComment ? (
+                            <ModeratorComment
+                                $variant={
+                                    product.moderationStatus === "REJECTED"
+                                        ? "rejected"
+                                        : "approved"
+                                }
+                            >
+                                {product.moderatorComment}
+                            </ModeratorComment>
+                        ) : null}
                     </Item>
                 ))}
             </List>

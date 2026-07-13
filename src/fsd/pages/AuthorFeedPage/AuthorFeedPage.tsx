@@ -167,6 +167,8 @@ const ModeratorText = styled.p<{ $variant: "approved" | "rejected" }>`
     font-size: 13px;
     color: ${({ $variant }) => ($variant === "rejected" ? "#7b2b2b" : "#3f5a42")};
     line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 `;
 
 const ModeratorExtendedCard = styled.section<{ $variant: "approved" | "rejected" }>`

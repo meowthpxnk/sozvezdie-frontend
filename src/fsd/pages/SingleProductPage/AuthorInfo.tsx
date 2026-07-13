@@ -5,6 +5,8 @@ import { MEDIA_URL } from "@shared/api/interceptors";
 
 const AuthorInfoStyles = styled.div`
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     height: 52px;
 `;
 

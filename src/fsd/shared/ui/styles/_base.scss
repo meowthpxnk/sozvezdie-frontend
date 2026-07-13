@@ -28,6 +28,7 @@ body {
     font-weight: 400;
     overflow-y: auto;
     overflow-x: hidden;
+    touch-action: pan-y pinch-zoom;
 
     @media (min-width: 960px) {
         overflow-y: scroll;

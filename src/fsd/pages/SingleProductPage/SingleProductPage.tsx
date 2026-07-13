@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +35,9 @@ const ProductLayout = styled.div`
     display: flex;
     flex-direction: column;
     gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 
     @media (min-width: ${PRODUCT_SPLIT_BP}px) {
         display: grid;
@@ -51,9 +54,11 @@ const ProductLayout = styled.div`
 const GalleryColumn = styled.div`
     min-width: 0;
     width: 100%;
+    max-width: 100%;
 
     @media (min-width: ${PRODUCT_SPLIT_BP}px) {
-        width: auto;
+        width: fit-content;
+        max-width: 100%;
         display: flex;
         justify-content: flex-start;
     }
@@ -78,6 +83,7 @@ const DetailsColumn = styled.div`
     gap: 16px;
     min-width: 0;
     width: 100%;
+    max-width: 100%;
 
     @media (min-width: ${PRODUCT_SPLIT_BP}px) {
         justify-content: flex-start;
@@ -111,6 +117,8 @@ const CartActionsWrap = styled.div`
 
 const SimilarSection = styled.section`
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding-top: 8px;
 
     @media (min-width: 960px) {
@@ -170,6 +178,11 @@ export const SingleProductPage = ({ id }: SingleProductPageProps) => {
 
         return map;
     }, [similarAuthors]);
+
+    useLayoutEffect(() => {
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollLeft = 0;
+    }, [id]);
 
     if (!product || !author) {
         return null;

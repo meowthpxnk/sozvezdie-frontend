@@ -5,9 +5,12 @@ import {
     PropsWithChildren,
     useCallback,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import {
+    Eye,
+    EyeOff,
     KeyRound,
     Loader2,
     LucideProps,
@@ -159,7 +162,7 @@ const FieldWrap = styled.div`
     }
 `;
 
-const InputShell = styled.div<{ $hasError?: boolean }>`
+const InputShell = styled.div<{ $hasError?: boolean; $isPassword?: boolean }>`
     position: relative;
     height: 52px;
     border-radius: ${AUTH_RADIUS};
@@ -198,7 +201,7 @@ const InputShell = styled.div<{ $hasError?: boolean }>`
     input {
         width: 100%;
         height: 100%;
-        padding: 0 16px 0 46px;
+        padding: 0 ${({ $isPassword }) => ($isPassword ? "46px" : "16px")} 0 46px;
         border: none;
         background: transparent;
         color: ${AUTH_TEXT};
@@ -215,22 +218,106 @@ const InputShell = styled.div<{ $hasError?: boolean }>`
     }
 `;
 
+const PasswordToggle = styled.button`
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: ${AUTH_PLACEHOLDER};
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        color: ${AUTH_TEXT};
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
 const Field = forwardRef<HTMLInputElement, InputFieldProps & WithImageProps>(
     ({ Image, id, type, name, placeholder, error, ...rest }, ref) => {
+        const isPassword = type === "password";
+        const [showPassword, setShowPassword] = useState(false);
+        const inputRef = useRef<HTMLInputElement | null>(null);
+        const shouldRestoreCursor = useRef(false);
+        const inputType = isPassword
+            ? showPassword
+                ? "text"
+                : "password"
+            : type;
+
+        const setInputRef = useCallback(
+            (node: HTMLInputElement | null) => {
+                inputRef.current = node;
+                if (typeof ref === "function") {
+                    ref(node);
+                } else if (ref) {
+                    ref.current = node;
+                }
+            },
+            [ref]
+        );
+
+        useEffect(() => {
+            if (!shouldRestoreCursor.current) return;
+            shouldRestoreCursor.current = false;
+            const input = inputRef.current;
+            if (!input) return;
+
+            const placeCursorAtEnd = () => {
+                input.focus();
+                const length = input.value.length;
+                input.setSelectionRange(length, length);
+            };
+
+            // Browser resets selection when toggling password/text — wait a frame.
+            requestAnimationFrame(() => {
+                placeCursorAtEnd();
+                requestAnimationFrame(placeCursorAtEnd);
+            });
+        }, [showPassword]);
+
+        const togglePasswordVisibility = () => {
+            shouldRestoreCursor.current = true;
+            setShowPassword((prev) => !prev);
+        };
+
         return (
             <FieldWrap>
-                <InputShell $hasError={Boolean(error)}>
+                <InputShell $hasError={Boolean(error)} $isPassword={isPassword}>
                     <label htmlFor={id}>
                         <Image />
                     </label>
                     <input
-                        ref={ref}
-                        type={type}
+                        ref={setInputRef}
+                        type={inputType}
                         id={id}
                         placeholder={placeholder}
                         name={name}
                         {...rest}
                     />
+                    {isPassword ? (
+                        <PasswordToggle
+                            type="button"
+                            tabIndex={-1}
+                            aria-label={
+                                showPassword ? "Скрыть пароль" : "Показать пароль"
+                            }
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={togglePasswordVisibility}
+                        >
+                            {showPassword ? <EyeOff /> : <Eye />}
+                        </PasswordToggle>
+                    ) : null}
                 </InputShell>
                 {error ? (
                     <div className="error">

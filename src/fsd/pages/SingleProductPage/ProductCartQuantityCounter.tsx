@@ -6,6 +6,8 @@ import styled from "styled-components";
 const ProductCartQuantityCounterStyles = styled.div<{ $hasCounter: boolean }>`
     gap: ${({ $hasCounter }) => ($hasCounter ? "10px" : "0")};
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 52px;
 `;
 
@@ -35,8 +37,9 @@ const AddToCartButton = styled.button<{ $active: boolean; $disabled: boolean }>`
 const CounterWrapper = styled.div<{ $visible: boolean }>`
     width: ${({ $visible }) => ($visible ? "156px" : "0")};
     opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-    transform: translateX(${({ $visible }) => ($visible ? "0" : "-8px")});
-    transition: width 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: width 0.25s ease, opacity 0.25s ease;
     pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
 `;
 

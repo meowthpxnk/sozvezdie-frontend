@@ -5,6 +5,8 @@ import { FormattedParagraphs } from "@shared/ui/FormattedParagraphs";
 
 const ProductInfoStyles = styled.div`
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
 `;
 
 const ProductDescription = styled(FormattedParagraphs)`
@@ -27,6 +29,7 @@ const ProductName = styled.h1`
     font-weight: 700;
     line-height: 1.2;
     color: var(--title-color);
+    overflow-wrap: break-word;
 
     @media (min-width: 960px) {
         font-size: 32px;

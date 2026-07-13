@@ -22,9 +22,11 @@ const ImageGalleryStyles = styled.div`
         "thumbs";
     min-width: 0;
     width: 100%;
+    max-width: 100%;
 
     @media (min-width: ${PRODUCT_SPLIT_BP}px) {
         width: auto;
+        max-width: 100%;
         grid-template-columns: ${TABLET_THUMB_SIZE + 8}px minmax(0, 1fr);
         grid-template-areas: "thumbs main";
         gap: 10px;
@@ -78,7 +80,12 @@ const ProductImageThumbListStyles = styled.div`
     display: flex;
     flex-direction: row;
     gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
 
     @media (min-width: ${PRODUCT_SPLIT_BP}px) {
         flex-direction: column;

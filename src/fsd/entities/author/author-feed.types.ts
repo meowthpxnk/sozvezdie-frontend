@@ -66,7 +66,7 @@ export function mapProductDeletionToFeedItem(product: SellerProduct): AuthorFeed
         operationType: "DELETE_PRODUCT",
         status: product.deletionRequestStatus ?? "PENDING",
         details,
-        moderatorComment: product.moderatorComment ?? undefined,
+        moderatorComment: product.deletionModeratorComment ?? undefined,
     };
 }
 
@@ -83,8 +83,8 @@ export function mapBrandModerationToFeedItem(data: {
         data.actionType === "UPDATE_BRAND"
             ? "UPDATE_BRAND"
             : data.actionType === "CREATE_SHOP"
-              ? "CREATE_SHOP"
-              : "CREATE_SHOP";
+                ? "CREATE_SHOP"
+                : "CREATE_SHOP";
 
     return {
         id: `brand-${data.id}`,
