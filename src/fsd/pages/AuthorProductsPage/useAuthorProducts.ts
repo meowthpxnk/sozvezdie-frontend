@@ -4,10 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import authorService from "@entities/author/author.service";
 
-export function useAuthorProducts() {
+export function useAuthorProducts(options?: { includeDeleted?: boolean }) {
+    const includeDeleted = options?.includeDeleted ?? false;
+
     const query = useQuery({
-        queryKey: ["author", "products"],
-        queryFn: () => authorService.getMyProducts(),
+        queryKey: ["author", "products", { includeDeleted }],
+        queryFn: () => authorService.getMyProducts(includeDeleted),
     });
 
     return {

@@ -16,7 +16,12 @@ import { useAuthorProducts } from "../AuthorProductsPage/useAuthorProducts";
 
 export function useAuthorFeed() {
     const [filter, setFilter] = useState<AuthorFeedFilter>("ALL");
-    const { products, loading: productsLoading, isError: productsError } = useAuthorProducts();
+    const {
+        products,
+        loading: productsLoading,
+        isError: productsError,
+        refetch: refetchProducts,
+    } = useAuthorProducts({ includeDeleted: true });
 
     const brandQuery = useQuery({
         queryKey: ["author", "brand-moderations"],
@@ -56,7 +61,7 @@ export function useAuthorFeed() {
         loading: productsLoading || brandQuery.isLoading,
         isError: productsError || brandQuery.isError,
         refetch: async () => {
-            await brandQuery.refetch();
+            await Promise.all([refetchProducts(), brandQuery.refetch()]);
         },
     };
 }

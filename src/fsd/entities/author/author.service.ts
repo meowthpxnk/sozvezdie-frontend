@@ -83,9 +83,12 @@ class AuthorService {
         return mapAuthorDashboard(response.data);
     }
 
-    async getMyProducts(): Promise<SellerProduct[]> {
+    async getMyProducts(includeDeleted = false): Promise<SellerProduct[]> {
         const response = await axiosWithAuth.get<ISellerProductApiResponse[]>(
-            `${this.BASE_URL}/me/products`
+            `${this.BASE_URL}/me/products`,
+            {
+                params: includeDeleted ? { include_deleted: true } : undefined,
+            }
         );
         return response.data.map(mapSellerProduct);
     }

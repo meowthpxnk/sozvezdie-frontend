@@ -502,14 +502,8 @@ export const AuthorProductsPage = () => {
                                 </ItemBottomRow>
                             </ItemMeta>
                         </ItemLeft>
-                        {product.moderationStatus !== "PENDING" && product.moderatorComment ? (
-                            <ModeratorComment
-                                $variant={
-                                    product.moderationStatus === "REJECTED"
-                                        ? "rejected"
-                                        : "approved"
-                                }
-                            >
+                        {product.moderationStatus === "REJECTED" && product.moderatorComment ? (
+                            <ModeratorComment $variant="rejected">
                                 {product.moderatorComment}
                             </ModeratorComment>
                         ) : null}
