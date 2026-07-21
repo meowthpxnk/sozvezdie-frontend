@@ -19,6 +19,7 @@ import { useAuth } from "../../entities/auth";
 import { canAccessModeration } from "@shared/lib/roles";
 import { useCartQuantity } from "../../entities/cart/hooks";
 import { ModeratorEditButton } from "@features/moderator-edit/ModeratorEditButton";
+import { ModeratorProductDeleteAction } from "@features/moderator-edit/ModeratorProductDeleteAction";
 import { buildProductCatalogEditHref } from "@features/moderator-edit/moderation-edit-links";
 
 const SIMILAR_PRODUCTS_LIMIT = 20;
@@ -70,6 +71,13 @@ const DetailsHeader = styled.div`
     justify-content: space-between;
     gap: 12px;
     width: 100%;
+`;
+
+const DetailsHeaderActions = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 `;
 
 const DetailsHeaderMain = styled.div`
@@ -208,10 +216,16 @@ export const SingleProductPage = ({ id }: SingleProductPageProps) => {
                             />
                         </DetailsHeaderMain>
                         {isModerator ? (
-                            <ModeratorEditButton
-                                href={buildProductCatalogEditHref(id)}
-                                label="Редактировать товар"
-                            />
+                            <DetailsHeaderActions>
+                                <ModeratorEditButton
+                                    href={buildProductCatalogEditHref(id)}
+                                    label="Редактировать товар"
+                                />
+                                <ModeratorProductDeleteAction
+                                    productId={id}
+                                    productName={product.name}
+                                />
+                            </DetailsHeaderActions>
                         ) : null}
                     </DetailsHeader>
                     <PurchaseActionsRow>
