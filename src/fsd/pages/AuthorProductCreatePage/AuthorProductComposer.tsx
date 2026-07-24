@@ -901,6 +901,7 @@ export const AuthorProductComposer = ({
     const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
     const [isCoarsePointer, setCoarsePointer] = useState(false);
     const [isUploadZoneFileDragOver, setUploadZoneFileDragOver] = useState(false);
+    const [isImagesLoading, setImagesLoading] = useState(false);
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
     const [isSaving, setSaving] = useState(false);
     const [confirmPreviewImageIndex, setConfirmPreviewImageIndex] = useState(0);
