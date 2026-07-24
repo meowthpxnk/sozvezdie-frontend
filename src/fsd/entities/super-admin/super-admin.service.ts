@@ -247,6 +247,7 @@ class SuperAdminService {
         title: string;
         slug: string;
         categorySlug: string;
+        isApproved?: boolean;
     }): Promise<Subcategory> {
         const response = await axiosWithAuth.post<Subcategory>(
             `${this.BASE_URL}/subcategories`,
@@ -254,6 +255,7 @@ class SuperAdminService {
                 title: data.title,
                 slug: data.slug,
                 category_slug: data.categorySlug,
+                is_approved: data.isApproved ?? true,
             }
         );
         return response.data;
@@ -261,11 +263,14 @@ class SuperAdminService {
 
     async updateSubcategory(
         subcategoryId: number,
-        data: { title: string }
+        data: { title: string; isApproved: boolean }
     ): Promise<Subcategory> {
         const response = await axiosWithAuth.put<Subcategory>(
             `${this.BASE_URL}/subcategories/${subcategoryId}`,
-            data
+            {
+                title: data.title,
+                is_approved: data.isApproved,
+            }
         );
         return response.data;
     }

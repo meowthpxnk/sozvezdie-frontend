@@ -383,7 +383,7 @@ function TaxonomyFormModal({
                     </Field>
                 ) : null}
 
-                {mode === "fandoms" ? (
+                {mode === "fandoms" || mode === "subcategories" ? (
                     <CheckboxRow>
                         <input
                             type="checkbox"
@@ -511,6 +511,7 @@ export function SuperAdminCatalogPage() {
                 title,
                 slug,
                 categorySlug: createForm.categorySlug,
+                isApproved: createForm.isApproved,
             });
         },
         onSuccess: async () => {
@@ -550,6 +551,7 @@ export function SuperAdminCatalogPage() {
             if (editingSubcategory) {
                 return superAdminService.updateSubcategory(editingSubcategory.id, {
                     title,
+                    isApproved: editForm.isApproved,
                 });
             }
             throw new Error("Элемент не выбран");
@@ -818,6 +820,9 @@ export function SuperAdminCatalogPage() {
                                             item.categorySlug}
                                     </ItemMeta>
                                 </ItemMain>
+                                <Badge $tone={item.isApproved ? "ok" : "warn"}>
+                                    {item.isApproved ? "Одобрен" : "Не одобрен"}
+                                </Badge>
                                 <SideActions>
                                     <EditButton
                                         type="button"
@@ -829,6 +834,7 @@ export function SuperAdminCatalogPage() {
                                                 title: item.title,
                                                 slug: item.slug,
                                                 categorySlug: item.categorySlug,
+                                                isApproved: item.isApproved === true,
                                             });
                                         }}
                                     >
