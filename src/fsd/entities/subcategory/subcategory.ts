@@ -4,6 +4,7 @@ export interface Subcategory {
     title: string;
     categorySlug: string;
     authorId?: string | null;
+    isApproved?: boolean;
 }
 
 export interface SubcategoryCreatePayload {

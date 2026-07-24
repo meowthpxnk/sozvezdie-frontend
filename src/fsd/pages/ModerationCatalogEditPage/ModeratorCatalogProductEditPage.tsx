@@ -76,7 +76,7 @@ export function ModeratorCatalogProductEditPage({
                 formTitle="Карточка товара"
                 formDescription="После сохранения изменения сразу появятся в каталоге и в ленте модерации."
                 hideSubmit
-                showUnapprovedFandomHint
+                showUnapprovedTaxonomyHints
                 successRedirectPath={null}
                 onRegisterSubmit={(submit) => {
                     submitRef.current = submit;

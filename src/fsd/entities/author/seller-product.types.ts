@@ -22,6 +22,7 @@ export interface ISellerProductApiResponse {
     categoryTitle?: string | null;
     subcategoryTitle?: string | null;
     fandomTitle?: string | null;
+    subcategoryIsApproved?: boolean | null;
     fandomIsApproved?: boolean | null;
 }
 
@@ -35,6 +36,7 @@ export interface SellerProduct extends Product {
     categoryTitle?: string;
     subcategoryTitle?: string;
     fandomTitle?: string;
+    subcategoryIsApproved?: boolean;
     fandomIsApproved?: boolean;
 }
 
@@ -75,6 +77,7 @@ export function mapSellerProduct(data: ISellerProductApiResponse): SellerProduct
         categoryTitle: data.categoryTitle ?? undefined,
         subcategoryTitle: data.subcategoryTitle ?? undefined,
         fandomTitle: data.fandomTitle ?? undefined,
+        subcategoryIsApproved: data.subcategoryIsApproved ?? undefined,
         fandomIsApproved: data.fandomIsApproved ?? undefined,
         moderationStatus: data.moderationStatus,
         createdAt: data.createdAt,

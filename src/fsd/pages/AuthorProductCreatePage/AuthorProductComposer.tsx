@@ -828,7 +828,7 @@ type AuthorProductComposerProps = {
     loading?: boolean;
     successRedirectPath?: string | null;
     hideSubmit?: boolean;
-    showUnapprovedFandomHint?: boolean;
+    showUnapprovedTaxonomyHints?: boolean;
     onRegisterSubmit?: (submit: () => Promise<void>) => void;
     onSubmitForm: (form: AuthorProductForm) => Promise<void>;
 };
@@ -867,7 +867,7 @@ export const AuthorProductComposer = ({
     loading = false,
     successRedirectPath = "/admin/products",
     hideSubmit = false,
-    showUnapprovedFandomHint = false,
+    showUnapprovedTaxonomyHints = false,
     onRegisterSubmit,
     onSubmitForm,
 }: AuthorProductComposerProps) => {
@@ -1627,7 +1627,7 @@ export const AuthorProductComposer = ({
                                 subcategoryLabel={form.subcategoryLabel}
                                 fandomSlug={form.fandomSlug}
                                 fandomLabel={form.fandomLabel}
-                                showUnapprovedFandomHint={showUnapprovedFandomHint}
+                                showUnapprovedTaxonomyHints={showUnapprovedTaxonomyHints}
                                 onCategoryChange={handleCategoryChange}
                                 onSubcategoryChange={handleSubcategoryChange}
                                 onFandomChange={handleFandomChange}

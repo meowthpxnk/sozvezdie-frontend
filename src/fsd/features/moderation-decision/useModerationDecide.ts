@@ -24,6 +24,7 @@ export function useModerationDecide() {
                 await queryClient.invalidateQueries({ queryKey: ["moderation", "proposals"] });
                 if (status === "APPROVED") {
                     await queryClient.invalidateQueries({ queryKey: ["fandoms"] });
+                    await queryClient.invalidateQueries({ queryKey: ["subcategories"] });
                 }
                 const isDeletion = proposalId.startsWith("product-delete-");
                 toast.success(

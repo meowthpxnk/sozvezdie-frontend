@@ -87,6 +87,7 @@ export function useModeratorCatalogProductEdit(productId: string) {
                 queryKey: ["moderation", "catalog", "product", productId],
             });
             await queryClient.invalidateQueries({ queryKey: ["fandoms"] });
+            await queryClient.invalidateQueries({ queryKey: ["subcategories"] });
         },
         [productId, queryClient]
     );

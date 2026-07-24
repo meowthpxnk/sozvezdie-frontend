@@ -77,7 +77,7 @@ export function ModeratorProductEditPage({ proposalId }: ModeratorProductEditPag
                 formTitle="Редактирование товара"
                 formDescription="Измените карточку при необходимости и нажмите «Принять» или «Отклонить»."
                 hideSubmit
-                showUnapprovedFandomHint
+                showUnapprovedTaxonomyHints
                 successRedirectPath={null}
                 onRegisterSubmit={(submit) => {
                     submitRef.current = submit;
