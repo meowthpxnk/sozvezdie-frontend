@@ -66,6 +66,12 @@ export function SuperAdminDashboardPage() {
                     <TileTitle>FAQ</TileTitle>
                     <TileText>Добавляйте вопросы и ответы для страницы помощи.</TileText>
                 </Tile>
+                <Tile href="/super-admin/catalog">
+                    <TileTitle>Каталог</TileTitle>
+                    <TileText>
+                        Создавайте и редактируйте фандомы, категории и подкатегории.
+                    </TileText>
+                </Tile>
             </Grid>
         </>
     );

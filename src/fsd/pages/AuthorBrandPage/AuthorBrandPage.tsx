@@ -7,7 +7,9 @@ import Image from "next/image";
 import { Type, Upload, X } from "lucide-react";
 import { SELLER_SOCIAL_ICON_PATHS } from "@shared/config/seller-social";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 import { SetAdminChrome } from "@widgets/AdminShell";
+import { IMAGE_UPLOAD_HINT, isAcceptedImageUpload } from "@shared/lib/upload-constraints";
 import { type BrandPageController, useAuthorBrand } from "./useAuthorBrand";
 
 const BrandPageLayout = styled.div`
@@ -425,7 +427,7 @@ const ModalCloseButton = styled.button`
 const PreviewTitle = styled.h2`
     margin: 0;
     font-size: 20px;
-    color: var(--color);
+    color: #000;
 `;
 
 const BannerPreview = styled.section<{ $backgroundImage: string }>`
@@ -559,7 +561,8 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
 
     const handleFilePick = useCallback(
         async (file: File, key: "avatar" | "banner") => {
-            if (!file.type.startsWith("image/")) {
+            if (!isAcceptedImageUpload(file)) {
+                toast.error("Подходят только изображения до 4 МБ (JPG, PNG, WEBP, GIF)");
                 return;
             }
             const dataUrl = await readFileAsDataUrl(file);
@@ -809,6 +812,7 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
                                 </UploadPreview>
                             )}
                         </UploadZone>
+                        <SocialHint>{IMAGE_UPLOAD_HINT}</SocialHint>
                     </FieldGroup>
                     <FieldGroup>
                         <FieldLabel htmlFor="brand-banner-upload">
@@ -846,6 +850,7 @@ const AuthorBrandPageContent = ({ controller, footer, hideSubmit = false }: Auth
                                 </UploadPreview>
                             )}
                         </UploadZone>
+                        <SocialHint>{IMAGE_UPLOAD_HINT}</SocialHint>
                     </FieldGroup>
                     {hideSubmit ? null : (
                         <>

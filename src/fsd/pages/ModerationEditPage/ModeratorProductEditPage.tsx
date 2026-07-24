@@ -60,6 +60,12 @@ export function ModeratorProductEditPage({ proposalId }: ModeratorProductEditPag
                     <MetaTitle>{proposal.title}</MetaTitle>
                     <MetaText>{MODERATION_ACTION_LABELS[proposal.type]}</MetaText>
                     <MetaText>Автор: {proposal.submittedBy}</MetaText>
+                    {proposal.moderatedBy ? (
+                        <MetaText>Промодерировал: {proposal.moderatedBy}</MetaText>
+                    ) : null}
+                    {proposal.moderationComment ? (
+                        <MetaText>Комментарий: {proposal.moderationComment}</MetaText>
+                    ) : null}
                 </MetaCard>
             ) : null}
             <AuthorProductComposer
@@ -71,6 +77,7 @@ export function ModeratorProductEditPage({ proposalId }: ModeratorProductEditPag
                 formTitle="Редактирование товара"
                 formDescription="Измените карточку при необходимости и нажмите «Принять» или «Отклонить»."
                 hideSubmit
+                showUnapprovedFandomHint
                 successRedirectPath={null}
                 onRegisterSubmit={(submit) => {
                     submitRef.current = submit;

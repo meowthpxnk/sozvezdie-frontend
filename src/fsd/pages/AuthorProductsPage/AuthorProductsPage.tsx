@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Check, CircleAlert, Clock3, List as ListIcon, Pencil, Plus, Trash2, X } from "lucide-react";
 import { SetAdminChrome } from "@widgets/AdminShell";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
 import {
     DELETION_REQUEST_STATUS_LABELS,
     MODERATION_STATUS_BADGE,
     MODERATION_STATUS_LABELS,
+    type ModerationStatus,
     type SellerProduct,
 } from "@entities/author/seller-product.types";
 import authorService from "@entities/author/author.service";
@@ -19,6 +21,26 @@ import { useCancelModerationRequest } from "@entities/author/hooks/useCancelMode
 import { toast } from "sonner";
 
 import { useAuthorProducts } from "./useAuthorProducts";
+
+type ProductsFilter = ModerationStatus | "ALL";
+
+const STATUS_FILTERS: {
+    value: ProductsFilter;
+    label: string;
+    icon: typeof ListIcon;
+}[] = [
+    { value: "ALL", label: "Все", icon: ListIcon },
+    { value: "PENDING", label: "На модерации", icon: Clock3 },
+    { value: "APPROVED", label: "Одобрены", icon: Check },
+    { value: "REJECTED", label: "Отклонены", icon: CircleAlert },
+];
+
+function parseStatusFilter(value: string | null): ProductsFilter {
+    if (value === "PENDING" || value === "APPROVED" || value === "REJECTED") {
+        return value;
+    }
+    return "ALL";
+}
 
 const AddProductButton = styled(Link)`
     width: 28px;
@@ -48,6 +70,40 @@ const AddProductButton = styled(Link)`
     svg {
         width: 14px;
         height: 14px;
+    }
+`;
+
+const PageLayout = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+`;
+
+const FilterRow = styled.div`
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+`;
+
+const FilterButton = styled.button<{ $active: boolean }>`
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid ${({ $active }) => ($active ? "var(--main-color)" : "#d7ddea")};
+    background: ${({ $active }) => ($active ? "var(--main-color)" : "#fff")};
+    color: ${({ $active }) => ($active ? "#fff" : "#2d3a54")};
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    svg {
+        width: 12px;
+        height: 12px;
     }
 `;
 
@@ -387,12 +443,22 @@ function canShowDeleteAction(product: SellerProduct): boolean {
 }
 
 export const AuthorProductsPage = () => {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const statusFilter = parseStatusFilter(searchParams.get("status"));
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
     const [deletionReason, setDeletionReason] = useState("");
     const [isSubmitting, setSubmitting] = useState(false);
     const { products, loading, isError, refetch } = useAuthorProducts();
     const { cancelRequest, isCancelling } = useCancelModerationRequest();
+    const filteredProducts = useMemo(() => {
+        if (statusFilter === "ALL") {
+            return products;
+        }
+        return products.filter((product) => product.moderationStatus === statusFilter);
+    }, [products, statusFilter]);
     const deletingProduct = products.find((product) => product.id === deletingProductId) ?? null;
     const deleteModalMode = resolveDeleteModalMode(deletingProduct);
     const isPendingCancellation =
@@ -402,6 +468,17 @@ export const AuthorProductsPage = () => {
               ? isCancelling(`product-delete-${deletingProductId}`)
               : false;
     const isBusy = isPendingCancellation || isSubmitting;
+
+    const setStatusFilter = (nextFilter: ProductsFilter) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (nextFilter === "ALL") {
+            params.delete("status");
+        } else {
+            params.set("status", nextFilter);
+        }
+        const query = params.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    };
 
     const titleRight = useMemo(
         () => (
@@ -430,87 +507,123 @@ export const AuthorProductsPage = () => {
         );
     }
 
+    const emptyMessage =
+        products.length === 0 ? (
+            <>
+                Товаров пока нет.{" "}
+                <EmptyLink href="/admin/products/new">Создать первый товар</EmptyLink>
+            </>
+        ) : statusFilter === "PENDING" ? (
+            "Нет товаров на модерации."
+        ) : statusFilter === "APPROVED" ? (
+            "Нет одобренных товаров."
+        ) : statusFilter === "REJECTED" ? (
+            "Нет отклонённых товаров."
+        ) : (
+            "Товаров пока нет."
+        );
+
     return (
         <>
             <SetAdminChrome title="Товары" titleRight={titleRight} />
-            {products.length === 0 ? (
-                <EmptyState>
-                    Товаров пока нет.{" "}
-                    <EmptyLink href="/admin/products/new">Создать первый товар</EmptyLink>
-                </EmptyState>
-            ) : (
-            <List>
-                {products.map((product) => (
-                    <Item key={product.id}>
-                        <ItemLeft>
-                            <ItemImageWrapper>
-                                <img src={getProductImage(product.images)} alt={product.name} />
-                            </ItemImageWrapper>
-                            <ItemMeta>
-                                <ItemName>{product.name}</ItemName>
-                                <BadgeRow>
-                                    <StatusBadge $status={product.moderationStatus}>
-                                        {MODERATION_STATUS_LABELS[product.moderationStatus]}
-                                    </StatusBadge>
-                                    {product.deletionRequestStatus ? (
-                                        <StatusBadge $status={product.deletionRequestStatus}>
-                                            {
-                                                DELETION_REQUEST_STATUS_LABELS[
-                                                    product.deletionRequestStatus
-                                                ]
-                                            }
-                                        </StatusBadge>
-                                    ) : null}
-                                </BadgeRow>
-                                <ItemActions>
-                                    {product.deletionRequestStatus !== "PENDING" &&
-                                    product.deletionRequestStatus !== "APPROVED" ? (
-                                        <EditButton
-                                            href={`/admin/products/${product.id}/edit`}
-                                            aria-label={`Редактировать ${product.name}`}
-                                        >
-                                            <Pencil size={14} />
-                                        </EditButton>
-                                    ) : null}
-                                    {canShowDeleteAction(product) ? (
-                                        <DeleteButton
-                                            type="button"
-                                            aria-label={
-                                                product.deletionRequestStatus === "PENDING"
-                                                    ? `Отменить заявку на удаление ${product.name}`
-                                                    : product.moderationStatus === "PENDING"
-                                                      ? `Отменить заявку на модерацию ${product.name}`
-                                                      : `Запросить удаление ${product.name}`
-                                            }
-                                            onClick={() => {
-                                                setDeletingProductId(product.id);
-                                                setDeletionReason(
-                                                    product.deletionRequestReason ?? ""
-                                                );
-                                                setDeleteModalOpen(true);
-                                            }}
-                                        >
-                                            <Trash2 size={14} />
-                                        </DeleteButton>
-                                    ) : null}
-                                </ItemActions>
-                                <ItemBottomRow>
-                                    <PriceStockColumn>
-                                        <ItemPrice>{priceFormatter(product.price)}</ItemPrice>
-                                        <ItemStock>В наличии: {product.stockCount} шт.</ItemStock>
-                                    </PriceStockColumn>
-                                </ItemBottomRow>
-                            </ItemMeta>
-                        </ItemLeft>
-                        {product.moderationStatus === "REJECTED" && product.moderatorComment ? (
-                            <ModeratorComment $variant="rejected">
-                                {product.moderatorComment}
-                            </ModeratorComment>
-                        ) : null}
-                    </Item>
-                ))}
-            </List>
-            )}
+            <PageLayout>
+                <FilterRow>
+                    {STATUS_FILTERS.map(({ value, label, icon: Icon }) => (
+                        <FilterButton
+                            key={value}
+                            type="button"
+                            $active={statusFilter === value}
+                            onClick={() => setStatusFilter(value)}
+                        >
+                            <Icon aria-hidden />
+                            {label}
+                        </FilterButton>
+                    ))}
+                </FilterRow>
+                {filteredProducts.length === 0 ? (
+                    <EmptyState>{emptyMessage}</EmptyState>
+                ) : (
+                    <List>
+                        {filteredProducts.map((product) => (
+                            <Item key={product.id}>
+                                <ItemLeft>
+                                    <ItemImageWrapper>
+                                        <img
+                                            src={getProductImage(product.images)}
+                                            alt={product.name}
+                                        />
+                                    </ItemImageWrapper>
+                                    <ItemMeta>
+                                        <ItemName>{product.name}</ItemName>
+                                        <BadgeRow>
+                                            <StatusBadge $status={product.moderationStatus}>
+                                                {MODERATION_STATUS_LABELS[product.moderationStatus]}
+                                            </StatusBadge>
+                                            {product.deletionRequestStatus ? (
+                                                <StatusBadge $status={product.deletionRequestStatus}>
+                                                    {
+                                                        DELETION_REQUEST_STATUS_LABELS[
+                                                            product.deletionRequestStatus
+                                                        ]
+                                                    }
+                                                </StatusBadge>
+                                            ) : null}
+                                        </BadgeRow>
+                                        <ItemActions>
+                                            {product.deletionRequestStatus !== "PENDING" &&
+                                            product.deletionRequestStatus !== "APPROVED" ? (
+                                                <EditButton
+                                                    href={`/admin/products/${product.id}/edit`}
+                                                    aria-label={`Редактировать ${product.name}`}
+                                                >
+                                                    <Pencil size={14} />
+                                                </EditButton>
+                                            ) : null}
+                                            {canShowDeleteAction(product) ? (
+                                                <DeleteButton
+                                                    type="button"
+                                                    aria-label={
+                                                        product.deletionRequestStatus === "PENDING"
+                                                            ? `Отменить заявку на удаление ${product.name}`
+                                                            : product.moderationStatus === "PENDING"
+                                                              ? `Отменить заявку на модерацию ${product.name}`
+                                                              : `Запросить удаление ${product.name}`
+                                                    }
+                                                    onClick={() => {
+                                                        setDeletingProductId(product.id);
+                                                        setDeletionReason(
+                                                            product.deletionRequestReason ?? ""
+                                                        );
+                                                        setDeleteModalOpen(true);
+                                                    }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </DeleteButton>
+                                            ) : null}
+                                        </ItemActions>
+                                        <ItemBottomRow>
+                                            <PriceStockColumn>
+                                                <ItemPrice>
+                                                    {priceFormatter(product.price)}
+                                                </ItemPrice>
+                                                <ItemStock>
+                                                    В наличии: {product.stockCount} шт.
+                                                </ItemStock>
+                                            </PriceStockColumn>
+                                        </ItemBottomRow>
+                                    </ItemMeta>
+                                </ItemLeft>
+                                {product.moderationStatus === "REJECTED" &&
+                                product.moderatorComment ? (
+                                    <ModeratorComment $variant="rejected">
+                                        {product.moderatorComment}
+                                    </ModeratorComment>
+                                ) : null}
+                            </Item>
+                        ))}
+                    </List>
+                )}
+            </PageLayout>
             <ModalOverlay
                 $isOpen={isDeleteModalOpen}
                 onClick={() => (!isBusy ? setDeleteModalOpen(false) : undefined)}

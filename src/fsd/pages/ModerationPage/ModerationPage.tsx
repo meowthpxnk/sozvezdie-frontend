@@ -105,7 +105,9 @@ const Description = styled.p`
     line-height: 1.45;
 `;
 
-const OpenButton = styled(IconActionButton).attrs({ $active: true })``;
+const OpenButton = styled(IconActionButton).attrs({ $active: true })`
+    align-self: flex-end;
+`;
 
 const EmptyState = styled.p`
     margin: 0;
@@ -155,7 +157,7 @@ export function ModerationPage() {
 
     return (
         <>
-            <SetAdminChrome title="Feed модерации" />
+            <SetAdminChrome title="Лента модерации" />
             <OrdersLink href="/moderation/orders">
                 <Package size={14} />
                 Заказы и отслеживание
@@ -201,11 +203,19 @@ export function ModerationPage() {
                             {item.moderationComment ? (
                                 <Description>Комментарий: {item.moderationComment}</Description>
                             ) : null}
-                            {item.status === "PENDING" ? (
+                            {item.status === "PENDING" || item.status === "REJECTED" ? (
                                 <OpenButton
                                     type="button"
-                                    aria-label="Открыть редактирование"
-                                    title="Открыть редактирование"
+                                    aria-label={
+                                        item.status === "REJECTED"
+                                            ? "Открыть отклонённую заявку"
+                                            : "Открыть редактирование"
+                                    }
+                                    title={
+                                        item.status === "REJECTED"
+                                            ? "Открыть для редактирования"
+                                            : "Открыть редактирование"
+                                    }
                                     onClick={() => router.push(`/moderation/${item.id}`)}
                                 >
                                     <Pencil size={14} />

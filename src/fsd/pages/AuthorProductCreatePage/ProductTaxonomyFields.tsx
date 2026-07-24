@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import styled from "styled-components";
 
 import { useProductTaxonomy } from "./useProductTaxonomy";
@@ -39,16 +40,61 @@ const SelectInput = styled.select`
     }
 `;
 
+const FandomFieldBlock = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+`;
+
+const NewFandomHint = styled.p`
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #8a5a12;
+    background: #fff4e5;
+    border-radius: 8px;
+    padding: 8px 10px;
+`;
+
 type ProductTaxonomyFieldsProps = {
     categorySlug: string;
     subcategorySlug: string;
     subcategoryLabel: string;
     fandomSlug: string;
     fandomLabel: string;
+    showUnapprovedFandomHint?: boolean;
     onCategoryChange: (slug: string) => void;
     onSubcategoryChange: (label: string, slug: string) => void;
     onFandomChange: (label: string, slug: string) => void;
 };
+
+function isUnapprovedFandomSelection(
+    fandoms: { slug: string; title: string; isApproved?: boolean }[],
+    fandomSlug: string,
+    fandomLabel: string
+): boolean {
+    const trimmed = fandomLabel.trim();
+    if (!trimmed) {
+        return false;
+    }
+
+    const bySlug = fandomSlug
+        ? fandoms.find((fandom) => fandom.slug === fandomSlug)
+        : undefined;
+    if (bySlug) {
+        return bySlug.isApproved !== true;
+    }
+
+    const byTitle = fandoms.find(
+        (fandom) => fandom.title.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (byTitle) {
+        return byTitle.isApproved !== true;
+    }
+
+    // Free-text value that does not match an existing fandom yet.
+    return true;
+}
 
 export function ProductTaxonomyFields({
     categorySlug,
@@ -56,12 +102,20 @@ export function ProductTaxonomyFields({
     subcategoryLabel,
     fandomSlug,
     fandomLabel,
+    showUnapprovedFandomHint = false,
     onCategoryChange,
     onSubcategoryChange,
     onFandomChange,
 }: ProductTaxonomyFieldsProps) {
     const { categories, subcategories, fandoms, loading, subcategoriesLoading } =
         useProductTaxonomy(categorySlug);
+
+    const showNewFandomHint = useMemo(
+        () =>
+            showUnapprovedFandomHint &&
+            isUnapprovedFandomSelection(fandoms, fandomSlug, fandomLabel),
+        [fandomLabel, fandomSlug, fandoms, showUnapprovedFandomHint]
+    );
 
     return (
         <>
@@ -96,17 +150,25 @@ export function ProductTaxonomyFields({
                 />
             ) : null}
 
-            <TaxonomySuggestInput
-                id="product-fandom"
-                label="Фандом"
-                labelText={fandomLabel}
-                slug={fandomSlug}
-                options={fandoms}
-                placeholder="Введите или выберите фандом"
-                disabled={loading}
-                emptyHint="Фандомов пока нет — введите своё название"
-                onChange={onFandomChange}
-            />
+            <FandomFieldBlock>
+                <TaxonomySuggestInput
+                    id="product-fandom"
+                    label="Фандом"
+                    labelText={fandomLabel}
+                    slug={fandomSlug}
+                    options={fandoms}
+                    placeholder="Введите или выберите фандом"
+                    disabled={loading}
+                    emptyHint="Фандомов пока нет — введите своё название"
+                    onChange={onFandomChange}
+                />
+                {showNewFandomHint ? (
+                    <NewFandomHint>
+                        * новый фандом, который ещё не проходил модерацию — проверьте,
+                        нет ли уже такого фандома под другим названием
+                    </NewFandomHint>
+                ) : null}
+            </FandomFieldBlock>
         </>
     );
 }

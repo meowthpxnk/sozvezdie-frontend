@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ProductLikeButton } from "@shared/ui/buttons";
 import { Author, Product } from "@entities";
 import { priceFormatter, truncateText } from "@shared/formatters";
+import { captureNavigationReturnPath } from "@shared/lib/product-return";
 import { useFavouriteProduct } from "../entities/favourite/hooks";
 import { MEDIA_URL } from "../shared/api/interceptors";
 
@@ -43,6 +44,7 @@ export const ProductCard = ({ product, author }: ProductCardProps) => {
     const { isFavourite, setFavourite } = useFavouriteProduct(product.id);
 
     const openProduct = () => {
+        captureNavigationReturnPath();
         router.push(`/product/${product.id}`);
     };
 

@@ -387,7 +387,7 @@ export const ModerationPage = () => {
 
     return (
         <>
-            <SetAdminChrome title="Feed модерации" />
+            <SetAdminChrome title="Лента модерации" />
             <FilterRow>
                 <FilterButton type="button" $active={filter === "pending"} onClick={() => setFilter("pending")}>
                     <Clock3 size={12} />

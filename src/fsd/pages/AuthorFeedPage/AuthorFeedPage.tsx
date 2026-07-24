@@ -280,7 +280,7 @@ export function AuthorFeedPage() {
 
     return (
         <>
-            <SetAdminChrome title="Feed" />
+            <SetAdminChrome title="Лента" />
             <FilterWrap>
                 <FilterRow ref={filtersRef}>
                     {FILTERS.map(({ value, label, icon: Icon }) => (

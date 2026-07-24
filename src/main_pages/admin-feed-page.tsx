@@ -217,7 +217,7 @@ export const AdminFeedPage = () => {
 
     return (
         <>
-            <SetAdminChrome title="Feed" />
+            <SetAdminChrome title="Лента" />
             <FilterWrap>
                 <FilterRow ref={filtersRef}>
                     <FilterButton type="button" $active={filter === "all"} onClick={() => setFilter("all")}>

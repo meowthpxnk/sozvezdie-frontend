@@ -1,11 +1,14 @@
 import { axiosWithAuth } from "@shared/api/interceptors";
 import type { AdvertBanner } from "@entities/advert-banner/advert-banner";
+import type { Category } from "@entities/category/category";
+import type { Fandom } from "@entities/fandom/fandom";
 import {
     type FaqItem,
     type FaqItemApiResponse,
     type FaqItemPayload,
     mapFaqItem,
 } from "@entities/faq/faq.types";
+import type { Subcategory } from "@entities/subcategory/subcategory";
 
 import {
     type AssignableUserRole,
@@ -123,6 +126,7 @@ class SuperAdminService {
             {
                 question: data.question,
                 answer: data.answer,
+                is_published: data.isPublished,
             }
         );
 
@@ -135,6 +139,7 @@ class SuperAdminService {
             {
                 question: data.question,
                 answer: data.answer,
+                is_published: data.isPublished,
             }
         );
 
@@ -152,6 +157,121 @@ class SuperAdminService {
 
     async deleteFaqItem(itemId: number): Promise<void> {
         await axiosWithAuth.delete(`${this.BASE_URL}/faq/${itemId}`);
+    }
+
+    async getFandoms(search?: string): Promise<Fandom[]> {
+        const response = await axiosWithAuth.get<Fandom[]>(`${this.BASE_URL}/fandoms`, {
+            params: search ? { search } : undefined,
+        });
+        return response.data;
+    }
+
+    async createFandom(data: {
+        title: string;
+        slug: string;
+        isApproved?: boolean;
+    }): Promise<Fandom> {
+        const response = await axiosWithAuth.post<Fandom>(`${this.BASE_URL}/fandoms`, {
+            title: data.title,
+            slug: data.slug,
+            is_approved: data.isApproved ?? true,
+        });
+        return response.data;
+    }
+
+    async updateFandom(
+        slug: string,
+        data: { title: string; isApproved: boolean }
+    ): Promise<Fandom> {
+        const response = await axiosWithAuth.put<Fandom>(
+            `${this.BASE_URL}/fandoms/${slug}`,
+            {
+                title: data.title,
+                is_approved: data.isApproved,
+            }
+        );
+        return response.data;
+    }
+
+    async deleteFandom(slug: string): Promise<void> {
+        await axiosWithAuth.delete(`${this.BASE_URL}/fandoms/${slug}`);
+    }
+
+    async getCategories(search?: string): Promise<Category[]> {
+        const response = await axiosWithAuth.get<Category[]>(
+            `${this.BASE_URL}/categories`,
+            {
+                params: search ? { search } : undefined,
+            }
+        );
+        return response.data;
+    }
+
+    async createCategory(data: { title: string; slug: string }): Promise<Category> {
+        const response = await axiosWithAuth.post<Category>(
+            `${this.BASE_URL}/categories`,
+            data
+        );
+        return response.data;
+    }
+
+    async updateCategory(slug: string, data: { title: string }): Promise<Category> {
+        const response = await axiosWithAuth.put<Category>(
+            `${this.BASE_URL}/categories/${slug}`,
+            data
+        );
+        return response.data;
+    }
+
+    async deleteCategory(slug: string): Promise<void> {
+        await axiosWithAuth.delete(`${this.BASE_URL}/categories/${slug}`);
+    }
+
+    async getSubcategories(params?: {
+        search?: string;
+        categorySlug?: string;
+    }): Promise<Subcategory[]> {
+        const response = await axiosWithAuth.get<Subcategory[]>(
+            `${this.BASE_URL}/subcategories`,
+            {
+                params: {
+                    search: params?.search || undefined,
+                    category_slug: params?.categorySlug || undefined,
+                },
+            }
+        );
+        return response.data;
+    }
+
+    async createSubcategory(data: {
+        title: string;
+        slug: string;
+        categorySlug: string;
+    }): Promise<Subcategory> {
+        const response = await axiosWithAuth.post<Subcategory>(
+            `${this.BASE_URL}/subcategories`,
+            {
+                title: data.title,
+                slug: data.slug,
+                category_slug: data.categorySlug,
+            }
+        );
+        return response.data;
+    }
+
+    async updateSubcategory(
+        subcategoryId: number,
+        data: { title: string }
+    ): Promise<Subcategory> {
+        const response = await axiosWithAuth.put<Subcategory>(
+            `${this.BASE_URL}/subcategories/${subcategoryId}`,
+            data
+        );
+        return response.data;
+    }
+
+    async deleteSubcategory(subcategoryId: number): Promise<void> {
+        await axiosWithAuth.delete(`${this.BASE_URL}/subcategories/${subcategoryId}`);
     }
 }
 

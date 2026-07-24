@@ -1,8 +1,9 @@
 export interface Subcategory {
+    id: number;
     slug: string;
     title: string;
     categorySlug: string;
-    authorId: string;
+    authorId?: string | null;
 }
 
 export interface SubcategoryCreatePayload {

@@ -13,6 +13,7 @@ import { useFavouriteAuthor } from "../../entities/favourite/hooks";
 import { useAuth } from "../../entities/auth";
 import { canAccessModeration } from "@shared/lib/roles";
 import { ModeratorEditButton } from "@features/moderator-edit/ModeratorEditButton";
+import { ModeratorBrandDeleteAction } from "@features/moderator-edit/ModeratorBrandDeleteAction";
 import { buildBrandCatalogEditHref } from "@features/moderator-edit/moderation-edit-links";
 import { AuthorSocialLinks } from "@features/author-social";
 import { MEDIA_URL } from "../../shared/api/interceptors";
@@ -216,11 +217,18 @@ export const SingleAuthorPage = ({ authorId }: AuthorPageProps) => {
                                 <AuthorBannerTitleWrapper>{author.name}</AuthorBannerTitleWrapper>
                                 <AuthorBannerActions>
                                     {isModerator ? (
-                                        <ModeratorEditButton
-                                            href={buildBrandCatalogEditHref(authorId)}
-                                            label="Редактировать бренд"
-                                            variant="on-dark"
-                                        />
+                                        <>
+                                            <ModeratorEditButton
+                                                href={buildBrandCatalogEditHref(authorId)}
+                                                label="Редактировать бренд"
+                                                variant="on-dark"
+                                            />
+                                            <ModeratorBrandDeleteAction
+                                                authorId={authorId}
+                                                brandName={author.name}
+                                                variant="on-dark"
+                                            />
+                                        </>
                                     ) : null}
                                     <AuthorLikeButton
                                         active={Boolean(isFavourite)}

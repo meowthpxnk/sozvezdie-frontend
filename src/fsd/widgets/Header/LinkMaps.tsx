@@ -7,6 +7,7 @@ import {
     Star,
     Image,
     LayoutDashboard,
+    Layers,
     Newspaper,
     Package,
     ShoppingBag,
@@ -171,6 +172,12 @@ export const SuperAdminManagementButtonsMap = ({ pathname }: NavMapProps) => (
             Icon={CircleHelp}
             label="FAQ"
             active={isNavLinkActive(pathname, "/super-admin/faq")}
+        />
+        <HeaderLinkButton
+            href="/super-admin/catalog"
+            Icon={Layers}
+            label="Каталог"
+            active={isNavLinkActive(pathname, "/super-admin/catalog")}
         />
         <ProfileButton pathname={pathname} />
     </>

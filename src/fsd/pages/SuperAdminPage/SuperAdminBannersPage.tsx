@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { type AdvertBanner } from "@entities/advert-banner";
 import { superAdminService } from "@entities/super-admin";
 import { MEDIA_URL } from "@shared/api/interceptors";
+import { IMAGE_UPLOAD_HINT, isAcceptedImageUpload } from "@shared/lib/upload-constraints";
 import { IconActionButton } from "@/src/shared/ui/icon-action-button";
 import { SetAdminChrome } from "@widgets/AdminShell";
 
@@ -407,7 +408,8 @@ function BannerImageUpload({
 
     const handleFilePick = useCallback(
         async (file: File) => {
-            if (!file.type.startsWith("image/")) {
+            if (!isAcceptedImageUpload(file)) {
+                toast.error("Подходят только изображения до 4 МБ (JPG, PNG, WEBP, GIF)");
                 return;
             }
             const dataUrl = await readFileAsDataUrl(file);
@@ -503,6 +505,7 @@ function BannerImageUpload({
                     </UploadPreview>
                 )}
             </UploadZone>
+            <Hint>{IMAGE_UPLOAD_HINT}</Hint>
         </Field>
     );
 }

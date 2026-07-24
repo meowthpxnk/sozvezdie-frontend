@@ -3,6 +3,7 @@
 import styled from "styled-components";
 import { usePathname } from "next/navigation";
 import { Header, Footer } from "@widgets";
+import { useProductReturnPathTracker } from "@shared/hooks/useProductReturnPathTracker";
 
 const PATHS_WITHOUT_HEADER = ["/auth"];
 const PAGE_CONTENT_MAX_WIDTH = 1200;
@@ -53,6 +54,7 @@ function isPathWithoutHeader(pathname: string): boolean {
 export const PageShell = ({ children }: PageShellProps) => {
     const pathname = usePathname();
     const hideHeader = isPathWithoutHeader(pathname);
+    useProductReturnPathTracker();
 
     return <PageShellStyles className="flex-c">
         {!hideHeader ? <Header /> : null}

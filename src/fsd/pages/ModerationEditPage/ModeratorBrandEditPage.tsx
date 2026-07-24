@@ -81,6 +81,12 @@ export function ModeratorBrandEditPage({ proposalId }: ModeratorBrandEditPagePro
                     <MetaTitle>{proposal.title}</MetaTitle>
                     <MetaText>{MODERATION_ACTION_LABELS[proposal.type]}</MetaText>
                     <MetaText>Автор: {proposal.submittedBy}</MetaText>
+                    {proposal.moderatedBy ? (
+                        <MetaText>Промодерировал: {proposal.moderatedBy}</MetaText>
+                    ) : null}
+                    {proposal.moderationComment ? (
+                        <MetaText>Комментарий: {proposal.moderationComment}</MetaText>
+                    ) : null}
                 </MetaCard>
             ) : null}
             <AuthorBrandPage

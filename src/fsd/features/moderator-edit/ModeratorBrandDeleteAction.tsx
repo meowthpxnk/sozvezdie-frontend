@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { moderationService } from "@entities/moderation";
-import { resolvePathAfterProductDelete } from "@shared/lib/product-return";
+import { resolvePathAfterAuthorDelete } from "@shared/lib/product-return";
 
 import { ModeratorDeleteButton } from "./ModeratorDeleteButton";
-import { ModeratorProductDeleteModal } from "./ModeratorProductDeleteModal";
+import { ModeratorBrandDeleteModal } from "./ModeratorBrandDeleteModal";
 
-type ModeratorProductDeleteActionProps = {
-    productId: string;
-    productName: string;
+type ModeratorBrandDeleteActionProps = {
+    authorId: string;
+    brandName: string;
     variant?: "default" | "on-dark";
 };
 
@@ -30,11 +30,11 @@ function getErrorDetail(error: unknown): string | null {
     return null;
 }
 
-export function ModeratorProductDeleteAction({
-    productId,
-    productName,
+export function ModeratorBrandDeleteAction({
+    authorId,
+    brandName,
     variant = "default",
-}: ModeratorProductDeleteActionProps) {
+}: ModeratorBrandDeleteActionProps) {
     const router = useRouter();
     const [isModalOpen, setModalOpen] = useState(false);
     const [isSubmitting, setSubmitting] = useState(false);
@@ -42,14 +42,14 @@ export function ModeratorProductDeleteAction({
     const handleConfirm = (comment: string) => {
         setSubmitting(true);
         void moderationService
-            .deleteCatalogProduct(productId, comment)
+            .deleteCatalogBrand(authorId, comment)
             .then(() => {
-                toast.success("Товар удалён");
+                toast.success("Магазин удалён");
                 setModalOpen(false);
-                router.push(resolvePathAfterProductDelete(productId));
+                router.push(resolvePathAfterAuthorDelete(authorId));
             })
             .catch((error: unknown) => {
-                toast.error(getErrorDetail(error) ?? "Не удалось удалить товар");
+                toast.error(getErrorDetail(error) ?? "Не удалось удалить магазин");
             })
             .finally(() => setSubmitting(false));
     };
@@ -57,14 +57,14 @@ export function ModeratorProductDeleteAction({
     return (
         <>
             <ModeratorDeleteButton
-                label="Удалить товар"
+                label="Удалить магазин"
                 variant={variant}
                 disabled={isSubmitting}
                 onClick={() => setModalOpen(true)}
             />
-            <ModeratorProductDeleteModal
+            <ModeratorBrandDeleteModal
                 isOpen={isModalOpen}
-                productName={productName}
+                brandName={brandName}
                 isSubmitting={isSubmitting}
                 onClose={() => {
                     if (!isSubmitting) {

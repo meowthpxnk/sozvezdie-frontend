@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Author } from "@entities";
 import { AuthorAvatarImage } from "@features";
 import { ProductLikeButton } from "@shared/ui/buttons";
+import { captureNavigationReturnPath } from "@shared/lib/product-return";
 import { useFavouriteAuthor } from "../entities/favourite/hooks";
 
 const AuthorMiniCardStyles = styled.div`
@@ -42,7 +43,11 @@ export const AuthorMiniCard = ({ author }: AuthorMiniCardProps) => {
 
     return (
         <AuthorMiniCardStyles className="flex-r ai-c jc-sb int-14 indent-box b-rad-14">
-            <AuthorLink href={`/author/${author.id}`} className="flex-r ai-c int-14">
+            <AuthorLink
+                href={`/author/${author.id}`}
+                className="flex-r ai-c int-14"
+                onClick={() => captureNavigationReturnPath()}
+            >
                 <AuthorAvatarImage author={author} />
                 <h3>{author.name}</h3>
             </AuthorLink>

@@ -8,7 +8,8 @@ export type AuthorFeedOperationType =
     | "CREATE_PRODUCT"
     | "CREATE_SHOP"
     | "UPDATE_BRAND"
-    | "DELETE_PRODUCT";
+    | "DELETE_PRODUCT"
+    | "DELETE_SHOP";
 
 export type AuthorFeedItem = {
     id: string;
@@ -25,6 +26,7 @@ export const AUTHOR_FEED_OPERATION_LABELS: Record<AuthorFeedOperationType, strin
     CREATE_SHOP: "Создание магазина",
     UPDATE_BRAND: "Изменение бренда",
     DELETE_PRODUCT: "Удаление товара",
+    DELETE_SHOP: "Удаление магазина",
 };
 
 export function mapProductToFeedItem(product: SellerProduct): AuthorFeedItem {
@@ -82,7 +84,9 @@ export function mapBrandModerationToFeedItem(data: {
     const operationType =
         data.actionType === "UPDATE_BRAND"
             ? "UPDATE_BRAND"
-            : data.actionType === "CREATE_SHOP"
+            : data.actionType === "DELETE_SHOP"
+              ? "DELETE_SHOP"
+              : data.actionType === "CREATE_SHOP"
                 ? "CREATE_SHOP"
                 : "CREATE_SHOP";
 

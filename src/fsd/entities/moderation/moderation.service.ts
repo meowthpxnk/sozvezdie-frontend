@@ -356,6 +356,18 @@ class ModerationService {
 
         return mapSellerProduct(response.data);
     }
+
+    async deleteCatalogBrand(
+        sellerCardId: string,
+        comment?: string
+    ): Promise<{ id: string }> {
+        const response = await axiosWithAuth.post<{ id: string }>(
+            `${this.BASE_URL}/catalog/brands/${sellerCardId}/delete`,
+            { comment: comment?.trim() || null }
+        );
+
+        return response.data;
+    }
 }
 
 export const moderationService = new ModerationService();

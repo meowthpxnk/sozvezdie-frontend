@@ -368,9 +368,18 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
     pointer-events: ${({ $isOpen }) => ($isOpen ? "auto" : "none")};
     transition: opacity 0.2s ease;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+
+    @media (min-width: 960px) {
+        align-items: center;
+        padding: 32px;
+    }
 `;
 
 const ModalLayout = styled.div`
@@ -378,6 +387,7 @@ const ModalLayout = styled.div`
     display: flex;
     flex-direction: column;
     gap: 12px;
+    box-sizing: border-box;
 `;
 
 const ModalCard = styled.section`

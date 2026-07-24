@@ -22,6 +22,7 @@ export interface ISellerProductApiResponse {
     categoryTitle?: string | null;
     subcategoryTitle?: string | null;
     fandomTitle?: string | null;
+    fandomIsApproved?: boolean | null;
 }
 
 export interface SellerProduct extends Product {
@@ -34,6 +35,7 @@ export interface SellerProduct extends Product {
     categoryTitle?: string;
     subcategoryTitle?: string;
     fandomTitle?: string;
+    fandomIsApproved?: boolean;
 }
 
 export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
@@ -73,6 +75,7 @@ export function mapSellerProduct(data: ISellerProductApiResponse): SellerProduct
         categoryTitle: data.categoryTitle ?? undefined,
         subcategoryTitle: data.subcategoryTitle ?? undefined,
         fandomTitle: data.fandomTitle ?? undefined,
+        fandomIsApproved: data.fandomIsApproved ?? undefined,
         moderationStatus: data.moderationStatus,
         createdAt: data.createdAt,
         moderatorComment: data.moderatorComment ?? undefined,

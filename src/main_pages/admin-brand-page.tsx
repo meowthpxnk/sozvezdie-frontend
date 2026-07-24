@@ -346,7 +346,7 @@ const ModalCloseButton = styled.button`
 const PreviewTitle = styled.h2`
     margin: 0;
     font-size: 20px;
-    color: var(--color);
+    color: #000;
 `;
 
 const BannerPreview = styled.section<{ $backgroundImage: string }>`

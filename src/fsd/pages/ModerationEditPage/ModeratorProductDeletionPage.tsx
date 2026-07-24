@@ -93,6 +93,12 @@ export function ModeratorProductDeletionPage({
                 <MetaTitle>{proposal.title}</MetaTitle>
                 <MetaText>{MODERATION_ACTION_LABELS[proposal.type]}</MetaText>
                 <MetaText>Автор: {proposal.submittedBy}</MetaText>
+                {proposal.moderatedBy ? (
+                    <MetaText>Промодерировал: {proposal.moderatedBy}</MetaText>
+                ) : null}
+                {proposal.moderationComment ? (
+                    <MetaText>Комментарий: {proposal.moderationComment}</MetaText>
+                ) : null}
                 {product ? (
                     <MetaText>
                         {priceFormatter(product.price)} · в наличии {product.stockCount} шт.
@@ -109,14 +115,16 @@ export function ModeratorProductDeletionPage({
                     ))}
                 </ChangesList>
             </MetaCard>
-            <DecisionWrap>
-                <ModerationDecisionPanel
-                    proposalId={proposalId}
-                    approveLabel="Подтвердить удаление"
-                    rejectLabel="Отклонить удаление"
-                    approvePendingLabel="Удаляем..."
-                />
-            </DecisionWrap>
+            {proposal.status === "PENDING" || proposal.status === "REJECTED" ? (
+                <DecisionWrap>
+                    <ModerationDecisionPanel
+                        proposalId={proposalId}
+                        approveLabel="Подтвердить удаление"
+                        rejectLabel="Отклонить удаление"
+                        approvePendingLabel="Удаляем..."
+                    />
+                </DecisionWrap>
+            ) : null}
         </>
     );
 }

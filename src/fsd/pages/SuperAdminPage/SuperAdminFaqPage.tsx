@@ -9,7 +9,7 @@ import {
     type DragEvent,
 } from "react";
 import styled from "styled-components";
-import { GripVertical, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Eye, EyeOff, GripVertical, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -78,7 +78,46 @@ const PrimaryButton = styled.button`
     }
 `;
 
+const SecondaryButton = styled.button`
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid #d7ddea;
+    border-radius: 10px;
+    background: #fff;
+    color: #2d3a54;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+`;
+
 const EditButton = styled(IconActionButton).attrs({ $active: true })``;
+
+const PublishButton = styled(IconActionButton).attrs({ $active: true })`
+    background: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32;
+
+    &:hover {
+        background: #dcedc8;
+        border-color: #a5d6a7;
+    }
+`;
+
+const UnpublishButton = styled(IconActionButton).attrs({ $active: true })`
+    background: #fff3e0;
+    border-color: #ffe0b2;
+    color: #ef6c00;
+
+    &:hover {
+        background: #ffe0b2;
+        border-color: #ffcc80;
+    }
+`;
 
 const DeleteButton = styled(IconActionButton).attrs({ $active: true })`
     background: #dc3545;
@@ -148,13 +187,32 @@ const DragHandle = styled.span`
     }
 `;
 
-const QuestionText = styled.span`
+const QuestionBlock = styled.div`
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
+
+const QuestionText = styled.span`
     font-size: 15px;
     font-weight: 600;
     color: #1f2430;
     line-height: 1.35;
+`;
+
+const StatusBadge = styled.span<{ $published: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: ${({ $published }) => ($published ? "#2e7d32" : "#8b5a00")};
+    background: ${({ $published }) => ($published ? "#e8f5e9" : "#fff8e1")};
 `;
 
 const SideActions = styled.div`
@@ -226,6 +284,7 @@ const ModalCloseButton = styled.button`
 
 const ModalActions = styled.div`
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     justify-content: flex-end;
 `;
@@ -261,17 +320,21 @@ const AddFaqButton = styled.button`
     }
 `;
 
-type FaqFormState = FaqItemPayload;
+type FaqFormState = {
+    question: string;
+    answer: string;
+};
 
 const emptyForm = (): FaqFormState => ({
     question: "",
     answer: "",
 });
 
-function toPayload(form: FaqFormState): FaqItemPayload {
+function toPayload(form: FaqFormState, isPublished: boolean): FaqItemPayload {
     return {
         question: form.question.trim(),
         answer: form.answer.trim(),
+        isPublished,
     };
 }
 
@@ -281,7 +344,9 @@ type FaqRowProps = {
     onDragHandleStart?: (event: DragEvent<HTMLSpanElement>) => void;
     onDragHandleEnd?: () => void;
     onEdit: (item: FaqItem) => void;
+    onTogglePublish: (item: FaqItem) => void;
     onDelete: (itemId: number) => void;
+    toggleDisabled: boolean;
     deleteDisabled: boolean;
 };
 
@@ -290,9 +355,12 @@ type FaqFormModalProps = {
     title: string;
     form: FaqFormState;
     isPending: boolean;
-    submitLabel: string;
+    mode: "create" | "edit";
+    isPublished?: boolean;
     onClose: () => void;
-    onSubmit: () => void;
+    onSaveDraft: () => void;
+    onPublish: () => void;
+    onUnpublish?: () => void;
     onChange: (next: FaqFormState) => void;
 };
 
@@ -301,9 +369,12 @@ function FaqFormModal({
     title,
     form,
     isPending,
-    submitLabel,
+    mode,
+    isPublished = false,
     onClose,
-    onSubmit,
+    onSaveDraft,
+    onPublish,
+    onUnpublish,
     onChange,
 }: FaqFormModalProps) {
     return (
@@ -333,9 +404,47 @@ function FaqFormModal({
                     />
                 </Field>
                 <ModalActions>
-                    <PrimaryButton type="button" disabled={isPending} onClick={onSubmit}>
-                        {submitLabel}
-                    </PrimaryButton>
+                    {mode === "create" ? (
+                        <>
+                            <SecondaryButton
+                                type="button"
+                                disabled={isPending}
+                                onClick={onSaveDraft}
+                            >
+                                Сохранить черновик
+                            </SecondaryButton>
+                            <PrimaryButton type="button" disabled={isPending} onClick={onPublish}>
+                                Опубликовать
+                            </PrimaryButton>
+                        </>
+                    ) : (
+                        <>
+                            {isPublished ? (
+                                <SecondaryButton
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={onUnpublish}
+                                >
+                                    Снять с публикации
+                                </SecondaryButton>
+                            ) : (
+                                <SecondaryButton
+                                    type="button"
+                                    disabled={isPending}
+                                    onClick={onSaveDraft}
+                                >
+                                    Сохранить черновик
+                                </SecondaryButton>
+                            )}
+                            <PrimaryButton
+                                type="button"
+                                disabled={isPending}
+                                onClick={isPublished ? onSaveDraft : onPublish}
+                            >
+                                {isPublished ? "Сохранить" : "Опубликовать"}
+                            </PrimaryButton>
+                        </>
+                    )}
                 </ModalActions>
             </ModalCard>
         </ModalOverlay>
@@ -348,7 +457,9 @@ function FaqRowContent({
     onDragHandleStart,
     onDragHandleEnd,
     onEdit,
+    onTogglePublish,
     onDelete,
+    toggleDisabled,
     deleteDisabled,
 }: FaqRowProps) {
     return (
@@ -363,8 +474,38 @@ function FaqRowContent({
                     <GripVertical size={18} />
                 </DragHandle>
             ) : null}
-            <QuestionText>{item.question}</QuestionText>
+            <QuestionBlock>
+                <QuestionText>{item.question}</QuestionText>
+                <StatusBadge $published={item.isPublished}>
+                    {item.isPublished ? "Опубликован" : "Черновик"}
+                </StatusBadge>
+            </QuestionBlock>
             <SideActions>
+                {item.isPublished ? (
+                    <UnpublishButton
+                        type="button"
+                        aria-label={`Снять с публикации: ${item.question}`}
+                        disabled={toggleDisabled}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onTogglePublish(item);
+                        }}
+                    >
+                        <EyeOff size={14} />
+                    </UnpublishButton>
+                ) : (
+                    <PublishButton
+                        type="button"
+                        aria-label={`Опубликовать: ${item.question}`}
+                        disabled={toggleDisabled}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onTogglePublish(item);
+                        }}
+                    >
+                        <Eye size={14} />
+                    </PublishButton>
+                )}
                 <EditButton
                     type="button"
                     aria-label={`Редактировать: ${item.question}`}
@@ -426,30 +567,50 @@ export function SuperAdminFaqPage() {
     };
 
     const createMutation = useMutation({
-        mutationFn: () => superAdminService.createFaqItem(toPayload(createForm)),
-        onSuccess: async () => {
+        mutationFn: (isPublished: boolean) =>
+            superAdminService.createFaqItem(toPayload(createForm, isPublished)),
+        onSuccess: async (_data, isPublished) => {
             setCreateModalOpen(false);
             setCreateForm(emptyForm());
             await invalidate();
-            toast.success("Вопрос добавлен");
+            toast.success(isPublished ? "Вопрос опубликован" : "Черновик сохранён");
         },
-        onError: () => toast.error("Не удалось добавить вопрос"),
+        onError: () => toast.error("Не удалось сохранить вопрос"),
     });
 
     const updateMutation = useMutation({
-        mutationFn: () => {
+        mutationFn: (isPublished: boolean) => {
             if (!editingItem) {
                 throw new Error("Вопрос не выбран");
             }
-            return superAdminService.updateFaqItem(editingItem.id, toPayload(editForm));
+            return superAdminService.updateFaqItem(
+                editingItem.id,
+                toPayload(editForm, isPublished)
+            );
         },
-        onSuccess: async () => {
+        onSuccess: async (data) => {
             setEditingItem(null);
             setEditForm(emptyForm());
             await invalidate();
-            toast.success("Вопрос обновлён");
+            toast.success(data.isPublished ? "Вопрос сохранён" : "Черновик сохранён");
         },
         onError: () => toast.error("Не удалось обновить вопрос"),
+    });
+
+    const togglePublishMutation = useMutation({
+        mutationFn: (item: FaqItem) =>
+            superAdminService.updateFaqItem(item.id, {
+                question: item.question,
+                answer: item.answer,
+                isPublished: !item.isPublished,
+            }),
+        onSuccess: async (data) => {
+            await invalidate();
+            toast.success(
+                data.isPublished ? "Вопрос опубликован" : "Вопрос снят с публикации"
+            );
+        },
+        onError: () => toast.error("Не удалось изменить статус публикации"),
     });
 
     const deleteMutation = useMutation({
@@ -607,6 +768,10 @@ export function SuperAdminFaqPage() {
     );
 
     const displayItems = isSearchActive ? items : orderedItems;
+    const isBusy =
+        createMutation.isPending ||
+        updateMutation.isPending ||
+        togglePublishMutation.isPending;
 
     return (
         <>
@@ -647,7 +812,11 @@ export function SuperAdminFaqPage() {
                                     onDragHandleStart={handleDragHandleStart(item.id)}
                                     onDragHandleEnd={handleDragHandleEnd}
                                     onEdit={openEditModal}
+                                    onTogglePublish={(faqItem) =>
+                                        togglePublishMutation.mutate(faqItem)
+                                    }
                                     onDelete={(itemId) => deleteMutation.mutate(itemId)}
+                                    toggleDisabled={togglePublishMutation.isPending}
                                     deleteDisabled={deleteMutation.isPending}
                                 />
                             </FaqListItem>
@@ -662,7 +831,11 @@ export function SuperAdminFaqPage() {
                                 <FaqRowContent
                                     item={item}
                                     onEdit={openEditModal}
+                                    onTogglePublish={(faqItem) =>
+                                        togglePublishMutation.mutate(faqItem)
+                                    }
                                     onDelete={(itemId) => deleteMutation.mutate(itemId)}
+                                    toggleDisabled={togglePublishMutation.isPending}
                                     deleteDisabled={deleteMutation.isPending}
                                 />
                             </StaticFaqListItem>
@@ -675,10 +848,11 @@ export function SuperAdminFaqPage() {
                 isOpen={isCreateModalOpen}
                 title="Новый вопрос"
                 form={createForm}
-                isPending={createMutation.isPending}
-                submitLabel="Добавить"
+                isPending={isBusy}
+                mode="create"
                 onClose={closeCreateModal}
-                onSubmit={() => createMutation.mutate()}
+                onSaveDraft={() => createMutation.mutate(false)}
+                onPublish={() => createMutation.mutate(true)}
                 onChange={setCreateForm}
             />
 
@@ -686,10 +860,13 @@ export function SuperAdminFaqPage() {
                 isOpen={editingItem !== null}
                 title="Редактирование вопроса"
                 form={editForm}
-                isPending={updateMutation.isPending}
-                submitLabel="Сохранить"
+                isPending={isBusy}
+                mode="edit"
+                isPublished={editingItem?.isPublished ?? false}
                 onClose={closeEditModal}
-                onSubmit={() => updateMutation.mutate()}
+                onSaveDraft={() => updateMutation.mutate(editingItem?.isPublished ?? false)}
+                onPublish={() => updateMutation.mutate(true)}
+                onUnpublish={() => updateMutation.mutate(false)}
                 onChange={setEditForm}
             />
         </>

@@ -10,6 +10,10 @@ import { SetAdminChrome } from "@widgets/AdminShell";
 import { FormattedParagraphs } from "@shared/ui/FormattedParagraphs";
 
 import { ProductTaxonomyFields } from "./ProductTaxonomyFields";
+import {
+    IMAGE_UPLOAD_HINT,
+    isAcceptedImageUpload,
+} from "@shared/lib/upload-constraints";
 
 const FormCard = styled.section`
     background: #fff;
@@ -224,6 +228,45 @@ const DragOverlayContent = styled.div`
     }
 `;
 
+const UploadProgressTrack = styled.div`
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    overflow: hidden;
+    background: rgba(45, 90, 180, 0.12);
+    pointer-events: none;
+    z-index: 4;
+`;
+
+const UploadProgressBar = styled.div`
+    width: 40%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--main-color, #3b6fd8);
+    animation: upload-progress-marquee 1.1s ease-in-out infinite;
+
+    @keyframes upload-progress-marquee {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(350%);
+        }
+    }
+`;
+
+const ModalProgressTrack = styled.div`
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(45, 90, 180, 0.12);
+`;
+
+const ModalProgressBar = styled(UploadProgressBar)``;
+
 const ImagesRailCard = styled.div`
     background: #fff;
     border-radius: 10px;
@@ -337,9 +380,14 @@ const AddPhotoThumbButton = styled.button`
         height: 18px;
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: #e6efff;
         border-color: #8fb0f0;
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: wait;
     }
 `;
 
@@ -421,9 +469,18 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
     pointer-events: ${({ $isOpen }) => ($isOpen ? "auto" : "none")};
     transition: opacity 0.2s ease;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+
+    @media (min-width: 960px) {
+        align-items: center;
+        padding: 32px;
+    }
 `;
 
 const ModalLayout = styled.div`
@@ -431,6 +488,7 @@ const ModalLayout = styled.div`
     display: flex;
     flex-direction: column;
     gap: 12px;
+    box-sizing: border-box;
 `;
 
 const ModalCard = styled.section`
@@ -607,12 +665,15 @@ const ModalProductDescription = styled(FormattedParagraphs)`
 
 const ModalActions = styled.div`
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
 `;
 
 const ModalConfirmButton = styled(PrimaryButton)`
     width: auto;
     padding: 0 20px;
+    align-self: flex-end;
 `;
 
 const LightboxOverlay = styled(motion.div)`
@@ -767,6 +828,7 @@ type AuthorProductComposerProps = {
     loading?: boolean;
     successRedirectPath?: string | null;
     hideSubmit?: boolean;
+    showUnapprovedFandomHint?: boolean;
     onRegisterSubmit?: (submit: () => Promise<void>) => void;
     onSubmitForm: (form: AuthorProductForm) => Promise<void>;
 };
@@ -805,6 +867,7 @@ export const AuthorProductComposer = ({
     loading = false,
     successRedirectPath = "/admin/products",
     hideSubmit = false,
+    showUnapprovedFandomHint = false,
     onRegisterSubmit,
     onSubmitForm,
 }: AuthorProductComposerProps) => {
@@ -910,22 +973,36 @@ export const AuthorProductComposer = ({
     }, []);
 
     const appendImages = async (files: File[]) => {
-        const accepted = files.filter((file) => file.type.startsWith("image/") && file.size <= 4 * 1024 * 1024);
+        const accepted = files.filter(isAcceptedImageUpload);
         if (accepted.length === 0) {
+            setError(
+                files.length > 0
+                    ? "Подходят только изображения до 4 МБ (JPG, PNG, WEBP, GIF)"
+                    : "Не удалось добавить изображения"
+            );
             return;
         }
-        const converted = await Promise.all(
-            accepted.map(async (file, index) => ({
-                id: `${Date.now()}-${index}`,
-                url: await readFileAsDataUrl(file),
-                file,
-            }))
-        );
-        setForm((prev) => ({
-            ...prev,
-            images: [...prev.images, ...converted],
-            coverImageId: prev.coverImageId || converted[0]?.id || "",
-        }));
+
+        setImagesLoading(true);
+        setError("");
+        try {
+            const converted = await Promise.all(
+                accepted.map(async (file, index) => ({
+                    id: `${Date.now()}-${index}`,
+                    url: await readFileAsDataUrl(file),
+                    file,
+                }))
+            );
+            setForm((prev) => ({
+                ...prev,
+                images: [...prev.images, ...converted],
+                coverImageId: prev.coverImageId || converted[0]?.id || "",
+            }));
+        } catch {
+            setError("Не удалось загрузить изображения");
+        } finally {
+            setImagesLoading(false);
+        }
     };
 
     const reorderImages = (from: number, to: number) => {
@@ -961,7 +1038,7 @@ export const AuthorProductComposer = ({
         noClick: true,
         noDragEventsBubbling: true,
         onDrop: (files) => {
-            if (files.length === 0) {
+            if (files.length === 0 || isImagesLoading) {
                 return;
             }
             void appendImages(files);
@@ -1361,9 +1438,19 @@ export const AuthorProductComposer = ({
                                     </DragOverlayContent>
                                 </DragOverlay>
                             ) : null}
+                            {isImagesLoading ? (
+                                <UploadProgressTrack role="progressbar" aria-label="Загрузка изображений" aria-busy="true">
+                                    <UploadProgressBar />
+                                </UploadProgressTrack>
+                            ) : null}
                             {form.images.length === 0 ? (
                                 <UploadPreview>
-                                    <AddPhotoThumbButton type="button" onClick={open} aria-label="Загрузить изображения товара">
+                                    <AddPhotoThumbButton
+                                        type="button"
+                                        onClick={open}
+                                        disabled={isImagesLoading}
+                                        aria-label="Загрузить изображения товара"
+                                    >
                                         <Upload aria-hidden />
                                     </AddPhotoThumbButton>
                                 </UploadPreview>
@@ -1463,7 +1550,12 @@ export const AuthorProductComposer = ({
                                                 </ThumbDeleteButton>
                                             </ProductImageThumbButton>
                                         ))}
-                                        <AddPhotoThumbButton type="button" onClick={open} aria-label="Добавить фотографии">
+                                        <AddPhotoThumbButton
+                                            type="button"
+                                            onClick={open}
+                                            disabled={isImagesLoading}
+                                            aria-label="Добавить фотографии"
+                                        >
                                             <Upload aria-hidden />
                                         </AddPhotoThumbButton>
                                     </ProductImagesRow>
@@ -1487,6 +1579,7 @@ export const AuthorProductComposer = ({
                                 </ImagesRailCard>
                             ) : null}
                                 </UploadZone>
+                                <UploadHint>{IMAGE_UPLOAD_HINT}</UploadHint>
                             </FieldGroup>
                         </ImagesColumn>
 
@@ -1533,6 +1626,7 @@ export const AuthorProductComposer = ({
                                 subcategoryLabel={form.subcategoryLabel}
                                 fandomSlug={form.fandomSlug}
                                 fandomLabel={form.fandomLabel}
+                                showUnapprovedFandomHint={showUnapprovedFandomHint}
                                 onCategoryChange={handleCategoryChange}
                                 onSubcategoryChange={handleSubcategoryChange}
                                 onFandomChange={handleFandomChange}
@@ -1648,6 +1742,11 @@ export const AuthorProductComposer = ({
                             </ModalProductLayout>
                         </ModalProductPreviewCard>
                         <ModalActions>
+                            {isSaving ? (
+                                <ModalProgressTrack role="progressbar" aria-label="Сохранение товара" aria-busy="true">
+                                    <ModalProgressBar />
+                                </ModalProgressTrack>
+                            ) : null}
                             <ModalConfirmButton
                                 type="button"
                                 disabled={isSaving}

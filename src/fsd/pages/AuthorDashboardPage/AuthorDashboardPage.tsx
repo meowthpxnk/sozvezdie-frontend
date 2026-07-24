@@ -67,12 +67,26 @@ const StatsGrid = styled.section`
     }
 `;
 
-const Card = styled.div`
+const Card = styled(Link)`
     background: #fff;
     border: 1px solid #e8ecf5;
     border-radius: 14px;
     padding: 14px;
     box-shadow: 0 8px 24px rgba(17, 31, 60, 0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+        border-color: #c5d0e6;
+        box-shadow: 0 10px 28px rgba(17, 31, 60, 0.08);
+        transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--main-color);
+        outline-offset: 2px;
+    }
 `;
 
 const Label = styled.div`
@@ -156,19 +170,25 @@ export const AuthorDashboardPage = () => {
                 </HeroCard>
 
                 <StatsGrid>
-                    <Card>
+                    <Card href="/admin/products" aria-label="Смотреть все товары">
                         <Label>Товаров</Label>
                         <Value>{dashboard.productsCount}</Value>
                     </Card>
-                    <Card>
+                    <Card href="/admin/products" aria-label="Смотреть остатки товаров">
                         <Label>Остаток (шт.)</Label>
                         <Value>{dashboard.stockTotal}</Value>
                     </Card>
-                    <Card>
+                    <Card
+                        href="/admin/products?status=PENDING"
+                        aria-label="Смотреть товары на модерации"
+                    >
                         <Label>На модерации</Label>
                         <Value>{dashboard.pendingCount}</Value>
                     </Card>
-                    <Card>
+                    <Card
+                        href="/admin/products?status=APPROVED"
+                        aria-label="Смотреть одобренные товары"
+                    >
                         <Label>Одобрено</Label>
                         <Value>{dashboard.approvedCount}</Value>
                     </Card>

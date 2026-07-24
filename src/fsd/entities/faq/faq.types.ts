@@ -2,6 +2,7 @@ export type FaqItemApiResponse = {
     id: number;
     question: string;
     answer: string;
+    isPublished: boolean;
     sortOrder: number;
 };
 
@@ -9,6 +10,7 @@ export type FaqItem = {
     id: number;
     question: string;
     answer: string;
+    isPublished: boolean;
     sortOrder: number;
 };
 
@@ -17,6 +19,7 @@ export function mapFaqItem(item: FaqItemApiResponse): FaqItem {
         id: item.id,
         question: item.question,
         answer: item.answer,
+        isPublished: Boolean(item.isPublished),
         sortOrder: item.sortOrder,
     };
 }
@@ -24,4 +27,5 @@ export function mapFaqItem(item: FaqItemApiResponse): FaqItem {
 export type FaqItemPayload = {
     question: string;
     answer: string;
+    isPublished: boolean;
 };
